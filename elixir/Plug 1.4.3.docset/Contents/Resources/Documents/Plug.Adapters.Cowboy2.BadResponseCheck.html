@@ -1,0 +1,292 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Plug.Adapters.Cowboy2.BadResponseCheck – Plug v1.4.3</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+    
+    <script src="dist/sidebar_items-dbdf267600.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="readme.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Plug
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.3
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Plug v1.4.3</small>
+        Plug.Adapters.Cowboy2.BadResponseCheck
+        
+          <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/adapters/cowboy2/bad_response_check.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#data/4">data(stream_id, is_fin, data, state)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#early_error/5">early_error(stream_id, reason, partial_req, resp, opts)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#info/3">info(stream_id, info, state)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#init/3">init(stream_id, req, opts)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#terminate/3">terminate(stream_id, reason, state)</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="data/4">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/data%2F4" class="dashAnchor"></a>
+  <a href="#data/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">data(stream_id, is_fin, data, state)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/adapters/cowboy2/bad_response_check.ex#L8" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="early_error/5">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/early_error%2F5" class="dashAnchor"></a>
+  <a href="#early_error/5" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">early_error(stream_id, reason, partial_req, resp, opts)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/adapters/cowboy2/bad_response_check.ex#L20" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="info/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/info%2F3" class="dashAnchor"></a>
+  <a href="#info/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">info(stream_id, info, state)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/adapters/cowboy2/bad_response_check.ex#L12" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="init/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/init%2F3" class="dashAnchor"></a>
+  <a href="#init/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">init(stream_id, req, opts)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/adapters/cowboy2/bad_response_check.ex#L4" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="terminate/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/terminate%2F3" class="dashAnchor"></a>
+  <a href="#terminate/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">terminate(stream_id, reason, state)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/adapters/cowboy2/bad_response_check.ex#L16" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

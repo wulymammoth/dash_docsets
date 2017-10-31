@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Plug – Plug v1.4.3</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+    
+    <script src="dist/sidebar_items-dbdf267600.js"></script>
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="readme.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Plug
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.3
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Plug</h1>
+<p><a href="https://travis-ci.org/elixir-plug/plug"><img src="https://travis-ci.org/elixir-plug/plug.svg?branch=master" alt="Build Status"/></a>
+<a href="http://inch-ci.org/github/elixir-plug/plug"><img src="http://inch-ci.org/github/elixir-plug/plug.svg?branch=master" alt="Inline docs"/></a></p>
+<p>Plug is:</p>
+<ol>
+<li>A specification for composable modules between web applications
+</li>
+<li>Connection adapters for different web servers in the Erlang VM
+</li>
+</ol>
+<p><a href="http://hexdocs.pm/plug/">Documentation for Plug is available online</a>.</p>
+<h2 id="hello-world" class="section-heading">
+  <a href="#hello-world" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Hello world
+</h2>
+
+<pre><code class="elixir">defmodule MyPlug do
+  import Plug.Conn
+
+  def init(options) do
+    # initialize options
+
+    options
+  end
+
+  def call(conn, _opts) do
+    conn
+    |&gt; put_resp_content_type(&quot;text/plain&quot;)
+    |&gt; send_resp(200, &quot;Hello world&quot;)
+  end
+end</code></pre>
+<p>The snippet above shows a very simple example on how to use Plug. Save that snippet to a file and run it inside the plug application with:</p>
+<pre><code class="elixir">$ iex -S mix
+iex&gt; c &quot;path/to/file.ex&quot;
+[MyPlug]
+iex&gt; {:ok, _} = Plug.Adapters.Cowboy.http MyPlug, []
+{:ok, #PID&lt;...&gt;}</code></pre>
+<p>Access “http://localhost:4000/“ and we are done! For now, we have directly started the server in our terminal but, for production deployments, you likely want to start it in your supervision tree. See the “Supervised handlers” section below.</p>
+<h2 id="installation" class="section-heading">
+  <a href="#installation" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Installation
+</h2>
+
+<p>You can use plug in your projects in two steps:</p>
+<ol>
+<li><p>Add plug and your webserver of choice (currently cowboy) to your <code class="inline">mix.exs</code> dependencies:</p>
+<pre><code class="elixir">def deps do
+  [{:cowboy, &quot;~&gt; 1.0.0&quot;},
+   {:plug, &quot;~&gt; 1.0&quot;}]
+end</code></pre>
+</li>
+<li><p>List both <code class="inline">:cowboy</code> and <code class="inline">:plug</code> as your application dependencies:</p>
+<pre><code class="elixir">def application do
+  [applications: [:cowboy, :plug]]
+end</code></pre>
+</li>
+</ol>
+<h2 id="supported-versions" class="section-heading">
+  <a href="#supported-versions" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Supported Versions
+</h2>
+
+<table>
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left">Branch</th><th style="text-align: left">Support</th>
+</tr>
+</thead>
+<tr>
+<td style="text-align: left">v1.4</td><td style="text-align: left">Bug fixes</td>
+</tr>
+<tr>
+<td style="text-align: left">v1.3</td><td style="text-align: left">Security patches only</td>
+</tr>
+<tr>
+<td style="text-align: left">v1.2</td><td style="text-align: left">Security patches only</td>
+</tr>
+<tr>
+<td style="text-align: left">v1.1</td><td style="text-align: left">Security patches only</td>
+</tr>
+<tr>
+<td style="text-align: left">v1.0</td><td style="text-align: left">Unsupported from 05/2017</td>
+</tr>
+</table>
+<h2 id="the-plug-conn" class="section-heading">
+  <a href="#the-plug-conn" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  The Plug.Conn
+</h2>
+
+<p>In the hello world example, we defined our first plug. What is a plug after all?</p>
+<p>A plug takes two shapes. A function plug receives a connection and a set of options as arguments and returns the connection:</p>
+<pre><code class="elixir">def hello_world_plug(conn, _opts) do
+  conn
+  |&gt; put_resp_content_type(&quot;text/plain&quot;)
+  |&gt; send_resp(200, &quot;Hello world&quot;)
+end</code></pre>
+<p>A module plug implements an <code class="inline">init/1</code> function to initialize the options and a <code class="inline">call/2</code> function which receives the connection and initialized options and returns the connection:</p>
+<pre><code class="elixir">defmodule MyPlug do
+  def init([]), do: false
+  def call(conn, _opts), do: conn
+end</code></pre>
+<p>As per the specification above, a connection is represented by the <a href="Plug.Conn.html"><code class="inline">Plug.Conn</code></a> struct:</p>
+<pre><code class="elixir">%Plug.Conn{host: &quot;www.example.com&quot;,
+           path_info: [&quot;bar&quot;, &quot;baz&quot;],
+           ...}</code></pre>
+<p>Data can be read directly from the connection and also pattern matched on. Manipulating the connection often happens with the use of the functions defined in the <a href="Plug.Conn.html"><code class="inline">Plug.Conn</code></a> module. In our example, both <code class="inline">put_resp_content_type/2</code> and <code class="inline">send_resp/3</code> are defined in <a href="Plug.Conn.html"><code class="inline">Plug.Conn</code></a>.</p>
+<p>Remember that, as everything else in Elixir, <strong>a connection is immutable</strong>, so every manipulation returns a new copy of the connection:</p>
+<pre><code class="elixir">conn = put_resp_content_type(conn, &quot;text/plain&quot;)
+conn = send_resp(conn, 200, &quot;ok&quot;)
+conn</code></pre>
+<p>Finally, keep in mind that a connection is a <strong>direct interface to the underlying web server</strong>. When you call <code class="inline">send_resp/3</code> above, it will immediately send the given status and body back to the client. This makes features like streaming a breeze to work with.</p>
+<h2 id="the-plug-router" class="section-heading">
+  <a href="#the-plug-router" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  The Plug Router
+</h2>
+
+<p>In practice, developers rarely write their own plugs. For example, Plug ships with a router that allows developers to quickly match on incoming requests and perform some action:</p>
+<pre><code class="elixir">defmodule MyRouter do
+  use Plug.Router
+
+  plug :match
+  plug :dispatch
+
+  get &quot;/hello&quot; do
+    send_resp(conn, 200, &quot;world&quot;)
+  end
+
+  forward &quot;/users&quot;, to: UsersRouter
+
+  match _ do
+    send_resp(conn, 404, &quot;oops&quot;)
+  end
+end</code></pre>
+<p>The router is a plug and, not only that, it contains its own plug pipeline too. The example above says that when the router is invoked, it will invoke the <code class="inline">:match</code> plug, represented by a local <code class="inline">match/2</code> function, and then call the <code class="inline">:dispatch</code> plug which will execute the matched code.</p>
+<p>Plug ships with many plugs that you can add to the router plug pipeline, allowing you to plug something before a route matches or before a route is dispatched to. For example, if you want to add logging to the router, just do:</p>
+<pre><code class="elixir">plug Plug.Logger
+plug :match
+plug :dispatch</code></pre>
+<p>Note <code class="inline">Plug.Router</code> compiles all of your routes into a single function and relies on the Erlang VM to optimize the underlying routes into a tree lookup, instead of a linear lookup that would instead match route-per-route. This means route lookups are extremely fast in Plug!</p>
+<p>This also means that a catch all <code class="inline">match</code> is recommended to be defined, as in the example above, otherwise routing fails with a function clause error (as it would in any regular Elixir function).</p>
+<p>Each route needs to return the connection as per the Plug specification. See <a href="Plug.Router.html"><code class="inline">Plug.Router</code></a> docs for more information.</p>
+<h2 id="supervised-handlers" class="section-heading">
+  <a href="#supervised-handlers" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Supervised handlers
+</h2>
+
+<p>On a production system, you likely want to start your Plug application under your application’s supervision tree. Plug provides the <code class="inline">child_spec/3</code> function to do just that. Start a new Elixir project with the <code class="inline">--sup</code> flag:</p>
+<pre><code class="elixir">$ mix new my_app --sup</code></pre>
+<p>and then update <code class="inline">lib/my_app.ex</code> as follows:</p>
+<pre><code class="elixir">defmodule MyApp do
+  use Application
+
+  # See https://hexdocs.pm/elixir/Application.html
+  # for more information on OTP Applications
+  def start(_type, _args) do
+    import Supervisor.Spec
+
+    children = [
+      # Define workers and child supervisors to be supervised
+      Plug.Adapters.Cowboy.child_spec(:http, MyRouter, [], [port: 4001])
+    ]
+
+    # See https://hexdocs.pm/elixir/Supervisor.html
+    # for other strategies and supported options
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+end</code></pre>
+<h2 id="testing-plugs" class="section-heading">
+  <a href="#testing-plugs" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Testing plugs
+</h2>
+
+<p>Plug ships with a <a href="Plug.Test.html"><code class="inline">Plug.Test</code></a> module that makes testing your plugs easy. Here is how we can test the router from above (or any other plug):</p>
+<pre><code class="elixir">defmodule MyPlugTest do
+  use ExUnit.Case, async: true
+  use Plug.Test
+
+  @opts MyRouter.init([])
+
+  test &quot;returns hello world&quot; do
+    # Create a test connection
+    conn = conn(:get, &quot;/hello&quot;)
+
+    # Invoke the plug
+    conn = MyRouter.call(conn, @opts)
+
+    # Assert the response and status
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == &quot;world&quot;
+  end
+end</code></pre>
+<h3 id="available-plugs" class="section-heading">
+  <a href="#available-plugs" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Available Plugs
+</h3>
+
+<p>This project aims to ship with different plugs that can be re-used across applications:</p>
+<ul>
+<li><a href="Plug.CSRFProtection.html"><code class="inline">Plug.CSRFProtection</code></a> - adds Cross-Site Request Forgery protection to your application. Typically required if you are using <a href="Plug.Session.html"><code class="inline">Plug.Session</code></a>;
+</li>
+<li><a href="Plug.Head.html"><code class="inline">Plug.Head</code></a> - converts HEAD requests to GET requests;
+</li>
+<li><a href="Plug.Logger.html"><code class="inline">Plug.Logger</code></a> - logs requests;
+</li>
+<li><a href="Plug.MethodOverride.html"><code class="inline">Plug.MethodOverride</code></a> - overrides a request method with one specified in headers;
+</li>
+<li><a href="Plug.Parsers.html"><code class="inline">Plug.Parsers</code></a> - responsible for parsing the request body given its content-type;
+</li>
+<li><a href="Plug.RequestId.html"><code class="inline">Plug.RequestId</code></a> - sets up a request ID to be used in logs;
+</li>
+<li><a href="Plug.Session.html"><code class="inline">Plug.Session</code></a> - handles session management and storage;
+</li>
+<li><a href="Plug.SSL.html"><code class="inline">Plug.SSL</code></a> - enforce requests through SSL;
+</li>
+<li><a href="Plug.Static.html"><code class="inline">Plug.Static</code></a> - serves static files;
+</li>
+</ul>
+<p>You can go into more details about each of them <a href="http://hexdocs.pm/plug/">in our docs</a>.</p>
+<h3 id="helper-modules" class="section-heading">
+  <a href="#helper-modules" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Helper modules
+</h3>
+
+<p>Modules that can be used after you use <a href="Plug.Router.html"><code class="inline">Plug.Router</code></a> or <a href="Plug.Builder.html"><code class="inline">Plug.Builder</code></a> to help development:</p>
+<ul>
+<li><a href="Plug.Debugger.html"><code class="inline">Plug.Debugger</code></a> - shows a helpful debugging page every time there is a failure in a request;
+</li>
+<li><a href="Plug.ErrorHandler.html"><code class="inline">Plug.ErrorHandler</code></a> - allows developers to customize error pages in case of crashes instead of sending a blank one;
+</li>
+</ul>
+<h2 id="contributing" class="section-heading">
+  <a href="#contributing" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Contributing
+</h2>
+
+<p>We welcome everyone to contribute to Plug and help us tackle existing issues!</p>
+<p>Use the <a href="https://github.com/elixir-plug/plug/issues" title="">issue tracker</a> for bug reports or feature requests. You may also start a discussion on the <a href="https://groups.google.com/group/elixir-lang-core" title="">mailing list</a> or the <strong><a href="https://webchat.freenode.net/?channels=#elixir-lang" title="">#elixir-lang</a></strong> channel on <a href="http://www.freenode.net" title="">Freenode</a> IRC. Open a <a href="https://github.com/elixir-plug/plug/pulls" title="">pull request</a> when you are ready to contribute.</p>
+<p>When submitting a pull request you should not update the <code class="inline">CHANGELOG.md</code>.</p>
+<p>If you are planning to contribute documentation, <a href="http://elixir-lang.org/docs/stable/elixir/writing-documentation.html" title="">please check our best practices for writing documentation</a>.</p>
+<p>Finally, remember all interactions in our official spaces follow our <a href="https://github.com/elixir-lang/elixir/blob/master/CODE_OF_CONDUCT.md" title="">Code of Conduct</a>.</p>
+<h2 id="license" class="section-heading">
+  <a href="#license" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  License
+</h2>
+
+<p>Plug source code is released under Apache 2 License.
+Check LICENSE file for more information.</p>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

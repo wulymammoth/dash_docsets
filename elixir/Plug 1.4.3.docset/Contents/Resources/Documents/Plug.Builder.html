@@ -1,0 +1,403 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Plug.Builder – Plug v1.4.3</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+    
+    <script src="dist/sidebar_items-dbdf267600.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="readme.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Plug
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.3
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Plug v1.4.3</small>
+        Plug.Builder
+        
+          <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/builder.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Conveniences for building plugs.</p>
+<p>This module can be <code class="inline">use</code>-d into a module in order to build
+a plug pipeline:</p>
+<pre><code class="elixir">defmodule MyApp do
+  use Plug.Builder
+
+  plug Plug.Logger
+  plug :hello, upper: true
+
+  # A function from another module can be plugged too, provided it&#39;s
+  # imported into the current module first.
+  import AnotherModule, only: [interesting_plug: 2]
+  plug :interesting_plug
+
+  def hello(conn, opts) do
+    body = if opts[:upper], do: &quot;WORLD&quot;, else: &quot;world&quot;
+    send_resp(conn, 200, body)
+  end
+end</code></pre>
+<p>Multiple plugs can be defined with the <a href="#plug/2"><code class="inline">plug/2</code></a> macro, forming a pipeline.
+The plugs in the pipeline will be executed in the order they’ve been added
+through the <a href="#plug/2"><code class="inline">plug/2</code></a> macro. In the example above, <a href="Plug.Logger.html"><code class="inline">Plug.Logger</code></a> will be
+called first and then the <code class="inline">:hello</code> function plug will be called on the
+resulting connection.</p>
+<p><a href="Plug.Builder.html#content"><code class="inline">Plug.Builder</code></a> also imports the <a href="Plug.Conn.html"><code class="inline">Plug.Conn</code></a> module, making functions like
+<code class="inline">send_resp/3</code> available.</p>
+<h2 id="module-options" class="section-heading">
+  <a href="#module-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>When used, the following options are accepted by <a href="Plug.Builder.html#content"><code class="inline">Plug.Builder</code></a>:</p>
+<ul>
+<li><code class="inline">:log_on_halt</code> - accepts the level to log whenever the request is halted
+</li>
+</ul>
+<h2 id="module-plug-behaviour" class="section-heading">
+  <a href="#module-plug-behaviour" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Plug behaviour
+</h2>
+
+<p>Internally, <a href="Plug.Builder.html#content"><code class="inline">Plug.Builder</code></a> implements the <a href="Plug.html"><code class="inline">Plug</code></a> behaviour, which means both
+the <code class="inline">init/1</code> and <code class="inline">call/2</code> functions are defined.</p>
+<p>By implementing the Plug API, <a href="Plug.Builder.html#content"><code class="inline">Plug.Builder</code></a> guarantees this module is a plug
+and can be handed to a web server or used as part of another pipeline.</p>
+<h2 id="module-overriding-the-default-plug-api-functions" class="section-heading">
+  <a href="#module-overriding-the-default-plug-api-functions" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Overriding the default Plug API functions
+</h2>
+
+<p>Both the <code class="inline">init/1</code> and <code class="inline">call/2</code> functions defined by <a href="Plug.Builder.html#content"><code class="inline">Plug.Builder</code></a> can be
+manually overridden. For example, the <code class="inline">init/1</code> function provided by
+<a href="Plug.Builder.html#content"><code class="inline">Plug.Builder</code></a> returns the options that it receives as an argument, but its
+behaviour can be customized:</p>
+<pre><code class="elixir">defmodule PlugWithCustomOptions do
+  use Plug.Builder
+  plug Plug.Logger
+
+  def init(opts) do
+    opts
+  end
+end</code></pre>
+<p>The <code class="inline">call/2</code> function that <a href="Plug.Builder.html#content"><code class="inline">Plug.Builder</code></a> provides is used internally to
+execute all the plugs listed using the <code class="inline">plug</code> macro, so overriding the
+<code class="inline">call/2</code> function generally implies using <code class="inline">super</code> in order to still call the
+plug chain:</p>
+<pre><code class="elixir">defmodule PlugWithCustomCall do
+  use Plug.Builder
+  plug Plug.Logger
+  plug Plug.Head
+
+  def call(conn, opts) do
+    conn
+    |&gt; super(opts) # calls Plug.Logger and Plug.Head
+    |&gt; assign(:called_all_plugs, true)
+  end
+end</code></pre>
+<h2 id="module-halting-a-plug-pipeline" class="section-heading">
+  <a href="#module-halting-a-plug-pipeline" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Halting a plug pipeline
+</h2>
+
+<p>A plug pipeline can be halted with <a href="Plug.Conn.html#halt/1"><code class="inline">Plug.Conn.halt/1</code></a>. The builder will
+prevent further plugs downstream from being invoked and return the current
+connection. In the following example, the <a href="Plug.Logger.html"><code class="inline">Plug.Logger</code></a> plug never gets
+called:</p>
+<pre><code class="elixir">defmodule PlugUsingHalt do
+  use Plug.Builder
+
+  plug :stopper
+  plug Plug.Logger
+
+  def stopper(conn, _opts) do
+    halt(conn)
+  end
+end</code></pre>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:plug/0">plug()</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#compile/3">compile(env, pipeline, builder_opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Compiles a plug pipeline</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#plug/2">plug(plug, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>A macro that stores a new plug. <code class="inline">opts</code> will be passed unchanged to the new
+plug</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:plug/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/plug" class="dashAnchor"></a>
+  <a href="#t:plug/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">plug()</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/builder.ex#L100" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>plug() :: module | atom</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="compile/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/compile%2F3" class="dashAnchor"></a>
+  <a href="#compile/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">compile(env, pipeline, builder_opts)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/builder.ex#L180" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>compile(<a href="https://hexdocs.pm/elixir/Macro.Env.html#t:t/0">Macro.Env.t</a>, [{<a href="#t:plug/0">plug</a>, <a href="Plug.html#t:opts/0">Plug.opts</a>, <a href="https://hexdocs.pm/elixir/Macro.html#t:t/0">Macro.t</a>}], <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: {<a href="https://hexdocs.pm/elixir/Macro.html#t:t/0">Macro.t</a>, <a href="https://hexdocs.pm/elixir/Macro.html#t:t/0">Macro.t</a>}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Compiles a plug pipeline.</p>
+<p>Each element of the plug pipeline (according to the type signature of this
+function) has the form:</p>
+<pre><code class="elixir">{plug_name, options, guards}</code></pre>
+<p>Note that this function expects a reversed pipeline (with the last plug that
+has to be called coming first in the pipeline).</p>
+<p>The function returns a tuple with the first element being a quoted reference
+to the connection and the second element being the compiled quoted pipeline.</p>
+<h2 id="compile/3-examples" class="section-heading">
+  <a href="#compile/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">Plug.Builder.compile(env, [
+  {Plug.Logger, [], true}, # no guards, as added by the Plug.Builder.plug/2 macro
+  {Plug.Head, [], quote(do: a when is_binary(a))}
+], [])</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="plug/2">
+  
+  
+    <span id="plug/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/plug%2F2" class="dashAnchor"></a>
+  <a href="#plug/2" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">plug(plug, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/builder.ex#L151" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>A macro that stores a new plug. <code class="inline">opts</code> will be passed unchanged to the new
+plug.</p>
+<p>This macro doesn’t add any guards when adding the new plug to the pipeline;
+for more information about adding plugs with guards see <code class="inline">compile/1</code>.</p>
+<h2 id="plug/2-examples" class="section-heading">
+  <a href="#plug/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">plug Plug.Logger               # plug module
+plug :foo, some_options: true  # plug function</code></pre>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

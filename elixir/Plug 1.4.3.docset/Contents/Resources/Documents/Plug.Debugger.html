@@ -1,0 +1,184 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Plug.Debugger – Plug v1.4.3</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+    
+    <script src="dist/sidebar_items-dbdf267600.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="readme.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Plug
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.3
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Plug v1.4.3</small>
+        Plug.Debugger
+        
+          <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/debugger.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>A module (<strong>not a plug</strong>) for debugging in development.</p>
+<p>This module is commonly used within a <a href="Plug.Builder.html"><code class="inline">Plug.Builder</code></a> or a <a href="Plug.Router.html"><code class="inline">Plug.Router</code></a>
+and it wraps the <code class="inline">call/2</code> function.</p>
+<p>Notice <a href="Plug.Debugger.html#content"><code class="inline">Plug.Debugger</code></a> <em>does not</em> catch errors, as errors should still
+propagate so that the Elixir process finishes with the proper reason.
+This module does not perform any logging either, as all logging is done
+by the web server handler.</p>
+<p><strong>Note:</strong> If this module is used with <a href="Plug.ErrorHandler.html"><code class="inline">Plug.ErrorHandler</code></a>, only one of
+them will effectively handle errors. For this reason, it is recommended
+that <a href="Plug.Debugger.html#content"><code class="inline">Plug.Debugger</code></a> is used before <a href="Plug.ErrorHandler.html"><code class="inline">Plug.ErrorHandler</code></a> and only in
+particular environments, like <code class="inline">:dev</code>.</p>
+<h2 id="module-examples" class="section-heading">
+  <a href="#module-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">defmodule MyApp do
+  use Plug.Builder
+
+  if Mix.env == :dev do
+    use Plug.Debugger, otp_app: :my_app
+  end
+
+  plug :boom
+
+  def boom(conn, _) do
+    # Error raised here will be caught and displayed in a debug page
+    # complete with a stacktrace and other helpful info.
+    raise &quot;oops&quot;
+  end
+end</code></pre>
+<h2 id="module-options" class="section-heading">
+  <a href="#module-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:otp_app</code> - the OTP application that is using Plug. This option is used
+to filter stacktraces that belong only to the given application.
+</li>
+<li><code class="inline">:style</code> - custom styles (see below)
+</li>
+</ul>
+<h2 id="module-custom-styles" class="section-heading">
+  <a href="#module-custom-styles" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Custom styles
+</h2>
+
+<p>You may pass a <code class="inline">:style</code> option to customize the look of the HTML page.</p>
+<pre><code class="elixir">use Plug.Debugger, style:
+  [primary: &quot;#c0392b&quot;, logo: &quot;data:image/png;base64,...&quot;]</code></pre>
+<p>The following keys are available:</p>
+<ul>
+<li><code class="inline">:primary</code> - primary color
+</li>
+<li><code class="inline">:accent</code> - accent color
+</li>
+<li><code class="inline">:logo</code> - logo URI, or <code class="inline">nil</code> to disable
+</li>
+</ul>
+<p>The <code class="inline">:logo</code> is preferred to be a base64-encoded data URI so not to make any
+external requests, though external URLs (eg, <code class="inline">https://...</code>) are supported.</p>
+<h2 id="module-links-to-the-text-editor" class="section-heading">
+  <a href="#module-links-to-the-text-editor" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Links to the text editor
+</h2>
+
+<p>If a <code class="inline">PLUG_EDITOR</code> environment variable is set, <a href="Plug.Debugger.html#content"><code class="inline">Plug.Debugger</code></a> will
+use it to generate links to your text editor. The variable should be
+set with <code class="inline">__FILE__</code> and <code class="inline">__LINE__</code> placeholders which will be correctly
+replaced. For example (with the <a href="http://macromates.com">TextMate</a> editor):</p>
+<pre><code class="elixir">txmt://open/?url=file://__FILE__&amp;line=__LINE__</code></pre>
+
+        </section>
+      
+
+      
+
+      
+
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

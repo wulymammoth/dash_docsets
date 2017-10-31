@@ -1,0 +1,398 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Plug.Adapters.Cowboy2 – Plug v1.4.3</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+    
+    <script src="dist/sidebar_items-dbdf267600.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="readme.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Plug
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.3
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Plug v1.4.3</small>
+        Plug.Adapters.Cowboy2
+        
+          <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/adapters/cowboy2.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Adapter interface to the Cowboy2 webserver.</p>
+<h2 id="module-options" class="section-heading">
+  <a href="#module-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:ip</code> - the ip to bind the server to.
+Must be either a tuple in the format <code class="inline">{a, b, c, d}</code> with each value in <code class="inline">0..255</code> for IPv4
+or a tuple in the format <code class="inline">{a, b, c, d, e, f, g, h}</code> with each value in <code class="inline">0..65535</code> for IPv6.</p>
+</li>
+<li><p><code class="inline">:port</code> - the port to run the server.
+Defaults to 4000 (http) and 4040 (https).</p>
+</li>
+<li><p><code class="inline">:acceptors</code> - the number of acceptors for the listener.
+Defaults to 100.</p>
+</li>
+<li><p><code class="inline">:max_connections</code> - max number of connections supported.
+Defaults to <code class="inline">16_384</code>.</p>
+</li>
+<li><p><code class="inline">:dispatch</code> - manually configure Cowboy’s dispatch.
+If this option is used, the given plug won’t be initialized
+nor dispatched to (and doing so becomes the user’s responsibility).</p>
+</li>
+<li><p><code class="inline">:ref</code> - the reference name to be used.
+Defaults to <code class="inline">plug.HTTP</code> (http) and <code class="inline">plug.HTTPS</code> (https).
+This is the value that needs to be given on shutdown.</p>
+</li>
+<li><p><code class="inline">:compress</code> - Cowboy will attempt to compress the response body.
+Defaults to false.</p>
+</li>
+<li><p><code class="inline">:timeout</code> - Time in ms with no requests before Cowboy closes the connection.
+Defaults to 5000ms.</p>
+</li>
+<li><p><code class="inline">:protocol_options</code> - Specifies remaining protocol options,
+see <a href="https://ninenines.eu/docs/en/cowboy/2.0/manual/cowboy_http/">Cowboy docs</a>.</p>
+</li>
+</ul>
+<p>All other options are given to the underlying transport.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#child_spec/1">child_spec(opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>A function for starting a Cowboy2 server under Elixir v1.5 supervisors</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#http/3">http(plug, opts, cowboy_options \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Runs cowboy under http</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#https/3">https(plug, opts, cowboy_options \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Runs cowboy under https</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#shutdown/1">shutdown(ref)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Shutdowns the given reference</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="child_spec/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/child_spec%2F1" class="dashAnchor"></a>
+  <a href="#child_spec/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">child_spec(opts)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/adapters/cowboy2.ex#L138" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>A function for starting a Cowboy2 server under Elixir v1.5 supervisors.</p>
+<p>It expects three options:</p>
+<ul>
+<li><code class="inline">:scheme</code> - either <code class="inline">:http</code> or <code class="inline">:https</code>
+</li>
+<li><code class="inline">:plug</code> - such as MyPlug or {MyPlug, plug_opts}
+</li>
+<li><code class="inline">:options</code> - the server options as specified in the module documentation
+</li>
+</ul>
+<h2 id="child_spec/1-examples" class="section-heading">
+  <a href="#child_spec/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<p>Assuming your Plug module is named <code class="inline">MyApp</code> you can add it to your
+supervision tree by using this function:</p>
+<pre><code class="elixir">children = [
+  {Plug.Adapters.Cowboy2, scheme: :http, plug: MyApp, options: [port: 4040]}
+]
+
+Supervisor.start_link(children, strategy: :one_for_one)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="http/3">
+  
+  
+    <span id="http/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/http%2F3" class="dashAnchor"></a>
+  <a href="#http/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">http(plug, opts, cowboy_options \\ [])</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/adapters/cowboy2.ex#L71" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>http(module, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, pid} |
+  {:error, :eaddrinuse} |
+  {:error, term}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Runs cowboy under http.</p>
+<h2 id="http/3-example" class="section-heading">
+  <a href="#http/3-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="elixir"># Starts a new interface
+Plug.Adapters.Cowboy2.http MyPlug, [], port: 80
+
+# The interface above can be shutdown with
+Plug.Adapters.Cowboy2.shutdown MyPlug.HTTP</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="https/3">
+  
+  
+    <span id="https/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/https%2F3" class="dashAnchor"></a>
+  <a href="#https/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">https(plug, opts, cowboy_options \\ [])</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/adapters/cowboy2.ex#L105" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>https(module, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, pid} |
+  {:error, :eaddrinuse} |
+  {:error, term}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Runs cowboy under https.</p>
+<p>Besides the options described in the module documentation,
+this module also accepts all options defined in [the <code class="inline">ssl</code>
+erlang module] (http://www.erlang.org/doc/man/ssl.html),
+like keyfile, certfile, cacertfile, dhfile and others.</p>
+<p>The certificate files can be given as a relative path.
+For such, the <code class="inline">:otp_app</code> option must also be given and
+certificates will be looked from the priv directory of
+the given application.</p>
+<h2 id="https/3-example" class="section-heading">
+  <a href="#https/3-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="elixir"># Starts a new interface
+Plug.Adapters.Cowboy2.https MyPlug, [],
+  port: 443,
+  password: &quot;SECRET&quot;,
+  otp_app: :my_app,
+  keyfile: &quot;priv/ssl/key.pem&quot;,
+  certfile: &quot;priv/ssl/cert.pem&quot;,
+  dhfile: &quot;priv/ssl/dhparam.pem&quot;
+
+# The interface above can be shutdown with
+Plug.Adapters.Cowboy2.shutdown MyPlug.HTTPS</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="shutdown/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/shutdown%2F1" class="dashAnchor"></a>
+  <a href="#shutdown/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">shutdown(ref)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/adapters/cowboy2.ex#L113" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Shutdowns the given reference.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>API Reference – Plug v1.4.3</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+    
+    <script src="dist/sidebar_items-dbdf267600.js"></script>
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="readme.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Plug
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.3
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>
+  <small class="visible-xs">Plug v1.4.3</small>
+  API Reference
+</h1>
+
+
+  <section class="details-list">
+    <h2 id="modules" class="section-heading">
+  <a href="#modules" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Modules
+</h2>
+
+    <div class="summary">
+      <div class="summary-row">
+  <div class="summary-signature"><a href="Plug.html">Plug</a></div>
+  
+    <div class="summary-synopsis"><p>The plug specification</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Adapters.Cowboy.html">Plug.Adapters.Cowboy</a></div>
+  
+    <div class="summary-synopsis"><p>Adapter interface to the Cowboy webserver</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Adapters.Cowboy2.html">Plug.Adapters.Cowboy2</a></div>
+  
+    <div class="summary-synopsis"><p>Adapter interface to the Cowboy2 webserver</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Adapters.Cowboy2.BadResponseCheck.html">Plug.Adapters.Cowboy2.BadResponseCheck</a></div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Adapters.Translator.html">Plug.Adapters.Translator</a></div>
+  
+    <div class="summary-synopsis"><p>A translator module shared by adapters that ship with Plug</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Builder.html">Plug.Builder</a></div>
+  
+    <div class="summary-synopsis"><p>Conveniences for building plugs</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.CSRFProtection.html">Plug.CSRFProtection</a></div>
+  
+    <div class="summary-synopsis"><p>Plug to protect from cross-site request forgery</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Conn.html">Plug.Conn</a></div>
+  
+    <div class="summary-synopsis"><p>The Plug connection</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Conn.Adapter.html">Plug.Conn.Adapter</a></div>
+  
+    <div class="summary-synopsis"><p>Specification of the connection adapter API implemented by webservers</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Conn.Cookies.html">Plug.Conn.Cookies</a></div>
+  
+    <div class="summary-synopsis"><p>Conveniences for encoding and decoding cookies</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Conn.Query.html">Plug.Conn.Query</a></div>
+  
+    <div class="summary-synopsis"><p>Conveniences for decoding and encoding url encoded queries</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Conn.Status.html">Plug.Conn.Status</a></div>
+  
+    <div class="summary-synopsis"><p>Conveniences for working with status codes</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Conn.Unfetched.html">Plug.Conn.Unfetched</a></div>
+  
+    <div class="summary-synopsis"><p>A struct used as default on unfetched fields</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Conn.Utils.html">Plug.Conn.Utils</a></div>
+  
+    <div class="summary-synopsis"><p>Utilities for working with connection data</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Crypto.html">Plug.Crypto</a></div>
+  
+    <div class="summary-synopsis"><p>Namespace and module for Crypto functionality</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Crypto.KeyGenerator.html">Plug.Crypto.KeyGenerator</a></div>
+  
+    <div class="summary-synopsis"><p><code class="inline">KeyGenerator</code> implements PBKDF2 (Password-Based Key Derivation Function 2),
+part of PKCS #5 v2.0 (Password-Based Cryptography Specification)</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Crypto.MessageEncryptor.html">Plug.Crypto.MessageEncryptor</a></div>
+  
+    <div class="summary-synopsis"><p><code class="inline">MessageEncryptor</code> is a simple way to encrypt values which get stored
+somewhere you don’t trust</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Crypto.MessageVerifier.html">Plug.Crypto.MessageVerifier</a></div>
+  
+    <div class="summary-synopsis"><p><code class="inline">MessageVerifier</code> makes it easy to generate and verify messages
+which are signed to prevent tampering</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Debugger.html">Plug.Debugger</a></div>
+  
+    <div class="summary-synopsis"><p>A module (<strong>not a plug</strong>) for debugging in development</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.ErrorHandler.html">Plug.ErrorHandler</a></div>
+  
+    <div class="summary-synopsis"><p>A module to be used in your existing plugs in order to provide
+error handling</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Exception.html">Plug.Exception</a></div>
+  
+    <div class="summary-synopsis"><p>A protocol that extends exceptions to be status-code aware</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.HTML.html">Plug.HTML</a></div>
+  
+    <div class="summary-synopsis"><p>Conveniences for generating HTML</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Head.html">Plug.Head</a></div>
+  
+    <div class="summary-synopsis"><p>A Plug to convert <code class="inline">HEAD</code> requests to <code class="inline">GET</code> requests</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Logger.html">Plug.Logger</a></div>
+  
+    <div class="summary-synopsis"><p>A plug for logging basic request information in the format</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.MethodOverride.html">Plug.MethodOverride</a></div>
+  
+    <div class="summary-synopsis"><p>This plug overrides the request’s <code class="inline">POST</code> method with the method defined in
+the <code class="inline">_method</code> request parameter</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Parsers.html">Plug.Parsers</a></div>
+  
+    <div class="summary-synopsis"><p>A plug for parsing the request body</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Parsers.JSON.html">Plug.Parsers.JSON</a></div>
+  
+    <div class="summary-synopsis"><p>Parses JSON request body</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Parsers.MULTIPART.html">Plug.Parsers.MULTIPART</a></div>
+  
+    <div class="summary-synopsis"><p>Parses multipart request body</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Parsers.URLENCODED.html">Plug.Parsers.URLENCODED</a></div>
+  
+    <div class="summary-synopsis"><p>Parses urlencoded request body</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.RequestId.html">Plug.RequestId</a></div>
+  
+    <div class="summary-synopsis"><p>A plug for generating a unique request id for each request. A generated
+request id will in the format “uq8hs30oafhj5vve8ji5pmp7mtopc08f”</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Router.html">Plug.Router</a></div>
+  
+    <div class="summary-synopsis"><p>A DSL to define a routing algorithm that works with Plug</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.SSL.html">Plug.SSL</a></div>
+  
+    <div class="summary-synopsis"><p>A plug to force SSL connections</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Session.html">Plug.Session</a></div>
+  
+    <div class="summary-synopsis"><p>A plug to handle session cookies and session stores</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Session.COOKIE.html">Plug.Session.COOKIE</a></div>
+  
+    <div class="summary-synopsis"><p>Stores the session in a cookie</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Session.ETS.html">Plug.Session.ETS</a></div>
+  
+    <div class="summary-synopsis"><p>Stores the session in an in-memory ETS table</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Session.Store.html">Plug.Session.Store</a></div>
+  
+    <div class="summary-synopsis"><p>Specification for session stores</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Static.html">Plug.Static</a></div>
+  
+    <div class="summary-synopsis"><p>A plug for serving static assets</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Test.html">Plug.Test</a></div>
+  
+    <div class="summary-synopsis"><p>Conveniences for testing plugs</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Upload.html">Plug.Upload</a></div>
+  
+    <div class="summary-synopsis"><p>A server (a <a href="https://hexdocs.pm/elixir/GenServer.html"><code class="inline">GenServer</code></a> specifically) that manages uploaded files</p>
+</div>
+  
+</div>
+
+    </div>
+  </section>
+
+
+
+  <section class="details-list">
+    <h2 id="exceptions" class="section-heading">
+  <a href="#exceptions" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Exceptions
+</h2>
+
+    <div class="summary">
+      <div class="summary-row">
+  <div class="summary-signature"><a href="Plug.BadRequestError.html">Plug.BadRequestError</a></div>
+  
+    <div class="summary-synopsis"><p>The request will not be processed due to a client error</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.CSRFProtection.InvalidCSRFTokenError.html">Plug.CSRFProtection.InvalidCSRFTokenError</a></div>
+  
+    <div class="summary-synopsis"><p>Error raised when CSRF token is invalid</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.CSRFProtection.InvalidCrossOriginRequestError.html">Plug.CSRFProtection.InvalidCrossOriginRequestError</a></div>
+  
+    <div class="summary-synopsis"><p>Error raised when non-XHR requests are used for Javascript responses</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Conn.AlreadySentError.html">Plug.Conn.AlreadySentError</a></div>
+  
+    <div class="summary-synopsis"><p>Error raised when trying to modify or send an already sent response</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Conn.CookieOverflowError.html">Plug.Conn.CookieOverflowError</a></div>
+  
+    <div class="summary-synopsis"><p>Error raised when the cookie exceeds the maximum size of 4096 bytes</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Conn.InvalidHeaderError.html">Plug.Conn.InvalidHeaderError</a></div>
+  
+    <div class="summary-synopsis"><p>Error raised when trying to send a header that has errors, for example</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Conn.InvalidQueryError.html">Plug.Conn.InvalidQueryError</a></div>
+  
+    <div class="summary-synopsis"><p>Raised when the request string is malformed, for example</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Conn.NotSentError.html">Plug.Conn.NotSentError</a></div>
+  
+    <div class="summary-synopsis"><p>Error raised when no response is sent in a request</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Conn.WrapperError.html">Plug.Conn.WrapperError</a></div>
+  
+    <div class="summary-synopsis"><p>Wraps the connection in an error which is meant
+to be handled upper in the stack</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Parsers.BadEncodingError.html">Plug.Parsers.BadEncodingError</a></div>
+  
+    <div class="summary-synopsis"><p>Raised when the request body contains bad encoding</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Parsers.ParseError.html">Plug.Parsers.ParseError</a></div>
+  
+    <div class="summary-synopsis"><p>Error raised when the request body is malformed</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Parsers.RequestTooLargeError.html">Plug.Parsers.RequestTooLargeError</a></div>
+  
+    <div class="summary-synopsis"><p>Error raised when the request is too large</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Parsers.UnsupportedMediaTypeError.html">Plug.Parsers.UnsupportedMediaTypeError</a></div>
+  
+    <div class="summary-synopsis"><p>Error raised when the request body cannot be parsed</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Router.InvalidSpecError.html">Plug.Router.InvalidSpecError</a></div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.Static.InvalidPathError.html">Plug.Static.InvalidPathError</a></div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.TimeoutError.html">Plug.TimeoutError</a></div>
+  
+    <div class="summary-synopsis"><p>Timeout while waiting for the request</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Plug.UploadError.html">Plug.UploadError</a></div>
+  
+</div>
+
+    </div>
+  </section>
+
+
+
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

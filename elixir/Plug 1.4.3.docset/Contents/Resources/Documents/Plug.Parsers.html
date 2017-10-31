@@ -1,0 +1,413 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Plug.Parsers – Plug v1.4.3</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+    
+    <script src="dist/sidebar_items-dbdf267600.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="readme.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Plug
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.3
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Plug v1.4.3</small>
+        Plug.Parsers <small>behaviour</small>
+        
+          <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/parsers.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>A plug for parsing the request body.</p>
+<p>This module also specifies a behaviour that all the parsers to be used with
+Plug should adopt.</p>
+<h2 id="module-options" class="section-heading">
+  <a href="#module-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:parsers</code> - a list of modules to be invoked for parsing.
+These modules need to implement the behaviour outlined in
+this module.</p>
+</li>
+<li><p><code class="inline">:pass</code> - an optional list of MIME type strings that are allowed
+to pass through. Any mime not handled by a parser and not explicitly
+listed in <code class="inline">:pass</code> will <code class="inline">raise UnsupportedMediaTypeError</code>. For example:</p>
+<ul>
+<li><code class="inline">[&quot;*/*&quot;]</code> - never raises
+</li>
+<li><code class="inline">[&quot;text/html&quot;, &quot;application/*&quot;]</code> - doesn’t raise for those values
+</li>
+<li><code class="inline">[]</code> - always raises (default)
+</li>
+</ul>
+</li>
+</ul>
+<p>All options supported by <a href="Plug.Conn.html#read_body/2"><code class="inline">Plug.Conn.read_body/2</code></a> are also supported here.
+They are repeated here for convenience:</p>
+<ul>
+<li><code class="inline">:length</code> - sets the maximum number of bytes to read from the request,
+defaults to 8_000_000 bytes
+</li>
+<li><code class="inline">:read_length</code> - sets the amount of bytes to read at one time from the
+underlying socket to fill the chunk, defaults to 1_000_000 bytes
+</li>
+<li><code class="inline">:read_timeout</code> - sets the timeout for each socket read, defaults to
+15_000ms
+</li>
+</ul>
+<p>So by default, <a href="Plug.Parsers.html#content"><code class="inline">Plug.Parsers</code></a> will read 1_000_000 bytes at a time from the
+socket with an overall limit of 8_000_000 bytes.</p>
+<p>This plug also fetches query params in the connection through
+<a href="Plug.Conn.html#fetch_query_params/2"><code class="inline">Plug.Conn.fetch_query_params/2</code></a>.</p>
+<p>Once a connection goes through this plug, it will have <code class="inline">:body_params</code> set to
+the map of params parsed by one of the parsers listed in <code class="inline">:parsers</code> and
+<code class="inline">:params</code> set to the result of merging the <code class="inline">:body_params</code> and <code class="inline">:query_params</code>.</p>
+<p>This plug will raise <a href="Plug.Parsers.UnsupportedMediaTypeError.html"><code class="inline">Plug.Parsers.UnsupportedMediaTypeError</code></a> by default if
+the request cannot be parsed by any of the given types and the MIME type has
+not been explicity accepted with the <code class="inline">:pass</code> option.</p>
+<p><a href="Plug.Parsers.RequestTooLargeError.html"><code class="inline">Plug.Parsers.RequestTooLargeError</code></a> will be raised if the request goes over
+the given limit.</p>
+<p>Parsers may raise a <a href="Plug.Parsers.ParseError.html"><code class="inline">Plug.Parsers.ParseError</code></a> if the request has a malformed
+body.</p>
+<p>This plug only parses the body if the request method is one of the following:</p>
+<ul>
+<li><code class="inline">POST</code>
+</li>
+<li><code class="inline">PUT</code>
+</li>
+<li><code class="inline">PATCH</code>
+</li>
+<li><code class="inline">DELETE</code>
+</li>
+</ul>
+<p>For requests with a different request method, this plug will only fetch the
+query params.</p>
+<h2 id="module-examples" class="section-heading">
+  <a href="#module-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">plug Plug.Parsers, parsers: [:urlencoded, :multipart]
+plug Plug.Parsers, parsers: [:urlencoded, :json],
+                   pass:  [&quot;text/*&quot;],
+                   json_decoder: Poison</code></pre>
+<h2 id="module-built-in-parsers" class="section-heading">
+  <a href="#module-built-in-parsers" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Built-in parsers
+</h2>
+
+<p>Plug ships with the following parsers:</p>
+<ul>
+<li><a href="Plug.Parsers.URLENCODED.html"><code class="inline">Plug.Parsers.URLENCODED</code></a> - parses <code class="inline">application/x-www-form-urlencoded</code>
+requests (can be used as <code class="inline">:urlencoded</code> as well in the <code class="inline">:parsers</code> option)
+</li>
+<li><a href="Plug.Parsers.MULTIPART.html"><code class="inline">Plug.Parsers.MULTIPART</code></a> - parses <code class="inline">multipart/form-data</code> and
+<code class="inline">multipart/mixed</code> requests (can be used as <code class="inline">:multipart</code> as well in the
+<code class="inline">:parsers</code> option)
+</li>
+<li><a href="Plug.Parsers.JSON.html"><code class="inline">Plug.Parsers.JSON</code></a> - parses <code class="inline">application/json</code> requests with the given
+<code class="inline">:json_decoder</code> (can be used as <code class="inline">:json</code> as well in the <code class="inline">:parsers</code> option)
+</li>
+</ul>
+<h2 id="module-file-handling" class="section-heading">
+  <a href="#module-file-handling" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  File handling
+</h2>
+
+<p>If a file is uploaded via any of the parsers, Plug will
+stream the uploaded contents to a file in a temporary directory in order to
+avoid loading the whole file into memory. For such, the <code class="inline">:plug</code> application
+needs to be started in order for file uploads to work. More details on how the
+uploaded file is handled can be found in the documentation for <a href="Plug.Upload.html"><code class="inline">Plug.Upload</code></a>.</p>
+<p>When a file is uploaded, the request parameter that identifies that file will
+be a <a href="Plug.Upload.html"><code class="inline">Plug.Upload</code></a> struct with information about the uploaded file (e.g.
+filename and content type) and about where the file is stored.</p>
+<p>The temporary directory where files are streamed to can be customized by
+setting the <code class="inline">PLUG_TMPDIR</code> environment variable on the host system. If
+<code class="inline">PLUG_TMPDIR</code> isn’t set, Plug will look at some environment
+variables which usually hold the value of the system’s temporary directory
+(like <code class="inline">TMPDIR</code> or <code class="inline">TMP</code>). If no value is found in any of those variables,
+<code class="inline">/tmp</code> is used as a default.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#call/2">call(conn, options)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Callback implementation for <a href="Plug.html#c:call/2"><code class="inline">Plug.call/2</code></a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#init/1">init(opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Callback implementation for <a href="Plug.html#c:init/1"><code class="inline">Plug.init/1</code></a></p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-callbacks summary">
+    <h2>
+      <a href="#callbacks">Callbacks</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:parse/5">parse(conn, type, subtype, params, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Attempts to parse the connection’s request body given the content-type type,
+subtype, and its parameters</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="call/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/call%2F2" class="dashAnchor"></a>
+  <a href="#call/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">call(conn, options)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/parsers.ex#L216" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Callback implementation for <a href="Plug.html#c:call/2"><code class="inline">Plug.call/2</code></a>.</p>
+
+  </section>
+</div>
+<div class="detail" id="init/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/init%2F1" class="dashAnchor"></a>
+  <a href="#init/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">init(opts)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/parsers.ex#L177" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Callback implementation for <a href="Plug.html#c:init/1"><code class="inline">Plug.init/1</code></a>.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+        <section id="callbacks" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#callbacks">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Callbacks
+          </h1>
+          <div class="detail" id="c:parse/5">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/parse%2F5" class="dashAnchor"></a>
+  <a href="#c:parse/5" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">parse(conn, type, subtype, params, opts)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/parsers.ex#L168" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>parse(conn :: <a href="Plug.Conn.html#t:t/0">Plug.Conn.t</a>, type :: binary, subtype :: binary, params :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, <a href="Plug.Conn.html#t:params/0">Plug.Conn.params</a>, <a href="Plug.Conn.html#t:t/0">Plug.Conn.t</a>} |
+  {:error, :too_large, <a href="Plug.Conn.html#t:t/0">Plug.Conn.t</a>} |
+  {:next, <a href="Plug.Conn.html#t:t/0">Plug.Conn.t</a>}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Attempts to parse the connection’s request body given the content-type type,
+subtype, and its parameters.</p>
+<p>The arguments are:</p>
+<ul>
+<li>the <a href="Plug.Conn.html"><code class="inline">Plug.Conn</code></a> connection
+</li>
+<li><code class="inline">type</code>, the content-type type (e.g., <code class="inline">&quot;x-sample&quot;</code> for the
+<code class="inline">&quot;x-sample/json&quot;</code> content-type)
+</li>
+<li><code class="inline">subtype</code>, the content-type subtype (e.g., <code class="inline">&quot;json&quot;</code> for the
+<code class="inline">&quot;x-sample/json&quot;</code> content-type)
+</li>
+<li><code class="inline">params</code>, the content-type parameters (e.g., <code class="inline">%{&quot;foo&quot; =&gt; &quot;bar&quot;}</code>
+for the <code class="inline">&quot;text/plain; foo=bar&quot;</code> content-type)
+</li>
+</ul>
+<p>This function should return:</p>
+<ul>
+<li><code class="inline">{:ok, body_params, conn}</code> if the parser is able to handle the given
+content-type; <code class="inline">body_params</code> should be a map
+</li>
+<li><code class="inline">{:next, conn}</code> if the next parser should be invoked
+</li>
+<li><code class="inline">{:error, :too_large, conn}</code> if the request goes over the given limit
+</li>
+</ul>
+
+  </section>
+</div>
+
+        </section>
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

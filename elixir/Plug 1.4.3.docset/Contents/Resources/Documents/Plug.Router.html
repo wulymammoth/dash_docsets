@@ -1,0 +1,721 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Plug.Router – Plug v1.4.3</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+    
+    <script src="dist/sidebar_items-dbdf267600.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="readme.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Plug
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.3
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Plug v1.4.3</small>
+        Plug.Router
+        
+          <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/router.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>A DSL to define a routing algorithm that works with Plug.</p>
+<p>It provides a set of macros to generate routes. For example:</p>
+<pre><code class="elixir">defmodule AppRouter do
+  use Plug.Router
+
+  plug :match
+  plug :dispatch
+
+  get &quot;/hello&quot; do
+    send_resp(conn, 200, &quot;world&quot;)
+  end
+
+  match _ do
+    send_resp(conn, 404, &quot;oops&quot;)
+  end
+end</code></pre>
+<p>Each route needs to return a connection, as per the Plug spec.
+A catch-all <code class="inline">match</code> is recommended to be defined as in the example
+above, otherwise routing fails with a function clause error.</p>
+<p>The router is itself a plug, which means it can be invoked as:</p>
+<pre><code class="elixir">AppRouter.call(conn, AppRouter.init([]))</code></pre>
+<p>Notice the router contains a plug pipeline and by default it requires
+two plugs: <code class="inline">match</code> and <code class="inline">dispatch</code>. <code class="inline">match</code> is responsible for
+finding a matching route which is then forwarded to <code class="inline">dispatch</code>.
+This means users can easily hook into the router mechanism and add
+behaviour before match, before dispatch or after both.</p>
+<p>To specify private options on <code class="inline">match</code> that can be used by plugs
+before <code class="inline">dispatch</code> pass an option with key <code class="inline">:private</code> containing a map.
+Example:</p>
+<pre><code class="elixir">get &quot;/hello&quot;, private: %{an_option: :a_value} do
+  send_resp(conn, 200, &quot;world&quot;)
+end</code></pre>
+<p>These options are assigned to <code class="inline">:private</code> in the call’s <a href="Plug.Conn.html"><code class="inline">Plug.Conn</code></a>.</p>
+<h2 id="module-routes" class="section-heading">
+  <a href="#module-routes" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Routes
+</h2>
+
+<pre><code class="elixir">get &quot;/hello&quot; do
+  send_resp(conn, 200, &quot;world&quot;)
+end</code></pre>
+<p>In the example above, a request will only match if it is a <code class="inline">GET</code> request and
+the route is “/hello”. The supported HTTP methods are <code class="inline">get</code>, <code class="inline">post</code>, <code class="inline">put</code>,
+<code class="inline">patch</code>, <code class="inline">delete</code> and <code class="inline">options</code>.</p>
+<p>A route can also specify parameters which will then be
+available in the function body:</p>
+<pre><code class="elixir">get &quot;/hello/:name&quot; do
+  send_resp(conn, 200, &quot;hello #{name}&quot;)
+end</code></pre>
+<p>The <code class="inline">:name</code> parameter will also be available in the function body as
+<code class="inline">conn.params[&quot;name&quot;]</code> and <code class="inline">conn.path_params[&quot;name&quot;]</code>.</p>
+<p>Routes allow for globbing which will match the remaining parts
+of a route and can be available as a parameter in the function
+body. Also note that a glob can’t be followed by other segments:</p>
+<pre><code class="elixir">get &quot;/hello/*_rest&quot; do
+  send_resp(conn, 200, &quot;matches all routes starting with /hello&quot;)
+end
+
+get &quot;/hello/*glob&quot; do
+  send_resp(conn, 200, &quot;route after /hello: #{inspect glob}&quot;)
+end</code></pre>
+<p>Finally, a general <code class="inline">match</code> function is also supported:</p>
+<pre><code class="elixir">match &quot;/hello&quot; do
+  send_resp(conn, 200, &quot;world&quot;)
+end</code></pre>
+<p>A <code class="inline">match</code> will match any route regardless of the HTTP method.
+Check <a href="#match/3"><code class="inline">match/3</code></a> for more information on how route compilation
+works and a list of supported options.</p>
+<h2 id="module-parameter-parsing" class="section-heading">
+  <a href="#module-parameter-parsing" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Parameter Parsing
+</h2>
+
+<p>Handling request data can be done through the
+<a href="https://hexdocs.pm/plug/Plug.Parsers.html#content"><code class="inline">Plug.Parsers</code></a> plug. It
+provides support for parsing URL-encoded, form-data, and JSON data as well as
+providing a behaviour that others parsers can adopt.</p>
+<p>Here is an example of <a href="Plug.Parsers.html"><code class="inline">Plug.Parsers</code></a> can be used in a <a href="Plug.Router.html#content"><code class="inline">Plug.Router</code></a> router to
+parse the JSON-encoded body of a POST request:</p>
+<pre><code class="elixir">defmodule AppRouter do
+  use Plug.Router
+
+  plug :match
+  plug Plug.Parsers, parsers: [:json],
+                     pass:  [&quot;application/json&quot;],
+                     json_decoder: Poison
+  plug :dispatch
+
+  post &quot;/hello&quot; do
+    IO.inspect conn.body_params # Prints JSON POST body
+    send_resp(conn, 200, &quot;Success!&quot;)
+  end
+end</code></pre>
+<p>It is important that <a href="Plug.Parsers.html"><code class="inline">Plug.Parsers</code></a> is placed before the <code class="inline">:dispatch</code> plug in
+the pipeline, otherwise the matched clause route will not receive the parsed
+body in its <a href="Plug.Conn.html"><code class="inline">Plug.Conn</code></a> argument when dispatched.</p>
+<p><a href="Plug.Parsers.html"><code class="inline">Plug.Parsers</code></a> can also be plugged between <code class="inline">:match</code> and <code class="inline">:dispatch</code> (like in
+the example above): this means that <a href="Plug.Parsers.html"><code class="inline">Plug.Parsers</code></a> will run only if there is a
+matching route. This can be useful to perform actions such as authentication
+<em>before</em> parsing the body, which should only be parsed if a route matches
+afterwards.</p>
+<h2 id="module-error-handling" class="section-heading">
+  <a href="#module-error-handling" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Error handling
+</h2>
+
+<p>In case something goes wrong in a request, the router by default
+will crash, without returning any response to the client. This
+behaviour can be configured in two ways, by using two different
+modules:</p>
+<ul>
+<li><p><a href="Plug.ErrorHandler.html"><code class="inline">Plug.ErrorHandler</code></a> - allows the developer to customize exactly
+  which page is sent to the client via the <code class="inline">handle_errors/2</code> function;</p>
+</li>
+<li><p><a href="Plug.Debugger.html"><code class="inline">Plug.Debugger</code></a> - automatically shows debugging and request information
+  about the failure. This module is recommended to be used only in a
+  development environment.</p>
+</li>
+</ul>
+<p>Here is an example of how both modules could be used in an application:</p>
+<pre><code class="elixir">defmodule AppRouter do
+  use Plug.Router
+
+  if Mix.env == :dev do
+    use Plug.Debugger
+  end
+
+  use Plug.ErrorHandler
+
+  plug :match
+  plug :dispatch
+
+  get &quot;/hello&quot; do
+    send_resp(conn, 200, &quot;world&quot;)
+  end
+
+  defp handle_errors(conn, %{kind: _kind, reason: _reason, stack: _stack}) do
+    send_resp(conn, conn.status, &quot;Something went wrong&quot;)
+  end
+end</code></pre>
+<h2 id="module-routes-compilation" class="section-heading">
+  <a href="#module-routes-compilation" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Routes compilation
+</h2>
+
+<p>All routes are compiled to a match function that receives
+three arguments: the method, the request path split on <code class="inline">/</code>
+and the connection. Consider this example:</p>
+<pre><code class="elixir">match &quot;/foo/bar&quot;, via: :get do
+  send_resp(conn, 200, &quot;hello world&quot;)
+end</code></pre>
+<p>It is compiled to:</p>
+<pre><code class="elixir">defp match(&quot;GET&quot;, [&quot;foo&quot;, &quot;bar&quot;], conn) do
+  send_resp(conn, 200, &quot;hello world&quot;)
+end</code></pre>
+<p>This opens up a few possibilities. First, guards can be given
+to <code class="inline">match</code>:</p>
+<pre><code class="elixir">match &quot;/foo/bar/:baz&quot; when size(baz) &lt;= 3, via: :get do
+  send_resp(conn, 200, &quot;hello world&quot;)
+end</code></pre>
+<p>Second, a list of split paths (which is the compiled result) is
+also allowed:</p>
+<pre><code class="elixir">match [&quot;foo&quot;, &quot;bar&quot;, baz], via: :get do
+  send_resp(conn, 200, &quot;hello world&quot;)
+end</code></pre>
+<p>After a match is found, the block given as <code class="inline">do/end</code> is stored
+as a function in the connection. This function is then retrieved
+and invoked in the <code class="inline">dispatch</code> plug.</p>
+<h2 id="module-options" class="section-heading">
+  <a href="#module-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>When used, the following options are accepted by <a href="Plug.Router.html#content"><code class="inline">Plug.Router</code></a>:</p>
+<ul>
+<li><code class="inline">:log_on_halt</code> - accepts the level to log whenever the request is halted
+</li>
+</ul>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#delete/3">delete(path, options, contents \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the path only if the request is a DELETE request.
+See <a href="#match/3"><code class="inline">match/3</code></a> for more examples</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#forward/2">forward(path, options)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Forwards requests to another Plug. The <code class="inline">path_info</code> of the forwarded
+connection will exclude the portion of the path specified in the
+call to <code class="inline">forward</code>. If the path contains any parameters, those will
+be available in the target Plug in <code class="inline">conn.params</code> and <code class="inline">conn.path_params</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get/3">get(path, options, contents \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the path only if the request is a GET request.
+See <a href="#match/3"><code class="inline">match/3</code></a> for more examples</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#match/3">match(path, options, contents \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Main API to define routes</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#options/3">options(path, options, contents \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the path only if the request is an OPTIONS request.
+See <a href="#match/3"><code class="inline">match/3</code></a> for more examples</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#patch/3">patch(path, options, contents \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the path only if the request is a PATCH request.
+See <a href="#match/3"><code class="inline">match/3</code></a> for more examples</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#post/3">post(path, options, contents \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the path only if the request is a POST request.
+See <a href="#match/3"><code class="inline">match/3</code></a> for more examples</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put/3">put(path, options, contents \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the path only if the request is a PUT request.
+See <a href="#match/3"><code class="inline">match/3</code></a> for more examples</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="delete/3">
+  
+  
+    <span id="delete/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/delete%2F3" class="dashAnchor"></a>
+  <a href="#delete/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">delete(path, options, contents \\ [])</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/router.ex#L315" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the path only if the request is a DELETE request.
+See <a href="#match/3"><code class="inline">match/3</code></a> for more examples.</p>
+
+  </section>
+</div>
+<div class="detail" id="forward/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/forward%2F2" class="dashAnchor"></a>
+  <a href="#forward/2" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">forward(path, options)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/router.ex#L367" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Forwards requests to another Plug. The <code class="inline">path_info</code> of the forwarded
+connection will exclude the portion of the path specified in the
+call to <code class="inline">forward</code>. If the path contains any parameters, those will
+be available in the target Plug in <code class="inline">conn.params</code> and <code class="inline">conn.path_params</code>.</p>
+<h2 id="forward/2-options" class="section-heading">
+  <a href="#forward/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p><code class="inline">forward</code> accepts the following options:</p>
+<ul>
+<li><code class="inline">:to</code> - a Plug the requests will be forwarded to.
+</li>
+<li><code class="inline">:init_opts</code> - the options for the target Plug.
+</li>
+<li><code class="inline">:host</code> - a string representing the host or subdomain, exactly like in
+<a href="#match/3"><code class="inline">match/3</code></a>.
+</li>
+<li><code class="inline">:private</code> - values for <code class="inline">conn.private</code>, exactly like in <a href="#match/3"><code class="inline">match/3</code></a>.
+</li>
+<li><code class="inline">:assigns</code> - values for <code class="inline">conn.assigns</code>, exactly like in <a href="#match/3"><code class="inline">match/3</code></a>.
+</li>
+</ul>
+<p>If <code class="inline">:init_opts</code> is undefined, then all remaining options are passed
+to the target plug.</p>
+<h2 id="forward/2-examples" class="section-heading">
+  <a href="#forward/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">forward &quot;/users&quot;, to: UserRouter</code></pre>
+<p>Assuming the above code, a request to <code class="inline">/users/sign_in</code> will be forwarded to
+the <code class="inline">UserRouter</code> plug, which will receive what it will see as a request to
+<code class="inline">/sign_in</code>.</p>
+<pre><code class="elixir">forward &quot;/foo/:bar/qux&quot;, to: FooPlug</code></pre>
+<p>Here, a request to <code class="inline">/foo/BAZ/qux</code> will be forwarded to the <code class="inline">FooPlug</code>
+plug, which will receive what it will see as a request to <code class="inline">/qux</code>,
+and <code class="inline">conn.params[&quot;bar&quot;]</code> will be set to <code class="inline">&quot;BAZ&quot;</code>.</p>
+<p>Some other examples:</p>
+<pre><code class="elixir">forward &quot;/foo/bar&quot;, to: :foo_bar_plug, host: &quot;foobar.&quot;
+forward &quot;/baz&quot;, to: BazPlug, init_opts: [plug_specific_option: true]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="get/3">
+  
+  
+    <span id="get/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/get%2F3" class="dashAnchor"></a>
+  <a href="#get/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">get(path, options, contents \\ [])</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/router.ex#L283" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the path only if the request is a GET request.
+See <a href="#match/3"><code class="inline">match/3</code></a> for more examples.</p>
+
+  </section>
+</div>
+<div class="detail" id="match/3">
+  
+  
+    <span id="match/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/match%2F3" class="dashAnchor"></a>
+  <a href="#match/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">match(path, options, contents \\ [])</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/router.ex#L275" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Main API to define routes.</p>
+<p>It accepts an expression representing the path and many options
+allowing the match to be configured.</p>
+<p>The route can dispatch either to a function body or a Plug module.</p>
+<h2 id="match/3-examples" class="section-heading">
+  <a href="#match/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">match &quot;/foo/bar&quot;, via: :get do
+  send_resp(conn, 200, &quot;hello world&quot;)
+end
+
+match &quot;/baz&quot;, to: MyPlug, init_opts: [an_option: :a_value]</code></pre>
+<h2 id="match/3-options" class="section-heading">
+  <a href="#match/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p><a href="#match/3"><code class="inline">match/3</code></a> and the other route macros accept the following options:</p>
+<ul>
+<li><p><code class="inline">:host</code> - the host which the route should match. Defaults to <code class="inline">nil</code>,
+meaning no host match, but can be a string like “example.com” or a
+string ending with “.”, like “subdomain.” for a subdomain match.</p>
+</li>
+<li><p><code class="inline">:private</code> - assigns values to <code class="inline">conn.private</code> for use in the match</p>
+</li>
+<li><p><code class="inline">:assigns</code> - assigns values to <code class="inline">conn.assigns</code> for use in the match</p>
+</li>
+<li><p><code class="inline">:via</code> - matches the route against some specific HTTP method (specified as
+an atom, like <code class="inline">:get</code> or <code class="inline">:put</code>.</p>
+</li>
+<li><p><code class="inline">:do</code> - contains the implementation to be invoked in case
+the route matches.</p>
+</li>
+<li><p><code class="inline">:to</code> - a Plug that will be called in case the route matches.</p>
+</li>
+<li><p><code class="inline">:init_opts</code> - the options for the target Plug given by <code class="inline">:to</code>.</p>
+</li>
+</ul>
+<p>A route should specify only one of <code class="inline">:do</code> or <code class="inline">:to</code> options.</p>
+
+  </section>
+</div>
+<div class="detail" id="options/3">
+  
+  
+    <span id="options/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/options%2F3" class="dashAnchor"></a>
+  <a href="#options/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">options(path, options, contents \\ [])</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/router.ex#L323" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the path only if the request is an OPTIONS request.
+See <a href="#match/3"><code class="inline">match/3</code></a> for more examples.</p>
+
+  </section>
+</div>
+<div class="detail" id="patch/3">
+  
+  
+    <span id="patch/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/patch%2F3" class="dashAnchor"></a>
+  <a href="#patch/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">patch(path, options, contents \\ [])</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/router.ex#L307" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the path only if the request is a PATCH request.
+See <a href="#match/3"><code class="inline">match/3</code></a> for more examples.</p>
+
+  </section>
+</div>
+<div class="detail" id="post/3">
+  
+  
+    <span id="post/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/post%2F3" class="dashAnchor"></a>
+  <a href="#post/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">post(path, options, contents \\ [])</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/router.ex#L291" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the path only if the request is a POST request.
+See <a href="#match/3"><code class="inline">match/3</code></a> for more examples.</p>
+
+  </section>
+</div>
+<div class="detail" id="put/3">
+  
+  
+    <span id="put/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/put%2F3" class="dashAnchor"></a>
+  <a href="#put/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">put(path, options, contents \\ [])</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/router.ex#L299" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the path only if the request is a PUT request.
+See <a href="#match/3"><code class="inline">match/3</code></a> for more examples.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

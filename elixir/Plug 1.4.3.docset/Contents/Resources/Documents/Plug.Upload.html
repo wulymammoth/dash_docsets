@@ -1,0 +1,340 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Plug.Upload – Plug v1.4.3</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+    
+    <script src="dist/sidebar_items-dbdf267600.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="readme.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Plug
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.3
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Plug v1.4.3</small>
+        Plug.Upload
+        
+          <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/upload.ex#L5" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>A server (a <a href="https://hexdocs.pm/elixir/GenServer.html"><code class="inline">GenServer</code></a> specifically) that manages uploaded files.</p>
+<p>Uploaded files are stored in a temporary directory
+and removed from that directory after the process that
+requested the file dies.</p>
+<p>During the request, files are represented with
+a <a href="Plug.Upload.html#content"><code class="inline">Plug.Upload</code></a> struct that contains three fields:</p>
+<ul>
+<li><code class="inline">:path</code> - the path to the uploaded file on the filesystem
+</li>
+<li><code class="inline">:content_type</code> - the content type of the uploaded file
+</li>
+<li><code class="inline">:filename</code> - the filename of the uploaded file given in the request
+</li>
+</ul>
+<p><strong>Note</strong>: as mentioned in the documentation for <a href="Plug.Parsers.html"><code class="inline">Plug.Parsers</code></a>, the <code class="inline">:plug</code>
+application has to be started in order to upload files and use the
+<a href="Plug.Upload.html#content"><code class="inline">Plug.Upload</code></a> module.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:t/0">t()</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#random_file/1">random_file(prefix)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Requests a random file to be created in the upload directory
+with the given prefix</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#random_file!/1">random_file!(prefix)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Requests a random file to be created in the upload directory
+with the given prefix. Raises on failure</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#start_link/0">start_link()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Starts the upload handling server</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:t/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/t" class="dashAnchor"></a>
+  <a href="#t:t/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">t()</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/upload.ex#L28" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>t() :: %Plug.Upload{content_type: binary | nil, filename: binary, path: <a href="https://hexdocs.pm/elixir/Path.html#t:t/0">Path.t</a>}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="random_file/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/random_file%2F1" class="dashAnchor"></a>
+  <a href="#random_file/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">random_file(prefix)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/upload.ex#L46" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>random_file(binary) ::
+  {:ok, binary} |
+  {:too_many_attempts, binary, pos_integer} |
+  {:no_tmp, [binary]}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Requests a random file to be created in the upload directory
+with the given prefix.</p>
+
+  </section>
+</div>
+<div class="detail" id="random_file!/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/random_file%21%2F1" class="dashAnchor"></a>
+  <a href="#random_file!/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">random_file!(prefix)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/upload.ex#L114" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>random_file!(binary) :: binary | no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Requests a random file to be created in the upload directory
+with the given prefix. Raises on failure.</p>
+
+  </section>
+</div>
+<div class="detail" id="start_link/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/start_link%2F0" class="dashAnchor"></a>
+  <a href="#start_link/0" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">start_link()</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/upload.ex#L135" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Starts the upload handling server.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

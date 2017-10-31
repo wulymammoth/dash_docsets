@@ -1,0 +1,212 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Plug.Parsers.MULTIPART – Plug v1.4.3</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+    
+    <script src="dist/sidebar_items-dbdf267600.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="readme.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Plug
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.3
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Plug v1.4.3</small>
+        Plug.Parsers.MULTIPART
+        
+          <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/parsers/multipart.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Parses multipart request body.</p>
+<p>Besides the options supported by <a href="Plug.Conn.html#read_body/2"><code class="inline">Plug.Conn.read_body/2</code></a>,
+the multipart parser also checks for <code class="inline">:headers</code> option that
+contains the same <code class="inline">:length</code>, <code class="inline">:read_length</code> and <code class="inline">:read_timeout</code>
+options which are used explicitly for parsing multipart headers.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#parse/5">parse(conn, arg2, subtype, headers, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Attempts to parse the connection’s request body given the content-type type,
+subtype, and its parameters</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="parse/5">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/parse%2F5" class="dashAnchor"></a>
+  <a href="#parse/5" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">parse(conn, arg2, subtype, headers, opts)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/parsers/multipart.ex#L24" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Attempts to parse the connection’s request body given the content-type type,
+subtype, and its parameters.</p>
+<p>The arguments are:</p>
+<ul>
+<li>the <a href="Plug.Conn.html"><code class="inline">Plug.Conn</code></a> connection
+</li>
+<li><code class="inline">type</code>, the content-type type (e.g., <code class="inline">&quot;x-sample&quot;</code> for the
+<code class="inline">&quot;x-sample/json&quot;</code> content-type)
+</li>
+<li><code class="inline">subtype</code>, the content-type subtype (e.g., <code class="inline">&quot;json&quot;</code> for the
+<code class="inline">&quot;x-sample/json&quot;</code> content-type)
+</li>
+<li><code class="inline">params</code>, the content-type parameters (e.g., <code class="inline">%{&quot;foo&quot; =&gt; &quot;bar&quot;}</code>
+for the <code class="inline">&quot;text/plain; foo=bar&quot;</code> content-type)
+</li>
+</ul>
+<p>This function should return:</p>
+<ul>
+<li><code class="inline">{:ok, body_params, conn}</code> if the parser is able to handle the given
+content-type; <code class="inline">body_params</code> should be a map
+</li>
+<li><code class="inline">{:next, conn}</code> if the next parser should be invoked
+</li>
+<li><code class="inline">{:error, :too_large, conn}</code> if the request goes over the given limit
+</li>
+</ul>
+<p>Callback implementation for <a href="Plug.Parsers.html#c:parse/5"><code class="inline">Plug.Parsers.parse/5</code></a>.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

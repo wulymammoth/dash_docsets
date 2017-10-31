@@ -1,0 +1,582 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Plug.Conn.Utils – Plug v1.4.3</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+    
+    <script src="dist/sidebar_items-dbdf267600.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="readme.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Plug
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.3
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Plug v1.4.3</small>
+        Plug.Conn.Utils
+        
+          <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/conn/utils.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Utilities for working with connection data</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:params/0">params()</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#content_type/1">content_type(binary)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Parses content type (without wildcards)</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#list/1">list(binary)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Parses a comma-separated list of header values</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#media_type/1">media_type(binary)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Parses media types (with wildcards)</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#params/1">params(t)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Parses headers parameters</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#token/1">token(token)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Parses a value as defined in <a href="http://www.w3.org/Protocols/rfc1341/4_Content-Type.html">RFC-1341</a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#validate_utf8!/3">validate_utf8!(binary, exception, context)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Validates the given binary is valid UTF-8</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:params/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/params" class="dashAnchor"></a>
+  <a href="#t:params/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">params()</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/conn/utils.ex#L6" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>params() :: %{optional(binary) => binary}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="content_type/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/content_type%2F1" class="dashAnchor"></a>
+  <a href="#content_type/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">content_type(binary)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/conn/utils.ex#L119" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>content_type(binary) ::
+  {:ok, type :: binary, subtype :: binary, <a href="#t:params/0">params</a>} |
+  :error</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Parses content type (without wildcards).</p>
+<p>It is similar to <a href="#media_type/1"><code class="inline">media_type/1</code></a> except wildcards are
+not accepted in the type nor in the subtype.</p>
+<h2 id="content_type/1-examples" class="section-heading">
+  <a href="#content_type/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; content_type &quot;x-sample/json; charset=utf-8&quot;
+{:ok, &quot;x-sample&quot;, &quot;json&quot;, %{&quot;charset&quot; =&gt; &quot;utf-8&quot;}}
+
+iex&gt; content_type &quot;x-sample/json  ; charset=utf-8  ; foo=bar&quot;
+{:ok, &quot;x-sample&quot;, &quot;json&quot;, %{&quot;charset&quot; =&gt; &quot;utf-8&quot;, &quot;foo&quot; =&gt; &quot;bar&quot;}}
+
+iex&gt; content_type &quot;\r\n text/plain;\r\n charset=utf-8\r\n&quot;
+{:ok, &quot;text&quot;, &quot;plain&quot;, %{&quot;charset&quot; =&gt; &quot;utf-8&quot;}}
+
+iex&gt; content_type &quot;text/plain&quot;
+{:ok, &quot;text&quot;, &quot;plain&quot;, %{}}
+
+iex&gt; content_type &quot;x/*&quot;
+:error
+
+iex&gt; content_type &quot;*/*&quot;
+:error</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="list/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/list%2F1" class="dashAnchor"></a>
+  <a href="#list/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">list(binary)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/conn/utils.ex#L267" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>list(binary) :: [binary]</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Parses a comma-separated list of header values.</p>
+<h2 id="list/1-examples" class="section-heading">
+  <a href="#list/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; list(&quot;foo, bar&quot;)
+[&quot;foo&quot;, &quot;bar&quot;]
+
+iex&gt; list(&quot;foobar&quot;)
+[&quot;foobar&quot;]
+
+iex&gt; list(&quot;&quot;)
+[]
+
+iex&gt; list(&quot;empties, , are,, filtered&quot;)
+[&quot;empties&quot;, &quot;are&quot;, &quot;filtered&quot;]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="media_type/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/media_type%2F1" class="dashAnchor"></a>
+  <a href="#media_type/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">media_type(binary)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/conn/utils.ex#L55" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>media_type(binary) ::
+  {:ok, type :: binary, subtype :: binary, <a href="#t:params/0">params</a>} |
+  :error</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Parses media types (with wildcards).</p>
+<p>Type and subtype are case insensitive while the
+sensitiveness of params depends on their keys and
+therefore are not handled by this parser.</p>
+<p>Returns:</p>
+<ul>
+<li><code class="inline">{:ok, type, subtype, map_of_params}</code> if everything goes fine
+</li>
+<li><code class="inline">:error</code> if the media type isn’t valid
+</li>
+</ul>
+<h2 id="media_type/1-examples" class="section-heading">
+  <a href="#media_type/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; media_type &quot;text/plain&quot;
+{:ok, &quot;text&quot;, &quot;plain&quot;, %{}}
+
+iex&gt; media_type &quot;APPLICATION/vnd.ms-data+XML&quot;
+{:ok, &quot;application&quot;, &quot;vnd.ms-data+xml&quot;, %{}}
+
+iex&gt; media_type &quot;text/*; q=1.0&quot;
+{:ok, &quot;text&quot;, &quot;*&quot;, %{&quot;q&quot; =&gt; &quot;1.0&quot;}}
+
+iex&gt; media_type &quot;*/*; q=1.0&quot;
+{:ok, &quot;*&quot;, &quot;*&quot;, %{&quot;q&quot; =&gt; &quot;1.0&quot;}}
+
+iex&gt; media_type &quot;x y&quot;
+:error
+
+iex&gt; media_type &quot;*/html&quot;
+:error
+
+iex&gt; media_type &quot;/&quot;
+:error
+
+iex&gt; media_type &quot;x/y z&quot;
+:error</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="params/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/params%2F1" class="dashAnchor"></a>
+  <a href="#params/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">params(t)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/conn/utils.ex#L161" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>params(binary) :: <a href="#t:params/0">params</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Parses headers parameters.</p>
+<p>Keys are case insensitive and downcased,
+invalid key-value pairs are discarded.</p>
+<h2 id="params/1-examples" class="section-heading">
+  <a href="#params/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; params(&quot;foo=bar&quot;)
+%{&quot;foo&quot; =&gt; &quot;bar&quot;}
+
+iex&gt; params(&quot;  foo=bar  &quot;)
+%{&quot;foo&quot; =&gt; &quot;bar&quot;}
+
+iex&gt; params(&quot;FOO=bar&quot;)
+%{&quot;foo&quot; =&gt; &quot;bar&quot;}
+
+iex&gt; params(&quot;Foo=bar; baz=BOING&quot;)
+%{&quot;foo&quot; =&gt; &quot;bar&quot;, &quot;baz&quot; =&gt; &quot;BOING&quot;}
+
+iex&gt; params(&quot;foo=BAR ; wat&quot;)
+%{&quot;foo&quot; =&gt; &quot;BAR&quot;}
+
+iex&gt; params(&quot;foo=\&quot;bar\&quot;; baz=\&quot;boing\&quot;&quot;)
+%{&quot;foo&quot; =&gt; &quot;bar&quot;, &quot;baz&quot; =&gt; &quot;boing&quot;}
+
+iex&gt; params(&quot;foo=\&quot;bar;\&quot;; baz=\&quot;boing\&quot;&quot;)
+%{&quot;foo&quot; =&gt; &quot;bar;&quot;, &quot;baz&quot; =&gt; &quot;boing&quot;}
+
+iex&gt; params(&quot;=&quot;)
+%{}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="token/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/token%2F1" class="dashAnchor"></a>
+  <a href="#token/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">token(token)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/conn/utils.ex#L225" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>token(binary) :: binary | false</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Parses a value as defined in <a href="http://www.w3.org/Protocols/rfc1341/4_Content-Type.html">RFC-1341</a>.</p>
+<p>For convenience, trims whitespace at the end of the token.
+Returns <code class="inline">false</code> if the token is invalid.</p>
+<h2 id="token/1-examples" class="section-heading">
+  <a href="#token/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; token(&quot;foo&quot;)
+&quot;foo&quot;
+
+iex&gt; token(&quot;foo-bar&quot;)
+&quot;foo-bar&quot;
+
+iex&gt; token(&quot;&lt;foo&gt;&quot;)
+false
+
+iex&gt; token(~s[&quot;&lt;foo&gt;&quot;])
+&quot;&lt;foo&gt;&quot;
+
+iex&gt; token(~S[&quot;&lt;f\oo&gt;\&quot;&lt;b\ar&gt;&quot;])
+&quot;&lt;foo&gt;\&quot;&lt;bar&gt;&quot;
+
+iex&gt; token(&quot;foo  &quot;)
+&quot;foo&quot;
+
+iex&gt; token(&quot;foo bar&quot;)
+false</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="validate_utf8!/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/validate_utf8%21%2F3" class="dashAnchor"></a>
+  <a href="#validate_utf8!/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">validate_utf8!(binary, exception, context)</span>
+    
+      <a href="https://github.com/elixir-plug/plug/blob/v1.4.3/lib/plug/conn/utils.ex#L287" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>validate_utf8!(binary, module, binary) :: :ok | no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Validates the given binary is valid UTF-8.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+
