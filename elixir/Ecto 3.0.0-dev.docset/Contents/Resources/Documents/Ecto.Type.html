@@ -1,0 +1,1037 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Ecto.Type – Ecto v3.0.0-dev</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+      <link rel="canonical" href="http://hexdocs.pm/ecto/Ecto.Type.html" />
+    
+    
+      
+        <link rel="icon" type="image/png" href="assets/logo.png" />
+      
+      
+    
+    <script src="dist/sidebar_items-d4f8a3d044.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Ecto.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.0.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Ecto" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Ecto v3.0.0-dev</small>
+        Ecto.Type <small>behaviour</small>
+        
+          <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Defines functions and the <a href="Ecto.Type.html#content"><code class="inline">Ecto.Type</code></a> behaviour for implementing
+custom types.</p>
+<p>A custom type expects 4 functions to be implemented, all documented
+and described below. We also provide two examples of how custom
+types can be used in Ecto to augment existing types or providing
+your own types.</p>
+<h2 id="module-example" class="section-heading">
+  <a href="#module-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<p>Imagine you want to store an URI struct as part of a schema in an 
+url-shortening service. There isn’t an Ecto field type to support 
+that value at runtime, therefore a custom one is needed.</p>
+<p>You also want to query not only by the full url, but for example 
+by specific ports used. This is possible by putting the URI data
+into a map field instead of just storing the plain 
+string representation.</p>
+<pre><code class="elixir">from s in ShortUrl,
+  where: fragment(&quot;?-&gt;&gt;? ILIKE ?&quot;, s.original_url, &quot;port&quot;, &quot;443&quot;)</code></pre>
+<p>So the custom type does need to handle the conversion from 
+external data to runtime data (<a href="#c:cast/1"><code class="inline">cast/1</code></a>) as well as 
+transforming that runtime data into the <code class="inline">:map</code> Ecto native type and 
+back (<a href="#c:dump/1"><code class="inline">dump/1</code></a> and <a href="#c:load/1"><code class="inline">load/1</code></a>).</p>
+<pre><code class="elixir">defmodule EctoURI do
+  @behaviour Ecto.Type
+  def type, do: :map
+
+  # Provide custom casting rules.
+  # Cast strings into the URI struct to be used at runtime
+  def cast(uri) when is_binary(uri) do
+    {:ok, URI.parse(uri)}
+  end
+
+  # Accept casting of URI structs as well
+  def cast(%URI{} = uri), do: {:ok, uri}
+
+  # Everything else is a failure though
+  def cast(_), do: :error
+
+  # When loading data from the database, we are guaranteed to
+  # receive a map (as databases are strict) and we will
+  # just put the data back into an URI struct to be stored 
+  # in the loaded schema struct.
+  def load(data) when is_map(data) do
+    data = 
+      for {key, val} &lt;- data do
+        {String.to_existing_atom(key), val}
+      end
+    {:ok, struct!(URI, data)}
+  end
+
+  # When dumping data to the database, we *expect* an URI struct
+  # but any value could be inserted into the schema struct at runtime,
+  # so we need to guard against them.
+  def dump(%URI{} = uri), do: {:ok, Map.from_struct(uri)}
+  def dump(_), do: :error
+end</code></pre>
+<p>Now we can use our new field type above in our schemas:</p>
+<pre><code class="elixir">defmodule ShortUrl do
+  use Ecto.Schema
+
+  schema &quot;posts&quot; do
+    field :original_url, EctoURI
+  end
+end</code></pre>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:custom/0">custom()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Custom types are represented by user-defined modules</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:primitive/0">primitive()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Primitive Ecto types (handled by Ecto)</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:t/0">t()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>An Ecto type, primitive or custom</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#base?/1">base?(atom)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Checks if the given atom can be used as base type</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#cast/2">cast(type, value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Casts a value to the given type</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#composite?/1">composite?(atom)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Checks if the given atom can be used as composite type</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#dump/3">dump(type, value, dumper \\ &amp;dump/2)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dumps a value to the given type</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#load/3">load(type, value, loader \\ &amp;load/2)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Loads a value with the given type</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#match?/2">match?(schema_type, query_type)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Checks if a given type matches with a primitive type
+that can be found in queries</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#primitive?/1">primitive?(base)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Checks if we have a primitive type</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#type/1">type(type)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Retrieves the underlying schema type for the given, possibly custom, type</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-callbacks summary">
+    <h2>
+      <a href="#callbacks">Callbacks</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:cast/1">cast(term)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Casts the given input to the custom type</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:dump/1">dump(term)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dumps the given term into an Ecto native type</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:load/1">load(term)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Loads the given term into a custom type</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:type/0">type()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns the underlying schema type for the custom type</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:custom/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/custom" class="dashAnchor"></a>
+  <a href="#t:custom/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">custom()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L86" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>custom() :: atom</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Custom types are represented by user-defined modules.</p>
+
+  </section>
+</div>
+<div class="detail" id="t:primitive/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/primitive" class="dashAnchor"></a>
+  <a href="#t:primitive/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">primitive()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L83" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>primitive() :: base | composite</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Primitive Ecto types (handled by Ecto).</p>
+
+  </section>
+</div>
+<div class="detail" id="t:t/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/t" class="dashAnchor"></a>
+  <a href="#t:t/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">t()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L80" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>t() :: <a href="#t:primitive/0">primitive</a> | <a href="#t:custom/0">custom</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>An Ecto type, primitive or custom.</p>
+
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="base?/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/base%3F%2F1" class="dashAnchor"></a>
+  <a href="#base?/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">base?(atom)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L184" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>base?(atom) :: boolean</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Checks if the given atom can be used as base type.</p>
+<pre><code class="iex elixir">iex&gt; base?(:string)
+true
+iex&gt; base?(:array)
+false
+iex&gt; base?(Custom)
+false</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="cast/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/cast%2F2" class="dashAnchor"></a>
+  <a href="#cast/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">cast(type, value)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L618" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>cast(<a href="#t:t/0">t</a>, term) :: {:ok, term} | :error</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Casts a value to the given type.</p>
+<p><a href="#cast/2"><code class="inline">cast/2</code></a> is used by the finder queries and changesets
+to cast outside values to specific types.</p>
+<p>Note that nil can be cast to all primitive types as data
+stores allow nil to be set on any column.</p>
+<pre><code class="iex elixir">iex&gt; cast(:any, &quot;whatever&quot;)
+{:ok, &quot;whatever&quot;}
+
+iex&gt; cast(:any, nil)
+{:ok, nil}
+iex&gt; cast(:string, nil)
+{:ok, nil}
+
+iex&gt; cast(:integer, 1)
+{:ok, 1}
+iex&gt; cast(:integer, &quot;1&quot;)
+{:ok, 1}
+iex&gt; cast(:integer, &quot;1.0&quot;)
+:error
+
+iex&gt; cast(:id, 1)
+{:ok, 1}
+iex&gt; cast(:id, &quot;1&quot;)
+{:ok, 1}
+iex&gt; cast(:id, &quot;1.0&quot;)
+:error
+
+iex&gt; cast(:float, 1.0)
+{:ok, 1.0}
+iex&gt; cast(:float, 1)
+{:ok, 1.0}
+iex&gt; cast(:float, &quot;1&quot;)
+{:ok, 1.0}
+iex&gt; cast(:float, &quot;1.0&quot;)
+{:ok, 1.0}
+iex&gt; cast(:float, &quot;1-foo&quot;)
+:error
+
+iex&gt; cast(:boolean, true)
+{:ok, true}
+iex&gt; cast(:boolean, false)
+{:ok, false}
+iex&gt; cast(:boolean, &quot;1&quot;)
+{:ok, true}
+iex&gt; cast(:boolean, &quot;0&quot;)
+{:ok, false}
+iex&gt; cast(:boolean, &quot;whatever&quot;)
+:error
+
+iex&gt; cast(:string, &quot;beef&quot;)
+{:ok, &quot;beef&quot;}
+iex&gt; cast(:binary, &quot;beef&quot;)
+{:ok, &quot;beef&quot;}
+
+iex&gt; cast(:decimal, Decimal.new(1.0))
+{:ok, Decimal.new(1.0)}
+iex&gt; cast(:decimal, Decimal.new(&quot;1.0&quot;))
+{:ok, Decimal.new(1.0)}
+
+iex&gt; cast({:array, :integer}, [1, 2, 3])
+{:ok, [1, 2, 3]}
+iex&gt; cast({:array, :integer}, [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;])
+{:ok, [1, 2, 3]}
+iex&gt; cast({:array, :string}, [1, 2, 3])
+:error
+iex&gt; cast(:string, [1, 2, 3])
+:error</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="composite?/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/composite%3F%2F1" class="dashAnchor"></a>
+  <a href="#composite?/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">composite?(atom)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L170" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>composite?(atom) :: boolean</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Checks if the given atom can be used as composite type.</p>
+<pre><code class="iex elixir">iex&gt; composite?(:array)
+true
+iex&gt; composite?(:string)
+false</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="dump/3">
+  
+  
+    <span id="dump/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/dump%2F3" class="dashAnchor"></a>
+  <a href="#dump/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">dump(type, value, dumper \\ &amp;dump/2)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L342" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>dump(<a href="#t:t/0">t</a>, term, (<a href="#t:t/0">t</a>, term -> {:ok, term} | :error)) ::
+  {:ok, term} |
+  :error</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Dumps a value to the given type.</p>
+<p>Opposite to casting, dumping requires the returned value
+to be a valid Ecto type, as it will be sent to the
+underlying data store.</p>
+<pre><code class="iex elixir">iex&gt; dump(:string, nil)
+{:ok, nil}
+iex&gt; dump(:string, &quot;foo&quot;)
+{:ok, &quot;foo&quot;}
+
+iex&gt; dump(:integer, 1)
+{:ok, 1}
+iex&gt; dump(:integer, &quot;10&quot;)
+:error
+
+iex&gt; dump(:binary, &quot;foo&quot;)
+{:ok, &quot;foo&quot;}
+iex&gt; dump(:binary, 1)
+:error
+
+iex&gt; dump({:array, :integer}, [1, 2, 3])
+{:ok, [1, 2, 3]}
+iex&gt; dump({:array, :integer}, [1, &quot;2&quot;, 3])
+:error
+iex&gt; dump({:array, :binary}, [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;])
+{:ok, [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]}</code></pre>
+<p>A <code class="inline">dumper</code> function may be given for handling recursive types.</p>
+
+  </section>
+</div>
+<div class="detail" id="load/3">
+  
+  
+    <span id="load/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/load%2F3" class="dashAnchor"></a>
+  <a href="#load/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">load(type, value, loader \\ &amp;load/2)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L434" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>load(<a href="#t:t/0">t</a>, term, (<a href="#t:t/0">t</a>, term -> {:ok, term} | :error)) ::
+  {:ok, term} |
+  :error</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Loads a value with the given type.</p>
+<pre><code class="iex elixir">iex&gt; load(:string, nil)
+{:ok, nil}
+iex&gt; load(:string, &quot;foo&quot;)
+{:ok, &quot;foo&quot;}
+
+iex&gt; load(:integer, 1)
+{:ok, 1}
+iex&gt; load(:integer, &quot;10&quot;)
+:error</code></pre>
+<p>A <code class="inline">loader</code> function may be given for handling recursive types.</p>
+
+  </section>
+</div>
+<div class="detail" id="match?/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/match%3F%2F2" class="dashAnchor"></a>
+  <a href="#match?/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">match?(schema_type, query_type)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L239" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>match?(<a href="#t:t/0">t</a>, <a href="#t:primitive/0">primitive</a>) :: boolean</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Checks if a given type matches with a primitive type
+that can be found in queries.</p>
+<pre><code class="iex elixir">iex&gt; match?(:string, :any)
+true
+iex&gt; match?(:any, :string)
+true
+iex&gt; match?(:string, :string)
+true
+
+iex&gt; match?({:array, :string}, {:array, :any})
+true
+
+iex&gt; match?(Ecto.UUID, :uuid)
+true
+iex&gt; match?(Ecto.UUID, :string)
+false</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="primitive?/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/primitive%3F%2F1" class="dashAnchor"></a>
+  <a href="#primitive?/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">primitive?(base)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L158" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>primitive?(<a href="#t:t/0">t</a>) :: boolean</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Checks if we have a primitive type.</p>
+<pre><code class="iex elixir">iex&gt; primitive?(:string)
+true
+iex&gt; primitive?(Another)
+false
+
+iex&gt; primitive?({:array, :string})
+true
+iex&gt; primitive?({:array, Another})
+true</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="type/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/type%2F1" class="dashAnchor"></a>
+  <a href="#type/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">type(type)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L210" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>type(<a href="#t:t/0">t</a>) :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Retrieves the underlying schema type for the given, possibly custom, type.</p>
+<pre><code class="iex elixir">iex&gt; type(:string)
+:string
+iex&gt; type(Ecto.UUID)
+:uuid
+
+iex&gt; type({:array, :string})
+{:array, :string}
+iex&gt; type({:array, Ecto.UUID})
+{:array, :uuid}
+
+iex&gt; type({:map, Ecto.UUID})
+{:map, :uuid}</code></pre>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+        <section id="callbacks" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#callbacks">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Callbacks
+          </h1>
+          <div class="detail" id="c:cast/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/cast%2F1" class="dashAnchor"></a>
+  <a href="#c:cast/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">cast(term)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L119" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>cast(term) :: {:ok, term} | :error</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Casts the given input to the custom type.</p>
+<p>This callback is called on external input and can return any type,
+as long as the <code class="inline">dump/1</code> function is able to convert the returned
+value into an Ecto native type. There are two situations where
+this callback is called:</p>
+<ol>
+<li>When casting values by <a href="Ecto.Changeset.html"><code class="inline">Ecto.Changeset</code></a>
+</li>
+<li>When passing arguments to <a href="Ecto.Query.html"><code class="inline">Ecto.Query</code></a>
+</li>
+</ol>
+
+  </section>
+</div>
+<div class="detail" id="c:dump/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/dump%2F1" class="dashAnchor"></a>
+  <a href="#c:dump/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">dump(term)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L137" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>dump(term) :: {:ok, term} | :error</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Dumps the given term into an Ecto native type.</p>
+<p>This callback is called with any term that was stored in the struct
+and it needs to validate them and convert it to an Ecto native type.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:load/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/load%2F1" class="dashAnchor"></a>
+  <a href="#c:load/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">load(term)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L129" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>load(term) :: {:ok, term} | :error</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Loads the given term into a custom type.</p>
+<p>This callback is called when loading data from the database and
+receive an Ecto native type. It can return any type, as long as
+the <code class="inline">dump/1</code> function is able to convert the returned value back
+into an Ecto native type.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:type/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/type%2F0" class="dashAnchor"></a>
+  <a href="#c:type/0" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">type()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/type.ex#L105" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>type() :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns the underlying schema type for the custom type.</p>
+<p>For example, if you want to provide your own date
+structures, the type function should return <code class="inline">:date</code>.</p>
+<p>Note this function is not required to return Ecto primitive
+types, the type is only required to be known by the adapter.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

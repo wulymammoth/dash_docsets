@@ -1,0 +1,2328 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Ecto.Repo – Ecto v3.0.0-dev</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+      <link rel="canonical" href="http://hexdocs.pm/ecto/Ecto.Repo.html" />
+    
+    
+      
+        <link rel="icon" type="image/png" href="assets/logo.png" />
+      
+      
+    
+    <script src="dist/sidebar_items-d4f8a3d044.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Ecto.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.0.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Ecto" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Ecto v3.0.0-dev</small>
+        Ecto.Repo <small>behaviour</small>
+        
+          <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Defines a repository.</p>
+<p>A repository maps to an underlying data store, controlled by the
+adapter. For example, Ecto ships with a Postgres adapter that
+stores data into a PostgreSQL database.</p>
+<p>When used, the repository expects the <code class="inline">:otp_app</code> as option.
+The <code class="inline">:otp_app</code> should point to an OTP application that has
+the repository configuration. For example, the repository:</p>
+<pre><code class="elixir">defmodule Repo do
+  use Ecto.Repo, otp_app: :my_app
+end</code></pre>
+<p>Could be configured with:</p>
+<pre><code class="elixir">config :my_app, Repo,
+  adapter: Ecto.Adapters.Postgres,
+  database: &quot;ecto_simple&quot;,
+  username: &quot;postgres&quot;,
+  password: &quot;postgres&quot;,
+  hostname: &quot;localhost&quot;</code></pre>
+<p>Most of the configuration that goes into the <code class="inline">config</code> is specific
+to the adapter, so check <a href="Ecto.Adapters.Postgres.html"><code class="inline">Ecto.Adapters.Postgres</code></a> documentation
+for more information. However, some configuration is shared across
+all adapters, they are:</p>
+<ul>
+<li><p><code class="inline">:adapter</code> - a compile-time option that specifies the adapter itself.
+As a compile-time option, it may also be given as an option to <code class="inline">use Ecto.Repo</code>.</p>
+</li>
+<li><p><code class="inline">:name</code>- The name of the Repo supervisor process</p>
+</li>
+<li><p><code class="inline">:priv</code> - the directory where to keep repository data, like
+migrations, schema and more. Defaults to “priv/YOUR_REPO”.
+It must always point to a subdirectory inside the priv directory.</p>
+</li>
+<li><p><code class="inline">:url</code> - an URL that specifies storage information. Read below
+for more information</p>
+</li>
+<li><p><code class="inline">:loggers</code> - a list of <code class="inline">{mod, fun, args}</code> tuples that are
+invoked by adapters for logging queries and other events.
+The given module and function will be called with a log
+entry (see <a href="Ecto.LogEntry.html"><code class="inline">Ecto.LogEntry</code></a>) and the given arguments. The
+invoked function must return the <a href="Ecto.LogEntry.html"><code class="inline">Ecto.LogEntry</code></a> as result.
+The default value is: <code class="inline">[{Ecto.LogEntry, :log, []}]</code>, which
+will call <a href="Ecto.LogEntry.html#log/1"><code class="inline">Ecto.LogEntry.log/1</code></a> that will use Elixir’s <a href="https://hexdocs.pm/logger/Logger.html"><code class="inline">Logger</code></a>
+in <code class="inline">:debug</code> mode. You may pass any desired mod-fun-args
+triplet or <code class="inline">[{Ecto.LogEntry, :log, [:info]}]</code> if you want to
+keep the current behaviour but use another log level.
+This option is processed at compile-time and may also be given
+as an option to <code class="inline">use Ecto.Repo</code>.</p>
+</li>
+</ul>
+<h2 id="module-urls" class="section-heading">
+  <a href="#module-urls" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  URLs
+</h2>
+
+<p>Repositories by default support URLs. For example, the configuration
+above could be rewritten to:</p>
+<pre><code class="elixir">config :my_app, Repo,
+  url: &quot;ecto://postgres:postgres@localhost/ecto_simple&quot;</code></pre>
+<p>The schema can be of any value. The path represents the database name
+while options are simply merged in.</p>
+<p>URL can include query parameters to override shared and adapter-specific
+options <code class="inline">ssl</code>, <code class="inline">timeout</code>, <code class="inline">pool_timeout</code>, <code class="inline">pool_size</code>:</p>
+<p>  config :my_app, Repo,</p>
+<pre><code class="elixir">  url: &quot;ecto://postgres:postgres@localhost/ecto_simple?ssl=true&amp;pool_size=10&quot;</code></pre>
+<p>In case the URL needs to be dynamically configured, for example by
+reading a system environment variable, such can be done via the
+<a href="#c:init/2"><code class="inline">init/2</code></a> repository callback:</p>
+<pre><code class="elixir">def init(_type, config) do
+  {:ok, Keyword.put(config, :url, System.get_env(&quot;DATABASE_URL&quot;))}
+end</code></pre>
+<h2 id="module-shared-options" class="section-heading">
+  <a href="#module-shared-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Shared options
+</h2>
+
+<p>Almost all of the repository operations below accept the following
+options:</p>
+<ul>
+<li><code class="inline">:timeout</code> - The time in milliseconds to wait for the query call to
+finish, <code class="inline">:infinity</code> will wait indefinitely (default: 15000);
+</li>
+<li><code class="inline">:pool_timeout</code> - The time in milliseconds to wait for calls to the pool
+to finish, <code class="inline">:infinity</code> will wait indefinitely (default: 5000);
+</li>
+<li><code class="inline">:log</code> - When false, does not log the query
+</li>
+</ul>
+<p>Such cases will be explicitly documented as well as any extra option.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:t/0">t()</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+
+          
+  <div class="summary-callbacks summary">
+    <h2>
+      <a href="#callbacks">Callbacks</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:__adapter__/0">__adapter__()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns the adapter tied to the repository</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:__log__/1">__log__(entry)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>A callback invoked by adapters that logs the given action</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:aggregate/4">aggregate(queryable, aggregate, field, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Calculate the given <code class="inline">aggregate</code> over the given <code class="inline">field</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:all/2">all(queryable, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Fetches all entries from the data store matching the given query</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:config/0">config()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns the adapter configuration stored in the <code class="inline">:otp_app</code> environment</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:delete/2">delete(struct_or_changeset, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Deletes a struct using its primary key</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:delete!/2">delete!(struct_or_changeset, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Same as <a href="#c:delete/2"><code class="inline">delete/2</code></a> but returns the struct or raises if the changeset is invalid</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:delete_all/2">delete_all(queryable, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Deletes all entries matching the given query</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:get/3">get(queryable, id, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Fetches a single struct from the data store where the primary key matches the
+given id</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:get!/3">get!(queryable, id, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Similar to <a href="#c:get/3"><code class="inline">get/3</code></a> but raises <a href="Ecto.NoResultsError.html"><code class="inline">Ecto.NoResultsError</code></a> if no record was found</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:get_by/3">get_by(queryable, clauses, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Fetches a single result from the query</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:get_by!/3">get_by!(queryable, clauses, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Similar to <code class="inline">get_by/3</code> but raises <a href="Ecto.NoResultsError.html"><code class="inline">Ecto.NoResultsError</code></a> if no record was found</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:in_transaction?/0">in_transaction?()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns true if the current process is inside a transaction</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:init/2">init(arg0, config)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>A callback executed when the repo starts or when configuration is read</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:insert/2">insert(struct_or_changeset, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Inserts a struct defined via <a href="Ecto.Schema.html"><code class="inline">Ecto.Schema</code></a> or a changeset</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:insert!/2">insert!(struct_or_changeset, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Same as <a href="#c:insert/2"><code class="inline">insert/2</code></a> but returns the struct or raises if the changeset is invalid</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:insert_all/3">insert_all(schema_or_source, entries, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Inserts all entries into the repository</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:insert_or_update/2">insert_or_update(changeset, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Inserts or updates a changeset depending on whether the struct is persisted
+or not</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:insert_or_update!/2">insert_or_update!(changeset, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Same as <a href="#c:insert_or_update/2"><code class="inline">insert_or_update/2</code></a> but returns the struct or raises if the changeset
+is invalid</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:load/2">load(struct_or_map, data)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Loads <code class="inline">data</code> into a struct or a map</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:one/2">one(queryable, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Fetches a single result from the query</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:one!/2">one!(queryable, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Similar to <a href="#c:one/2"><code class="inline">one/2</code></a> but raises <a href="Ecto.NoResultsError.html"><code class="inline">Ecto.NoResultsError</code></a> if no record was found</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:preload/3">preload(structs_or_struct_or_nil, preloads, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Preloads all associations on the given struct or structs</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:rollback/1">rollback(value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Rolls back the current transaction</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:start_link/1">start_link(opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Starts any connection pooling or supervision and return <code class="inline">{:ok, pid}</code>
+or just <code class="inline">:ok</code> if nothing needs to be done</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:stop/2">stop(pid, timeout)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Shuts down the repository represented by the given pid</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:stream/2">stream(queryable, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns a lazy enumerable that emits all entries from the data store
+matching the given query. SQL adapters, such as Postgres and MySQL, can only
+enumerate a stream inside a transaction</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:transaction/2">transaction(fun_or_multi, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Runs the given function or <a href="Ecto.Multi.html"><code class="inline">Ecto.Multi</code></a> inside a transaction</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:update/2">update(changeset, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Updates a changeset using its primary key</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:update!/2">update!(changeset, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Same as <a href="#c:update/2"><code class="inline">update/2</code></a> but returns the struct or raises if the changeset is invalid</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:update_all/3">update_all(queryable, updates, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Updates all entries matching the given query with the given values</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:t/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/t" class="dashAnchor"></a>
+  <a href="#t:t/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">t()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L95" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>t() :: module</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+
+      
+        <section id="callbacks" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#callbacks">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Callbacks
+          </h1>
+          <div class="detail" id="c:__adapter__/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/__adapter__%2F0" class="dashAnchor"></a>
+  <a href="#c:__adapter__/0" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">__adapter__()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L260" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>__adapter__() :: <a href="Ecto.Adapter.html#t:t/0">Ecto.Adapter.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns the adapter tied to the repository.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:__log__/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/__log__%2F1" class="dashAnchor"></a>
+  <a href="#c:__log__/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">__log__(entry)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L268" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>__log__(entry :: <a href="Ecto.LogEntry.html#t:t/0">Ecto.LogEntry.t</a>) :: <a href="Ecto.LogEntry.html#t:t/0">Ecto.LogEntry.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>A callback invoked by adapters that logs the given action.</p>
+<p>See <a href="Ecto.LogEntry.html"><code class="inline">Ecto.LogEntry</code></a> for more information and <a href="Ecto.Repo.html#content"><code class="inline">Ecto.Repo</code></a> module
+documentation on setting up your own loggers.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:aggregate/4">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/aggregate%2F4" class="dashAnchor"></a>
+  <a href="#c:aggregate/4" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">aggregate(queryable, aggregate, field, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L400" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>aggregate(queryable :: <a href="Ecto.Queryable.html#t:t/0">Ecto.Queryable.t</a>, aggregate :: :avg | :count | :max | :min | :sum, field :: atom, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  term |
+  nil</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Calculate the given <code class="inline">aggregate</code> over the given <code class="inline">field</code>.</p>
+<p>If the query has a limit, offset or distinct set, it will be
+automatically wrapped in a subquery in order to return the
+proper result.</p>
+<p>Any preload or select in the query will be ignored in favor of
+the column being aggregated.</p>
+<p>The aggregation will fail if any <code class="inline">group_by</code> field is set.</p>
+<h2 id="c:aggregate/4-options" class="section-heading">
+  <a href="#c:aggregate/4-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>See the “Shared options” section at the module documentation.</p>
+<h2 id="c:aggregate/4-examples" class="section-heading">
+  <a href="#c:aggregate/4-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir"># Returns the number of visits per blog post
+Repo.aggregate(Post, :count, :visits)
+
+# Returns the average number of visits for the top 10
+query = from Post, limit: 10
+Repo.aggregate(query, :avg, :visits)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:all/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/all%2F2" class="dashAnchor"></a>
+  <a href="#c:all/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">all(queryable, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L493" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>all(queryable :: <a href="Ecto.Query.html#t:t/0">Ecto.Query.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  [<a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>] |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Fetches all entries from the data store matching the given query.</p>
+<p>May raise <a href="Ecto.QueryError.html"><code class="inline">Ecto.QueryError</code></a> if query validation fails.</p>
+<h2 id="c:all/2-options" class="section-heading">
+  <a href="#c:all/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:prefix</code> - The prefix to run the query on (such as the schema path
+in Postgres or the database in MySQL). This overrides the prefix set
+in the query.
+</li>
+</ul>
+<p>See the “Shared options” section at the module documentation.</p>
+<h2 id="c:all/2-example" class="section-heading">
+  <a href="#c:all/2-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="elixir"># Fetch all post titles
+query = from p in Post,
+     select: p.title
+MyRepo.all(query)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:config/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/config%2F0" class="dashAnchor"></a>
+  <a href="#c:config/0" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">config()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L276" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>config() :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns the adapter configuration stored in the <code class="inline">:otp_app</code> environment.</p>
+<p>If the <a href="#c:init/2"><code class="inline">init/2</code></a> callback is implemented in the repository,
+it will be invoked with the first argument set to <code class="inline">:dry_run</code>.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:delete/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/delete%2F2" class="dashAnchor"></a>
+  <a href="#c:delete/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">delete(struct_or_changeset, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L940" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>delete(struct_or_changeset :: <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> | <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>} |
+  {:error, <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Deletes a struct using its primary key.</p>
+<p>If the struct has no primary key, <a href="Ecto.NoPrimaryKeyFieldError.html"><code class="inline">Ecto.NoPrimaryKeyFieldError</code></a>
+will be raised.</p>
+<p>It returns <code class="inline">{:ok, struct}</code> if the struct has been successfully
+deleted or <code class="inline">{:error, changeset}</code> if there was a validation
+or a known constraint error.</p>
+<h2 id="c:delete/2-options" class="section-heading">
+  <a href="#c:delete/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:prefix</code> - The prefix to run the query on (such as the schema path
+in Postgres or the database in MySQL). This overrides the prefix set
+in the struct.
+</li>
+</ul>
+<p>See the “Shared options” section at the module documentation.</p>
+<h2 id="c:delete/2-example" class="section-heading">
+  <a href="#c:delete/2-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="elixir">post = MyRepo.get!(Post, 42)
+case MyRepo.delete post do
+  {:ok, struct}       -&gt; # Deleted with success
+  {:error, changeset} -&gt; # Something went wrong
+end</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:delete!/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/delete%21%2F2" class="dashAnchor"></a>
+  <a href="#c:delete!/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">delete!(struct_or_changeset, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L965" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>delete!(struct_or_changeset :: <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> | <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Same as <a href="#c:delete/2"><code class="inline">delete/2</code></a> but returns the struct or raises if the changeset is invalid.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:delete_all/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/delete_all%2F2" class="dashAnchor"></a>
+  <a href="#c:delete_all/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">delete_all(queryable, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L698" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>delete_all(queryable :: <a href="Ecto.Queryable.html#t:t/0">Ecto.Queryable.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {integer, nil | [term]} |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Deletes all entries matching the given query.</p>
+<p>It returns a tuple containing the number of entries
+and any returned result as second element. If the database
+does not support RETURNING in DELETE statements or no
+return result was selected, the second element will be <code class="inline">nil</code>.</p>
+<h2 id="c:delete_all/2-options" class="section-heading">
+  <a href="#c:delete_all/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:returning</code> - selects which fields to return. When <code class="inline">true</code>,
+returns all fields in the given struct. May be a list of
+fields, where a struct is still returned but only with the
+given fields. Or <code class="inline">false</code>, where nothing is returned (the default).
+This option is not supported by all databases.
+</li>
+<li><code class="inline">:prefix</code> - The prefix to run the query on (such as the schema path
+in Postgres or the database in MySQL). This overrides the prefix set
+in the query.
+</li>
+</ul>
+<p>See the “Shared options” section at the module documentation for
+remaining options.</p>
+<h2 id="c:delete_all/2-examples" class="section-heading">
+  <a href="#c:delete_all/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">MyRepo.delete_all(Post)
+
+from(p in Post, where: p.id &lt; 10) |&gt; MyRepo.delete_all</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:get/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/get%2F3" class="dashAnchor"></a>
+  <a href="#c:get/3" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">get(queryable, id, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L329" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>get(queryable :: <a href="Ecto.Queryable.html#t:t/0">Ecto.Queryable.t</a>, id :: term, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> |
+  nil |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Fetches a single struct from the data store where the primary key matches the
+given id.</p>
+<p>Returns <code class="inline">nil</code> if no result was found. If the struct in the queryable
+has no or more than one primary key, it will raise an argument error.</p>
+<h2 id="c:get/3-options" class="section-heading">
+  <a href="#c:get/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>See the “Shared options” section at the module documentation.</p>
+<h2 id="c:get/3-example" class="section-heading">
+  <a href="#c:get/3-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="elixir">MyRepo.get(Post, 42)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:get!/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/get%21%2F3" class="dashAnchor"></a>
+  <a href="#c:get!/3" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">get!(queryable, id, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L343" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>get!(queryable :: <a href="Ecto.Queryable.html#t:t/0">Ecto.Queryable.t</a>, id :: term, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> |
+  nil |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Similar to <a href="#c:get/3"><code class="inline">get/3</code></a> but raises <a href="Ecto.NoResultsError.html"><code class="inline">Ecto.NoResultsError</code></a> if no record was found.</p>
+<h2 id="c:get!/3-options" class="section-heading">
+  <a href="#c:get!/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>See the “Shared options” section at the module documentation.</p>
+<h2 id="c:get!/3-example" class="section-heading">
+  <a href="#c:get!/3-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="elixir">MyRepo.get!(Post, 42)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:get_by/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/get_by%2F3" class="dashAnchor"></a>
+  <a href="#c:get_by/3" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">get_by(queryable, clauses, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L359" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>get_by(queryable :: <a href="Ecto.Queryable.html#t:t/0">Ecto.Queryable.t</a>, clauses :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a> | map, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> |
+  nil |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Fetches a single result from the query.</p>
+<p>Returns <code class="inline">nil</code> if no result was found.</p>
+<h2 id="c:get_by/3-options" class="section-heading">
+  <a href="#c:get_by/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>See the “Shared options” section at the module documentation.</p>
+<h2 id="c:get_by/3-example" class="section-heading">
+  <a href="#c:get_by/3-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="elixir">MyRepo.get_by(Post, title: &quot;My post&quot;)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:get_by!/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/get_by%21%2F3" class="dashAnchor"></a>
+  <a href="#c:get_by!/3" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">get_by!(queryable, clauses, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L373" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>get_by!(queryable :: <a href="Ecto.Queryable.html#t:t/0">Ecto.Queryable.t</a>, clauses :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a> | map, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> |
+  nil |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Similar to <code class="inline">get_by/3</code> but raises <a href="Ecto.NoResultsError.html"><code class="inline">Ecto.NoResultsError</code></a> if no record was found.</p>
+<h2 id="c:get_by!/3-options" class="section-heading">
+  <a href="#c:get_by!/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>See the “Shared options” section at the module documentation.</p>
+<h2 id="c:get_by!/3-example" class="section-heading">
+  <a href="#c:get_by!/3-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="elixir">MyRepo.get_by!(Post, title: &quot;My post&quot;)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:in_transaction?/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/in_transaction%3F%2F0" class="dashAnchor"></a>
+  <a href="#c:in_transaction?/0" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">in_transaction?()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L1045" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(optional)</span>
+    
+    
+      <div class="specs">
+        
+          <pre>in_transaction?() :: boolean</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns true if the current process is inside a transaction.</p>
+<h2 id="c:in_transaction?/0-examples" class="section-heading">
+  <a href="#c:in_transaction?/0-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">MyRepo.in_transaction?
+#=&gt; false
+
+MyRepo.transaction(fn -&gt;
+  MyRepo.in_transaction? #=&gt; true
+end)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:init/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/init%2F2" class="dashAnchor"></a>
+  <a href="#c:init/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">init(arg0, config)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L306" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(optional)</span>
+    
+    
+      <div class="specs">
+        
+          <pre>init(:supervisor | :dry_run, config :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>} |
+  :ignore</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>A callback executed when the repo starts or when configuration is read.</p>
+<p>The first argument is the context the callback is being invoked. If it
+is called because the Repo supervisor is starting, it will be <code class="inline">:supervisor</code>.
+It will be <code class="inline">:dry_run</code> if it is called for reading configuration without
+actually starting a process.</p>
+<p>The second argument is the repository configuration as stored in the
+application environment. It must return <code class="inline">{:ok, keyword}</code> with the updated
+list of configuration or <code class="inline">:ignore</code> (only in the <code class="inline">:supervisor</code> case).</p>
+
+  </section>
+</div>
+<div class="detail" id="c:insert/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/insert%2F2" class="dashAnchor"></a>
+  <a href="#c:insert/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">insert(struct_or_changeset, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L829" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>insert(struct_or_changeset :: <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> | <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>} |
+  {:error, <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Inserts a struct defined via <a href="Ecto.Schema.html"><code class="inline">Ecto.Schema</code></a> or a changeset.</p>
+<p>In case a struct is given, the struct is converted into a changeset
+with all non-nil fields as part of the changeset.</p>
+<p>In case a changeset is given, the changes in the changeset are
+merged with the struct fields, and all of them are sent to the
+database.</p>
+<p>It returns <code class="inline">{:ok, struct}</code> if the struct has been successfully
+inserted or <code class="inline">{:error, changeset}</code> if there was a validation
+or a known constraint error.</p>
+<h2 id="c:insert/2-options" class="section-heading">
+  <a href="#c:insert/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:returning</code> - selects which fields to return. When <code class="inline">true</code>, returns
+all fields in the given struct. May be a list of fields, where a
+struct is still returned but only with the given fields. In any case,
+it will include fields with <code class="inline">read_after_writes</code> set to true.
+This option is not supported by all databases.
+</li>
+<li><code class="inline">:prefix</code> - The prefix to run the query on (such as the schema path
+in Postgres or the database in MySQL). This overrides the prefix set
+in the struct.
+</li>
+<li><code class="inline">:on_conflict</code> - It may be one of <code class="inline">:raise</code> (the default), <code class="inline">:nothing</code>,
+<code class="inline">:replace_all</code>, <code class="inline">:replace_all_except_primary_key</code>, a keyword list of
+update instructions or an <a href="Ecto.Query.html"><code class="inline">Ecto.Query</code></a> query for updates. See the
+“Upserts” section for more information.
+</li>
+<li><code class="inline">:conflict_target</code> - Which columns to verify for conflicts. If
+none is specified, the conflict target is left up to the database
+and is usually made of primary keys and/or unique/exclusion constraints.
+May also be <code class="inline">{:constraint, constraint_name_as_atom}</code> in databases
+that support the “ON CONSTRAINT” expression.
+</li>
+</ul>
+<p>See the “Shared options” section at the module documentation.</p>
+<h2 id="c:insert/2-examples" class="section-heading">
+  <a href="#c:insert/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<p>A typical example is calling <code class="inline">MyRepo.insert/1</code> with a struct
+and acting on the return value:</p>
+<pre><code class="elixir">case MyRepo.insert %Post{title: &quot;Ecto is great&quot;} do
+  {:ok, struct}       -&gt; # Inserted with success
+  {:error, changeset} -&gt; # Something went wrong
+end</code></pre>
+<h2 id="c:insert/2-upserts" class="section-heading">
+  <a href="#c:insert/2-upserts" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Upserts
+</h2>
+
+<p><a href="#c:insert/2"><code class="inline">insert/2</code></a> provides upserts (update or inserts) via the <code class="inline">:on_conflict</code>
+option. The <code class="inline">:on_conflict</code> option supports the following values:</p>
+<ul>
+<li><code class="inline">:raise</code> - raises if there is a conflicting primary key or unique index
+</li>
+<li><code class="inline">:nothing</code> - ignores the error in case of conflicts
+</li>
+<li><code class="inline">:replace_all</code> - replace all values on the existing row with the values
+in the excluded row except (the record given in the function parameters)
+</li>
+<li><code class="inline">:replace_all_except_primary_key</code> - same as above except primary keys are
+not replaced
+</li>
+<li>a keyword list of update instructions - such as the one given to
+<a href="#c:update_all/3"><code class="inline">update_all/3</code></a>, for example: <code class="inline">[set: [title: &quot;new title&quot;]]</code>
+</li>
+<li>an <a href="Ecto.Query.html"><code class="inline">Ecto.Query</code></a> that will act as an <code class="inline">UPDATE</code> statement, such as the
+one given to <a href="#c:update_all/3"><code class="inline">update_all/3</code></a>
+</li>
+</ul>
+<p>Upserts map to “ON CONFLICT” on databases like Postgres and “ON DUPLICATE KEY”
+on databases such as MySQL.</p>
+<p>As an example, imagine <code class="inline">:title</code> is marked as a unique column in
+the database:</p>
+<pre><code class="elixir">{:ok, inserted} = MyRepo.insert(%Post{title: &quot;this is unique&quot;})</code></pre>
+<p>Now we can insert with the same title but do nothing on conflicts:</p>
+<pre><code class="elixir">{:ok, ignored} = MyRepo.insert(%Post{title: &quot;this is unique&quot;}, on_conflict: :nothing)
+assert ignored.id == nil</code></pre>
+<p>Because we used <code class="inline">on_conflict: :nothing</code>, instead of getting an error,
+we got <code class="inline">{:ok, struct}</code>. However the returned struct does not reflect
+the data in the database. One possible mechanism to detect if an
+insert or nothing happened in case of <code class="inline">on_conflict: :nothing</code> is by
+checking the <code class="inline">id</code> field. <code class="inline">id</code> will be nil if the field is autogenerated
+by the database and no insert happened.</p>
+<p>For actual upserts, where an insert or update may happen, the situation
+is slightly more complex, as the database does not actually inform us
+if an insert or update happened. Let’s insert a post with the same title
+but use a query to update the body column in case of conflicts:</p>
+<pre><code class="elixir"># In Postgres (it requires the conflict target for updates):
+on_conflict = [set: [body: &quot;updated&quot;]]
+{:ok, updated} = MyRepo.insert(%Post{title: &quot;this is unique&quot;},
+                               on_conflict: on_conflict, conflict_target: :title)
+
+# In MySQL (conflict target is not supported):
+on_conflict = [set: [title: &quot;updated&quot;]]
+{:ok, updated} = MyRepo.insert(%Post{id: inserted.id, title: &quot;updated&quot;},
+                               on_conflict: on_conflict)</code></pre>
+<p>In the examples above, even though it returned <code class="inline">:ok</code>, we do not know
+if we inserted new data or if we updated only the <code class="inline">:on_conflict</code> fields.
+In case an update happened, the data in the struct most likely does
+not match the data in the database. For example, autogenerated fields
+such as <code class="inline">inserted_at</code> will point to now rather than the time the
+struct was actually inserted.</p>
+<p>If you need to guarantee the data in the returned struct mirrors the
+database, you have three options:</p>
+<ul>
+<li><p>Use <code class="inline">on_conflict: :replace_all</code>, although that will replace all
+fields in the database with current ones (except for primary keys):</p>
+<pre><code class="elixir">MyRepo.insert(%Post{title: &quot;this is unique&quot;},
+              on_conflict: :replace_all, conflict_target: :title)</code></pre>
+</li>
+<li><p>Specify <code class="inline">read_after_writes: true</code> in your schema for choosing
+fields that are read from the database after every operation.
+Or pass <code class="inline">returning: true</code> to <code class="inline">insert</code> to read all fields back:</p>
+<pre><code class="elixir">MyRepo.insert(%Post{title: &quot;this is unique&quot;}, returning: true,
+              on_conflict: on_conflict, conflict_target: :title)</code></pre>
+</li>
+<li><p>Alternatively, read the data again from the database in a separate
+query. This option requires the primary key to be generated by the
+database:</p>
+<pre><code class="elixir">{:ok, updated} = MyRepo.insert(%Post{title: &quot;this is unique&quot;}, on_conflict: on_conflict)
+Repo.get(Post, updated.id)</code></pre>
+</li>
+</ul>
+
+  </section>
+</div>
+<div class="detail" id="c:insert!/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/insert%21%2F2" class="dashAnchor"></a>
+  <a href="#c:insert!/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">insert!(struct_or_changeset, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L946" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>insert!(struct_or_changeset :: <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> | <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Same as <a href="#c:insert/2"><code class="inline">insert/2</code></a> but returns the struct or raises if the changeset is invalid.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:insert_all/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/insert_all%2F3" class="dashAnchor"></a>
+  <a href="#c:insert_all/3" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">insert_all(schema_or_source, entries, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L615" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>insert_all(schema_or_source :: binary | {binary, <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>} | <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>, entries :: [map | <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>], opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {integer, nil | [term]} |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Inserts all entries into the repository.</p>
+<p>It expects a schema (<code class="inline">MyApp.User</code>) or a source (<code class="inline">&quot;users&quot;</code>) or
+both (<code class="inline">{&quot;users&quot;, MyApp.User}</code>) as the first argument. The second
+argument is a list of entries to be inserted, either as keyword
+lists or as maps.</p>
+<p>It returns a tuple containing the number of entries
+and any returned result as second element. If the database
+does not support RETURNING in INSERT statements or no
+return result was selected, the second element will be <code class="inline">nil</code>.</p>
+<p>When a schema is given, the values given will be properly dumped
+before being sent to the database. If the schema contains an
+autogenerated ID field, it will be handled either at the adapter
+or the storage layer. However any other autogenerated value, like
+timestamps, won’t be autogenerated when using <a href="#c:insert_all/3"><code class="inline">insert_all/3</code></a>.
+This is by design as this function aims to be a more direct way
+to insert data into the database without the conveniences of
+<a href="#c:insert/2"><code class="inline">insert/2</code></a>. This is also consistent with <a href="#c:update_all/3"><code class="inline">update_all/3</code></a> that
+does not handle timestamps as well.</p>
+<p>It is also not possible to use <code class="inline">insert_all</code> to insert across multiple
+tables, therefore associations are not supported.</p>
+<p>If a source is given, without a schema, the given fields are passed
+as is to the adapter.</p>
+<h2 id="c:insert_all/3-options" class="section-heading">
+  <a href="#c:insert_all/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:returning</code> - selects which fields to return. When <code class="inline">true</code>,
+returns all fields in the given struct. May be a list of
+fields, where a struct is still returned but only with the
+given fields. Or <code class="inline">false</code>, where nothing is returned (the default).
+This option is not supported by all databases.
+</li>
+<li><code class="inline">:prefix</code> - The prefix to run the query on (such as the schema path
+in Postgres or the database in MySQL).
+</li>
+<li><code class="inline">:on_conflict</code> - It may be one of <code class="inline">:raise</code> (the default), <code class="inline">:nothing</code>,
+<code class="inline">:replace_all</code>, <code class="inline">:replace_all_except_primary_key</code>, a keyword list of
+update instructions or an <a href="Ecto.Query.html"><code class="inline">Ecto.Query</code></a> query for updates. See the
+“Upserts” section for more information.
+</li>
+<li><code class="inline">:conflict_target</code> - Which columns to verify for conflicts. If
+none is specified, the conflict target is left up to the database
+and is usually made of primary keys and/or unique/exclusion constraints.
+May also be <code class="inline">{:constraint, constraint_name_as_atom}</code> in databases
+that support the “ON CONSTRAINT” expression.
+</li>
+</ul>
+<p>See the “Shared options” section at the module documentation for
+remaining options.</p>
+<h2 id="c:insert_all/3-examples" class="section-heading">
+  <a href="#c:insert_all/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">MyRepo.insert_all(Post, [[title: &quot;My first post&quot;], [title: &quot;My second post&quot;]])
+MyRepo.insert_all(Post, [%{title: &quot;My first post&quot;}, %{title: &quot;My second post&quot;}])</code></pre>
+<h2 id="c:insert_all/3-upserts" class="section-heading">
+  <a href="#c:insert_all/3-upserts" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Upserts
+</h2>
+
+<p><a href="#c:insert_all/3"><code class="inline">insert_all/3</code></a> provides upserts (update or inserts) via the <code class="inline">:on_conflict</code>
+option. The <code class="inline">:on_conflict</code> option supports the following values:</p>
+<ul>
+<li><code class="inline">:raise</code> - raises if there is a conflicting primary key or unique index
+</li>
+<li><code class="inline">:nothing</code> - ignores the error in case of conflicts
+</li>
+<li><code class="inline">:replace_all</code> - replace all values on the existing row with the values
+in the excluded row (the corresponding record given in the function
+parameters)
+</li>
+<li><code class="inline">:replace_all_except_primary_key</code> - same as above except primary keys are
+not replaced. This option requires a schema
+</li>
+<li>a keyword list of update instructions - such as the one given to
+<a href="#c:update_all/3"><code class="inline">update_all/3</code></a>, for example: <code class="inline">[set: [title: &quot;new title&quot;]]</code>
+</li>
+<li>an <a href="Ecto.Query.html"><code class="inline">Ecto.Query</code></a> that will act as an <code class="inline">UPDATE</code> statement, such as the
+one given to <a href="#c:update_all/3"><code class="inline">update_all/3</code></a>
+</li>
+</ul>
+<p>Upserts map to “ON CONFLICT” on databases like Postgres and “ON DUPLICATE KEY”
+on databases such as MySQL.</p>
+<h2 id="c:insert_all/3-return-values" class="section-heading">
+  <a href="#c:insert_all/3-return-values" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Return values
+</h2>
+
+<p>By default, both Postgres and MySQL return the amount of entries
+inserted on <a href="#c:insert_all/3"><code class="inline">insert_all/3</code></a>. However, when the <code class="inline">:on_conflict</code> option
+is specified, Postgres will only return a row if it was affected
+while MySQL returns at least the number of entries attempted.</p>
+<p>For example, if <code class="inline">:on_conflict</code> is set to <code class="inline">:nothing</code>, Postgres will
+return 0 if no new entry was added while MySQL will still return
+the amount of entries attempted to be inserted, even if no entry
+was added. Even worse, if <code class="inline">:on_conflict</code> is query, MySQL will return
+the number of attempted entries plus the number of entries modified
+by the UPDATE query.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:insert_or_update/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/insert_or_update%2F2" class="dashAnchor"></a>
+  <a href="#c:insert_or_update/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">insert_or_update(changeset, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L910" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>insert_or_update(changeset :: <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>} |
+  {:error, <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Inserts or updates a changeset depending on whether the struct is persisted
+or not.</p>
+<p>The distinction whether to insert or update will be made on the
+<a href="Ecto.Schema.Metadata.html"><code class="inline">Ecto.Schema.Metadata</code></a> field <code class="inline">:state</code>. The <code class="inline">:state</code> is automatically set by
+Ecto when loading or building a schema.</p>
+<p>Please note that for this to work, you will have to load existing structs from
+the database. So even if the struct exists, this won’t work:</p>
+<pre><code class="elixir">struct = %Post{id: &quot;existing_id&quot;, ...}
+MyRepo.insert_or_update changeset
+# =&gt; {:error, changeset} # id already exists</code></pre>
+<h2 id="c:insert_or_update/2-options" class="section-heading">
+  <a href="#c:insert_or_update/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:prefix</code> - The prefix to run the query on (such as the schema path
+in Postgres or the database in MySQL). This overrides the prefix set
+in the struct.
+</li>
+</ul>
+<p>See the “Shared options” section at the module documentation.</p>
+<h2 id="c:insert_or_update/2-example" class="section-heading">
+  <a href="#c:insert_or_update/2-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="elixir">result =
+  case MyRepo.get(Post, id) do
+    nil  -&gt; %Post{id: id} # Post not found, we build one
+    post -&gt; post          # Post exists, let&#39;s use it
+  end
+  |&gt; Post.changeset(changes)
+  |&gt; MyRepo.insert_or_update
+
+case result do
+  {:ok, struct}       -&gt; # Inserted or updated with success
+  {:error, changeset} -&gt; # Something went wrong
+end</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:insert_or_update!/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/insert_or_update%21%2F2" class="dashAnchor"></a>
+  <a href="#c:insert_or_update!/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">insert_or_update!(changeset, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L959" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>insert_or_update!(changeset :: <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Same as <a href="#c:insert_or_update/2"><code class="inline">insert_or_update/2</code></a> but returns the struct or raises if the changeset
+is invalid.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:load/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/load%2F2" class="dashAnchor"></a>
+  <a href="#c:load/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">load(struct_or_map, data)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L1095" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>load(struct_or_map :: <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> | map, data :: map | <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a> | {list, list}) ::
+  <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> |
+  map</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Loads <code class="inline">data</code> into a struct or a map.</p>
+<p>The first argument can be a schema, or a map (of types) and determines the return value:
+a struct or a map, respectively.</p>
+<p>The second argument <code class="inline">data</code> specifies fields and values that are to be loaded.
+It can be a map, a keyword list, or a <code class="inline">{fields, values}</code> tuple.
+Fields can be atoms or strings.</p>
+<p>Fields that are not present in the schema (or <code class="inline">types</code> map) are ignored.
+If any of the values has invalid type, an error is raised.</p>
+<h2 id="c:load/2-examples" class="section-heading">
+  <a href="#c:load/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; MyRepo.load(User, %{name: &quot;Alice&quot;, age: 25})
+%User{name: &quot;Alice&quot;, age: 25}
+
+iex&gt; MyRepo.load(User, [name: &quot;Alice&quot;, age: 25])
+%User{name: &quot;Alice&quot;, age: 25}</code></pre>
+<p><code class="inline">data</code> can also take form of <code class="inline">{fields, values}</code>:</p>
+<pre><code class="iex elixir">iex&gt; MyRepo.load(User, {[:name, :age], [&quot;Alice&quot;, 25]})
+%User{name: &quot;Alice&quot;, age: 25, ...}</code></pre>
+<p>The first argument can also be a <code class="inline">types</code> map:</p>
+<pre><code class="iex elixir">iex&gt; types = %{name: :string, age: :integer}
+iex&gt; MyRepo.load(types, %{name: &quot;Alice&quot;, age: 25})
+%{name: &quot;Alice&quot;, age: 25}</code></pre>
+<p>This function is especially useful when parsing raw query results:</p>
+<pre><code class="iex elixir">iex&gt; result = Ecto.Adapters.SQL.query!(MyRepo, &quot;SELECT * FROM users&quot;, [])
+iex&gt; Enum.map(result.rows, &amp;MyRepo.load(User, {result.columns, &amp;1}))
+[%User{...}, ...]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:one/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/one%2F2" class="dashAnchor"></a>
+  <a href="#c:one/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">one(queryable, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L412" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>one(queryable :: <a href="Ecto.Queryable.html#t:t/0">Ecto.Queryable.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> |
+  nil |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Fetches a single result from the query.</p>
+<p>Returns <code class="inline">nil</code> if no result was found. Raises if more than one entry.</p>
+<h2 id="c:one/2-options" class="section-heading">
+  <a href="#c:one/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>See the “Shared options” section at the module documentation.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:one!/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/one%21%2F2" class="dashAnchor"></a>
+  <a href="#c:one!/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">one!(queryable, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L423" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>one!(queryable :: <a href="Ecto.Queryable.html#t:t/0">Ecto.Queryable.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Similar to <a href="#c:one/2"><code class="inline">one/2</code></a> but raises <a href="Ecto.NoResultsError.html"><code class="inline">Ecto.NoResultsError</code></a> if no record was found.</p>
+<p>Raises if more than one entry.</p>
+<h2 id="c:one!/2-options" class="section-heading">
+  <a href="#c:one!/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>See the “Shared options” section at the module documentation.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:preload/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/preload%2F3" class="dashAnchor"></a>
+  <a href="#c:preload/3" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">preload(structs_or_struct_or_nil, preloads, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L470" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>preload(structs_or_struct_or_nil, preloads :: term, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: structs_or_struct_or_nil when structs_or_struct_or_nil: [<a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>] | <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> | nil</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Preloads all associations on the given struct or structs.</p>
+<p>This is similar to <a href="Ecto.Query.html#preload/3"><code class="inline">Ecto.Query.preload/3</code></a> except it allows
+you to preload structs after they have been fetched from the
+database.</p>
+<p>In case the association was already loaded, preload won’t attempt
+to reload it.</p>
+<h2 id="c:preload/3-options" class="section-heading">
+  <a href="#c:preload/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>Besides the “Shared options” section at the module documentation,
+it accepts:</p>
+<ul>
+<li><code class="inline">:force</code> - By default, Ecto won’t preload associations that
+are already loaded. By setting this option to true, any existing
+association will be discarded and reloaded.
+</li>
+<li><code class="inline">:in_parallel</code> - If the preloads must be done in parallel. It can
+only be performed when we have more than one preload and the
+repository is not in a transaction. Defaults to <code class="inline">true</code>.
+</li>
+<li><code class="inline">:prefix</code> - the prefix to fetch preloads from. By default, queries
+will use the same prefix as the one in the given collection. This
+option allows the prefix to be changed.
+</li>
+</ul>
+<h2 id="c:preload/3-examples" class="section-heading">
+  <a href="#c:preload/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir"># Use a single atom to preload an association
+posts = Repo.preload posts, :comments
+
+# Use a list of atoms to preload multiple associations
+posts = Repo.preload posts, [:comments, :authors]
+
+# Use a keyword list to preload nested associations as well
+posts = Repo.preload posts, [comments: [:replies, :likes], authors: []]
+
+# Use a keyword list to customize how associations are queried
+posts = Repo.preload posts, [comments: from(c in Comment, order_by: c.published_at)]
+
+# Use a two-element tuple for a custom query and nested association definition
+query = from c in Comment, order_by: c.published_at
+posts = Repo.preload posts, [comments: {query, [:replies, :likes]}]</code></pre>
+<p>Note: The query given to preload may also preload its own associations.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:rollback/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/rollback%2F1" class="dashAnchor"></a>
+  <a href="#c:rollback/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">rollback(value)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L1053" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(optional)</span>
+    
+    
+      <div class="specs">
+        
+          <pre>rollback(value :: any) :: no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Rolls back the current transaction.</p>
+<p>The transaction will return the value given as <code class="inline">{:error, value}</code>.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:start_link/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/start_link%2F1" class="dashAnchor"></a>
+  <a href="#c:start_link/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">start_link(opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L290" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>start_link(opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, pid} |
+  {:error, {:already_started, pid}} |
+  {:error, term}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Starts any connection pooling or supervision and return <code class="inline">{:ok, pid}</code>
+or just <code class="inline">:ok</code> if nothing needs to be done.</p>
+<p>Returns <code class="inline">{:error, {:already_started, pid}}</code> if the repo is already
+started or <code class="inline">{:error, term}</code> in case anything else goes wrong.</p>
+<h2 id="c:start_link/1-options" class="section-heading">
+  <a href="#c:start_link/1-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>See the configuration in the moduledoc for options shared between adapters,
+for adapter-specific configuration see the adapter’s documentation.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:stop/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/stop%2F2" class="dashAnchor"></a>
+  <a href="#c:stop/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">stop(pid, timeout)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L311" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>stop(pid, timeout) :: :ok</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Shuts down the repository represented by the given pid.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:stream/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/stream%2F2" class="dashAnchor"></a>
+  <a href="#c:stream/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">stream(queryable, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L523" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>stream(queryable :: <a href="Ecto.Query.html#t:t/0">Ecto.Query.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: <a href="https://hexdocs.pm/elixir/Enum.html#t:t/0">Enum.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns a lazy enumerable that emits all entries from the data store
+matching the given query. SQL adapters, such as Postgres and MySQL, can only
+enumerate a stream inside a transaction.</p>
+<p>May raise <a href="Ecto.QueryError.html"><code class="inline">Ecto.QueryError</code></a> if query validation fails.</p>
+<h2 id="c:stream/2-options" class="section-heading">
+  <a href="#c:stream/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:prefix</code> - The prefix to run the query on (such as the schema path
+in Postgres or the database in MySQL). This overrides the prefix set
+in the query</p>
+</li>
+<li><p><code class="inline">:max_rows</code> - The number of rows to load from the database as we stream.
+It is supported at least by Postgres and MySQL and defaults to 500.</p>
+</li>
+</ul>
+<p>See the “Shared options” section at the module documentation.</p>
+<h2 id="c:stream/2-example" class="section-heading">
+  <a href="#c:stream/2-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="elixir"># Fetch all post titles
+query = from p in Post,
+     select: p.title
+stream = MyRepo.stream(query)
+MyRepo.transaction(fn() -&gt;
+  Enum.to_list(stream)
+end)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:transaction/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/transaction%2F2" class="dashAnchor"></a>
+  <a href="#c:transaction/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">transaction(fun_or_multi, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L1028" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(optional)</span>
+    
+    
+      <div class="specs">
+        
+          <pre>transaction(fun_or_multi :: (... -> any) | <a href="Ecto.Multi.html#t:t/0">Ecto.Multi.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, any} |
+  {:error, any} |
+  {:error, atom, any, %{optional(atom) => any}}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Runs the given function or <a href="Ecto.Multi.html"><code class="inline">Ecto.Multi</code></a> inside a transaction.</p>
+<h2 id="c:transaction/2-use-with-function" class="section-heading">
+  <a href="#c:transaction/2-use-with-function" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Use with function
+</h2>
+
+<p>If an unhandled error occurs the transaction will be rolled back
+and the error will bubble up from the transaction function.
+If no error occurred the transaction will be committed when the
+function returns. A transaction can be explicitly rolled back
+by calling <a href="#c:rollback/1"><code class="inline">rollback/1</code></a>, this will immediately leave the function
+and return the value given to <code class="inline">rollback</code> as <code class="inline">{:error, value}</code>.</p>
+<p>A successful transaction returns the value returned by the function
+wrapped in a tuple as <code class="inline">{:ok, value}</code>.</p>
+<p>If <a href="#c:transaction/2"><code class="inline">transaction/2</code></a> is called inside another transaction, the function
+is simply executed, without wrapping the new transaction call in any
+way. If there is an error in the inner transaction and the error is
+rescued, or the inner transaction is rolled back, the whole outer
+transaction is marked as tainted, guaranteeing nothing will be committed.</p>
+<h2 id="c:transaction/2-use-with-ecto-multi" class="section-heading">
+  <a href="#c:transaction/2-use-with-ecto-multi" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Use with Ecto.Multi
+</h2>
+
+<p>Besides functions transaction can be used with an Ecto.Multi struct.
+Transaction will be started, all operations applied and in case of
+success committed returning <code class="inline">{:ok, changes}</code>. In case of any errors
+the transaction will be rolled back and
+<code class="inline">{:error, failed_operation, failed_value, changes_so_far}</code> will be
+returned.</p>
+<p>You can read more about using transactions with <a href="Ecto.Multi.html"><code class="inline">Ecto.Multi</code></a> as well as
+see some examples in the <a href="Ecto.Multi.html"><code class="inline">Ecto.Multi</code></a> documentation.</p>
+<h2 id="c:transaction/2-options" class="section-heading">
+  <a href="#c:transaction/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>See the “Shared options” section at the module documentation.</p>
+<h2 id="c:transaction/2-examples" class="section-heading">
+  <a href="#c:transaction/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">import Ecto.Changeset, only: [change: 2]
+
+MyRepo.transaction(fn -&gt;
+  MyRepo.update!(change(alice, balance: alice.balance - 10))
+  MyRepo.update!(change(bob, balance: bob.balance + 10))
+end)
+
+# Roll back a transaction explicitly
+MyRepo.transaction(fn -&gt;
+  p = MyRepo.insert!(%Post{})
+  if not Editor.post_allowed?(p) do
+    MyRepo.rollback(:posting_not_allowed)
+  end
+end)
+
+# With Ecto.Multi
+Ecto.Multi.new
+|&gt; Ecto.Multi.insert(:post, %Post{})
+|&gt; MyRepo.transaction</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:update/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/update%2F2" class="dashAnchor"></a>
+  <a href="#c:update/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">update(changeset, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L869" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>update(changeset :: <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>} |
+  {:error, <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Updates a changeset using its primary key.</p>
+<p>A changeset is required as it is the only mechanism for
+tracking dirty changes. Only the fields present in the <code class="inline">changes</code> part
+of the changeset are sent to the database. Any other, in-memory
+changes done to the schema are ignored.</p>
+<p>If the struct has no primary key, <a href="Ecto.NoPrimaryKeyFieldError.html"><code class="inline">Ecto.NoPrimaryKeyFieldError</code></a>
+will be raised.</p>
+<p>It returns <code class="inline">{:ok, struct}</code> if the struct has been successfully
+updated or <code class="inline">{:error, changeset}</code> if there was a validation
+or a known constraint error.</p>
+<h2 id="c:update/2-options" class="section-heading">
+  <a href="#c:update/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>Besides the “Shared options” section at the module documentation,
+it accepts:</p>
+<ul>
+<li><code class="inline">:force</code> - By default, if there are no changes in the changeset,
+<a href="#c:update/2"><code class="inline">update/2</code></a> is a no-op. By setting this option to true, update
+callbacks will always be executed, even if there are no changes
+(including timestamps).
+</li>
+<li><code class="inline">:prefix</code> - The prefix to run the query on (such as the schema path
+in Postgres or the database in MySQL). This overrides the prefix set
+in the struct.
+</li>
+</ul>
+<h2 id="c:update/2-example" class="section-heading">
+  <a href="#c:update/2-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="elixir">post = MyRepo.get!(Post, 42)
+post = Ecto.Changeset.change post, title: &quot;New title&quot;
+case MyRepo.update post do
+  {:ok, struct}       -&gt; # Updated with success
+  {:error, changeset} -&gt; # Something went wrong
+end</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="c:update!/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/update%21%2F2" class="dashAnchor"></a>
+  <a href="#c:update!/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">update!(changeset, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L952" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>update!(changeset :: <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a> |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Same as <a href="#c:update/2"><code class="inline">update/2</code></a> but returns the struct or raises if the changeset is invalid.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:update_all/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/update_all%2F3" class="dashAnchor"></a>
+  <a href="#c:update_all/3" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">update_all(queryable, updates, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/repo.ex#L667" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>update_all(queryable :: <a href="Ecto.Queryable.html#t:t/0">Ecto.Queryable.t</a>, updates :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>, opts :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {integer, nil | [term]} |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Updates all entries matching the given query with the given values.</p>
+<p>It returns a tuple containing the number of entries
+and any returned result as second element. If the database
+does not support RETURNING in UPDATE statements or no
+return result was selected, the second element will be <code class="inline">nil</code>.</p>
+<p>Keep in mind this <code class="inline">update_all</code> will not update autogenerated
+fields like the <code class="inline">updated_at</code> columns.</p>
+<p>See <a href="Ecto.Query.html#update/3"><code class="inline">Ecto.Query.update/3</code></a> for update operations that can be
+performed on fields.</p>
+<h2 id="c:update_all/3-options" class="section-heading">
+  <a href="#c:update_all/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:returning</code> - selects which fields to return. When <code class="inline">true</code>,
+returns all fields in the given struct. May be a list of
+fields, where a struct is still returned but only with the
+given fields. Or <code class="inline">false</code>, where nothing is returned (the default).
+This option is not supported by all databases.
+</li>
+<li><code class="inline">:prefix</code> - The prefix to run the query on (such as the schema path
+in Postgres or the database in MySQL). This overrides the prefix set
+in the query.
+</li>
+</ul>
+<p>See the “Shared options” section at the module documentation for
+remaining options.</p>
+<h2 id="c:update_all/3-examples" class="section-heading">
+  <a href="#c:update_all/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">MyRepo.update_all(Post, set: [title: &quot;New title&quot;])
+
+MyRepo.update_all(Post, inc: [visits: 1])
+
+MyRepo.update_all(Post, [inc: [visits: 1]], [returning: [:visits]])
+
+from(p in Post, where: p.id &lt; 10)
+|&gt; MyRepo.update_all(set: [title: &quot;New title&quot;])
+
+from(p in Post, where: p.id &lt; 10, update: [set: [title: &quot;New title&quot;]])
+|&gt; MyRepo.update_all([])
+
+from(p in Post, where: p.id &lt; 10, update: [set: [title: ^new_title]])
+|&gt; MyRepo.update_all([])
+
+from(p in Post, where: p.id &lt; 10, update: [set: [title: fragment(&quot;upper(?)&quot;, ^new_title)]])
+|&gt; MyRepo.update_all([])</code></pre>
+
+  </section>
+</div>
+
+        </section>
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

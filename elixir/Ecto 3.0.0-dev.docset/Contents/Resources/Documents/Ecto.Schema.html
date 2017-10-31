@@ -1,0 +1,1986 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Ecto.Schema – Ecto v3.0.0-dev</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+      <link rel="canonical" href="http://hexdocs.pm/ecto/Ecto.Schema.html" />
+    
+    
+      
+        <link rel="icon" type="image/png" href="assets/logo.png" />
+      
+      
+    
+    <script src="dist/sidebar_items-d4f8a3d044.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Ecto.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.0.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Ecto" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Ecto v3.0.0-dev</small>
+        Ecto.Schema
+        
+          <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Defines a schema.</p>
+<p>An Ecto schema is used to map any data source into an Elixir struct.
+One of such use cases is to map data coming from a repository,
+usually a table, into Elixir structs.</p>
+<h2 id="module-example" class="section-heading">
+  <a href="#module-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="elixir">defmodule User do
+  use Ecto.Schema
+
+  schema &quot;users&quot; do
+    field :name, :string
+    field :age, :integer, default: 0
+    has_many :posts, Post
+  end
+end</code></pre>
+<p>By default, a schema will automatically generate a primary key which is named
+<code class="inline">id</code> and of type <code class="inline">:integer</code>. The <code class="inline">field</code> macro defines a field in the schema
+with given name and type.  <code class="inline">has_many</code> associates many posts with the user
+schema.</p>
+<h2 id="module-schema-attributes" class="section-heading">
+  <a href="#module-schema-attributes" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Schema attributes
+</h2>
+
+<p>Supported attributes, to be set beforehand, for configuring the defined schema.</p>
+<p>These attributes are:</p>
+<ul>
+<li><p><code class="inline">@primary_key</code> - configures the schema primary key. It expects
+a tuple <code class="inline">{field_name, type, options}</code> with the primary key field
+name, type (typically <code class="inline">:id</code> or <code class="inline">:binary_id</code>, but can be any type) and
+options. Defaults to <code class="inline">{:id, :id, autogenerate: true}</code>. When set
+to <code class="inline">false</code>, does not define a primary key in the schema unless
+composite keys are defined using the options of <code class="inline">field</code>.</p>
+</li>
+<li><p><code class="inline">@schema_prefix</code> - configures the schema prefix. Defaults to <code class="inline">nil</code>,
+which generates structs and queries without prefix. When set, the
+prefix will be used by every built struct and on queries where the
+current schema is used in <code class="inline">from</code> (and only <code class="inline">from</code> exclusively). If
+a schema is used as a join or part of an assoc, <code class="inline">@schema_prefix</code> won’t
+be obeyed. In PostgreSQL, the prefix is called “SCHEMA” (typically
+set via Postgres’ <code class="inline">search_path</code>). In MySQL the prefix points to databases.</p>
+</li>
+<li><p><code class="inline">@foreign_key_type</code> - configures the default foreign key type
+used by <code class="inline">belongs_to</code> associations. Defaults to <code class="inline">:id</code>;</p>
+</li>
+<li><p><code class="inline">@timestamps_opts</code> - configures the default timestamps type
+used by <code class="inline">timestamps</code>. Defaults to <code class="inline">[type: :naive_datetime]</code>;</p>
+</li>
+<li><p><code class="inline">@derive</code> - the same as <code class="inline">@derive</code> available in <a href="https://hexdocs.pm/elixir/Kernel.html#defstruct/1"><code class="inline">Kernel.defstruct/1</code></a>
+as the schema defines a struct behind the scenes;</p>
+</li>
+<li><p><code class="inline">@field_source_mapper</code> - a function that receives the current field name
+and returns the mapping of this field name in the underlying source.
+In other words, it is a mechanism to automatically generate the <code class="inline">:source</code>
+option for the <code class="inline">field</code> macro. It defaults to <code class="inline">fn x -&gt; x end</code>, where no
+field transformation is done;</p>
+</li>
+</ul>
+<p>The advantage of configuring the schema via those attributes is
+that they can be set with a macro to configure application wide
+defaults.</p>
+<p>For example, if your database does not support autoincrementing
+primary keys and requires something like UUID or a RecordID, you
+can configure and use<code class="inline">:binary_id</code> as your primary key type as follows:</p>
+<pre><code class="elixir"># Define a module to be used as base
+defmodule MyApp.Schema do
+  defmacro __using__(_) do
+    quote do
+      use Ecto.Schema
+      @primary_key {:id, :binary_id, autogenerate: true}
+      @foreign_key_type :binary_id
+    end
+  end
+end
+
+# Now use MyApp.Schema to define new schemas
+defmodule MyApp.Comment do
+  use MyApp.Schema
+
+  schema &quot;comments&quot; do
+    belongs_to :post, MyApp.Post
+  end
+end</code></pre>
+<p>Any schemas using <code class="inline">MyApp.Schema</code> will get the <code class="inline">:id</code> field with type
+<code class="inline">:binary_id</code> as the primary key. We explain what the <code class="inline">:binary_id</code> type
+entails in the next section.</p>
+<p>The <code class="inline">belongs_to</code> association on <code class="inline">MyApp.Comment</code> will also define
+a <code class="inline">:post_id</code> field with <code class="inline">:binary_id</code> type that references the <code class="inline">:id</code>
+field of the <code class="inline">MyApp.Post</code> schema.</p>
+<h2 id="module-primary-keys" class="section-heading">
+  <a href="#module-primary-keys" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Primary keys
+</h2>
+
+<p>Ecto supports two ID types, called <code class="inline">:id</code> and <code class="inline">:binary_id</code>, which are
+often used as the type for primary keys and associations.</p>
+<p>The <code class="inline">:id</code> type is used when the primary key is an integer while the
+<code class="inline">:binary_id</code> is used for primary keys in particular binary formats,
+which may be <a href="Ecto.UUID.html"><code class="inline">Ecto.UUID</code></a> for databases like PostgreSQL and MySQL,
+or some specific ObjectID or RecordID often imposed by NoSQL databases.</p>
+<p>In both cases, both types have their semantics specified by the
+underlying adapter/database. If you use the <code class="inline">:id</code> type with
+<code class="inline">:autogenerate</code>, it means the database will be responsible for
+auto-generation of the id. This is often the case for primary keys
+in relational databases which are auto-incremented.</p>
+<p>Similarly, the <code class="inline">:binary_id</code> type may be generated in the adapter
+for cases like UUID but it may also be handled by the database if
+required. In any case, both scenarios are handled transparently by
+Ecto.</p>
+<p>Besides <code class="inline">:id</code> and <code class="inline">:binary_id</code>, which are often used by primary
+and foreign keys, Ecto provides a huge variety of types to be used
+by any column.</p>
+<p>Ecto also supports composite primary keys.</p>
+<h2 id="module-types-and-casting" class="section-heading">
+  <a href="#module-types-and-casting" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Types and casting
+</h2>
+
+<p>When defining the schema, types need to be given. Types are split
+into two categories, primitive types and custom types.</p>
+<h3 id="module-primitive-types" class="section-heading">
+  <a href="#module-primitive-types" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Primitive types
+</h3>
+
+<p>The primitive types are:</p>
+<table>
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left">Ecto type</th><th style="text-align: left">Elixir type</th><th style="text-align: left">Literal syntax in query</th>
+</tr>
+</thead>
+<tr>
+<td style="text-align: left"><code class="inline">:id</code></td><td style="text-align: left"><code class="inline">integer</code></td><td style="text-align: left">1, 2, 3</td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">:binary_id</code></td><td style="text-align: left"><code class="inline">binary</code></td><td style="text-align: left"><code class="inline">&lt;&lt;int, int, int, ...&gt;&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">:integer</code></td><td style="text-align: left"><code class="inline">integer</code></td><td style="text-align: left">1, 2, 3</td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">:float</code></td><td style="text-align: left"><code class="inline">float</code></td><td style="text-align: left">1.0, 2.0, 3.0</td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">:boolean</code></td><td style="text-align: left"><code class="inline">boolean</code></td><td style="text-align: left">true, false</td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">:string</code></td><td style="text-align: left">UTF-8 encoded <code class="inline">string</code></td><td style="text-align: left">“hello”</td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">:binary</code></td><td style="text-align: left"><code class="inline">binary</code></td><td style="text-align: left"><code class="inline">&lt;&lt;int, int, int, ...&gt;&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">{:array, inner_type}</code></td><td style="text-align: left"><code class="inline">list</code></td><td style="text-align: left"><code class="inline">[value, value, value, ...]</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">:map</code></td><td style="text-align: left"><code class="inline">map</code></td><td style="text-align: left"></td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">{:map, inner_type}</code></td><td style="text-align: left"><code class="inline">map</code></td><td style="text-align: left"></td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">:decimal</code></td><td style="text-align: left"><a href="https://github.com/ericmj/decimal"><code class="inline">Decimal</code></a></td><td style="text-align: left"></td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">:date</code></td><td style="text-align: left"><a href="https://hexdocs.pm/elixir/Date.html"><code class="inline">Date</code></a></td><td style="text-align: left"></td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">:time</code></td><td style="text-align: left"><a href="https://hexdocs.pm/elixir/Time.html"><code class="inline">Time</code></a></td><td style="text-align: left"></td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">:naive_datetime</code></td><td style="text-align: left"><a href="https://hexdocs.pm/elixir/NaiveDateTime.html"><code class="inline">NaiveDateTime</code></a></td><td style="text-align: left"></td>
+</tr>
+<tr>
+<td style="text-align: left"><code class="inline">:utc_datetime</code></td><td style="text-align: left"><a href="https://hexdocs.pm/elixir/DateTime.html"><code class="inline">DateTime</code></a></td><td style="text-align: left"></td>
+</tr>
+</table>
+<p><strong>Note:</strong> For the <code class="inline">{:array, inner_type}</code> and <code class="inline">{:map, inner_type}</code> type,
+replace <code class="inline">inner_type</code> with one of the valid types, such as <code class="inline">:string</code>.</p>
+<p>Timestamps are typically represented by <code class="inline">:naive_datetime</code> or
+<code class="inline">:utc_datetime</code>. The naive datetime uses Elixir’s <a href="https://hexdocs.pm/elixir/NaiveDateTime.html"><code class="inline">NaiveDateTime</code></a> which
+has no time zone information while <code class="inline">:utc_datetime</code> uses a <a href="https://hexdocs.pm/elixir/DateTime.html"><code class="inline">DateTime</code></a> and
+expects the time zone to be set to UTC.</p>
+<h3 id="module-custom-types" class="section-heading">
+  <a href="#module-custom-types" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Custom types
+</h3>
+
+<p>Besides providing primitive types, Ecto allows custom types to be
+implemented by developers, allowing Ecto behaviour to be extended.</p>
+<p>A custom type is a module that implements the <a href="Ecto.Type.html"><code class="inline">Ecto.Type</code></a> behaviour.
+By default, Ecto provides the following custom types:</p>
+<table>
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left">Custom type</th><th style="text-align: left">Database type</th><th style="text-align: left">Elixir type</th>
+</tr>
+</thead>
+<tr>
+<td style="text-align: left"><a href="Ecto.UUID.html"><code class="inline">Ecto.UUID</code></a></td><td style="text-align: left"><code class="inline">:uuid</code></td><td style="text-align: left"><code class="inline">uuid-string</code></td>
+</tr>
+</table>
+<p>Read the <a href="Ecto.Type.html"><code class="inline">Ecto.Type</code></a> documentation for more information on implementing
+your own types.</p>
+<p>Finally, schemas can also have virtual fields by passing the
+<code class="inline">virtual: true</code> option. These fields are not persisted to the database
+and can optionally not be type checked by declaring type <code class="inline">:any</code>.</p>
+<h3 id="module-the-map-type" class="section-heading">
+  <a href="#module-the-map-type" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  The map type
+</h3>
+
+<p>The map type allows developers to store an Elixir map directly
+in the database:</p>
+<pre><code class="elixir"># In your migration
+create table(:users) do
+  add :data, :map
+end
+
+# In your schema
+field :data, :map
+
+# Now in your code
+user = Repo.insert! %User{data: %{&quot;foo&quot; =&gt; &quot;bar&quot;}}</code></pre>
+<p>Keep in mind that we advise the map keys to be strings or integers
+instead of atoms. Atoms may be accepted depending on how maps are
+serialized but the database will always return atom keys as strings
+due to security reasons.</p>
+<p>In order to support maps, different databases may employ different
+techniques. For example, PostgreSQL will store those values in jsonb
+fields, allowing you to just query parts of it. MySQL and MSSQL, on
+the other hand, do not yet provide a JSON type, so the value will be
+stored in a text field.</p>
+<p>For maps to work in such databases, Ecto will need a JSON library.
+By default Ecto will use <a href="http://github.com/devinus/poison">Poison</a>
+which needs to be added to your deps in <code class="inline">mix.exs</code>:</p>
+<pre><code class="elixir">{:poison, &quot;~&gt; 1.0&quot;}</code></pre>
+<p>You can however configure the adapter to use another library. For example,
+if using Postgres:</p>
+<pre><code class="elixir">config :postgrex, :json_library, YourLibraryOfChoice</code></pre>
+<p>Or if using MySQL:</p>
+<pre><code class="elixir">config :mariaex, :json_library, YourLibraryOfChoice</code></pre>
+<p>If changing the JSON library, remember to recompile the adapter afterwards
+by cleaning the current build:</p>
+<pre><code class="elixir">mix deps.clean --build postgrex</code></pre>
+<h3 id="module-casting" class="section-heading">
+  <a href="#module-casting" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Casting
+</h3>
+
+<p>When directly manipulating the struct, it is the responsibility of
+the developer to ensure the field values have the proper type. For
+example, you can create a user struct with an invalid value
+for <code class="inline">age</code>:</p>
+<pre><code class="iex elixir">iex&gt; user = %User{age: &quot;0&quot;}
+iex&gt; user.age
+&quot;0&quot;</code></pre>
+<p>However, if you attempt to persist the struct above, an error will
+be raised since Ecto validates the types when sending them to the
+adapter/database.</p>
+<p>Therefore, when working with and manipulating external data, it is
+recommended to use <a href="Ecto.Changeset.html"><code class="inline">Ecto.Changeset</code></a>’s that are able to filter
+and properly cast external data:</p>
+<pre><code class="elixir">changeset = Ecto.Changeset.cast(%User{}, %{&quot;age&quot; =&gt; &quot;0&quot;}, [:age])
+user = Repo.insert!(changeset)</code></pre>
+<p><strong>You can use Ecto schemas and changesets to cast and validate any kind
+of data, regardless if the data will be persisted to an Ecto repository
+or not</strong>.</p>
+<h2 id="module-reflection" class="section-heading">
+  <a href="#module-reflection" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Reflection
+</h2>
+
+<p>Any schema module will generate the <code class="inline">__schema__</code> function that can be
+used for runtime introspection of the schema:</p>
+<ul>
+<li><p><code class="inline">__schema__(:source)</code> - Returns the source as given to <a href="#schema/2"><code class="inline">schema/2</code></a>;</p>
+</li>
+<li><p><code class="inline">__schema__(:prefix)</code> - Returns optional prefix for source provided by
+  <code class="inline">@schema_prefix</code> schema attribute;</p>
+</li>
+<li><p><code class="inline">__schema__(:primary_key)</code> - Returns a list of primary key fields (empty if there is none);</p>
+</li>
+<li><p><code class="inline">__schema__(:fields)</code> - Returns a list of all non-virtual field names;</p>
+</li>
+<li><p><code class="inline">__schema__(:field_source, field)</code> - Returns the alias of the given field;</p>
+</li>
+<li><p><code class="inline">__schema__(:type, field)</code> - Returns the type of the given non-virtual field;</p>
+</li>
+<li><p><code class="inline">__schema__(:associations)</code> - Returns a list of all association field names;</p>
+</li>
+<li><p><code class="inline">__schema__(:association, assoc)</code> - Returns the association reflection of the given assoc;</p>
+</li>
+<li><p><code class="inline">__schema__(:embeds)</code> - Returns a list of all embedded field names;</p>
+</li>
+<li><p><code class="inline">__schema__(:embed, embed)</code> - Returns the embedding reflection of the given embed;</p>
+</li>
+<li><p><code class="inline">__schema__(:read_after_writes)</code> - Non-virtual fields that must be read back
+  from the database after every write (insert or update);</p>
+</li>
+<li><p><code class="inline">__schema__(:autogenerate_id)</code> - Primary key that is auto generated on insert;</p>
+</li>
+</ul>
+<p>Furthermore, both <code class="inline">__struct__</code> and <code class="inline">__changeset__</code> functions are
+defined so structs and changeset functionalities are available.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:embedded_schema/0">embedded_schema()</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:prefix/0">prefix()</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:schema/0">schema()</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:source/0">source()</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:t/0">t()</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#association/5">association(schema, cardinality, name, association, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Internal function for integrating associations into schemas</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#belongs_to/3">belongs_to(name, queryable, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Indicates a one-to-one or many-to-one association with another schema</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#embedded_schema/1">embedded_schema(list)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Defines an embedded schema</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#embeds_many/3">embeds_many(name, schema, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Indicates an embedding of many schemas</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#embeds_many/4">embeds_many(name, schema, opts, list)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Indicates an embedding of many schemas</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#embeds_one/3">embeds_one(name, schema, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Indicates an embedding of a schema</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#embeds_one/4">embeds_one(name, schema, opts, list)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Indicates an embedding of a schema</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#field/3">field(name, type \\ :string, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Defines a field on the schema with given name and type</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#has_many/3">has_many(name, queryable, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Indicates a one-to-many association with another schema</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#has_one/3">has_one(name, queryable, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Indicates a one-to-one association with another schema</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#many_to_many/3">many_to_many(name, queryable, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Indicates a many-to-many association with another schema</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#schema/2">schema(source, list)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Defines a schema struct with a source name and field definitions</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#timestamps/1">timestamps(opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates <code class="inline">:inserted_at</code> and <code class="inline">:updated_at</code> timestamp fields</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:embedded_schema/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/embedded_schema" class="dashAnchor"></a>
+  <a href="#t:embedded_schema/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">embedded_schema()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L286" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>embedded_schema() :: %atom{optional(atom) => any}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="t:prefix/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/prefix" class="dashAnchor"></a>
+  <a href="#t:prefix/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">prefix()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L284" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>prefix() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a> | nil</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="t:schema/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/schema" class="dashAnchor"></a>
+  <a href="#t:schema/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">schema()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L285" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>schema() :: %atom{optional(atom) => any, :__meta__ => <a href="Ecto.Schema.Metadata.html#t:t/0">Ecto.Schema.Metadata.t</a>}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="t:source/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/source" class="dashAnchor"></a>
+  <a href="#t:source/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">source()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L283" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>source() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="t:t/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/t" class="dashAnchor"></a>
+  <a href="#t:t/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">t()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L287" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>t() :: <a href="#t:schema/0">schema</a> | <a href="#t:embedded_schema/0">embedded_schema</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="association/5">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/association%2F5" class="dashAnchor"></a>
+  <a href="#association/5" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">association(schema, cardinality, name, association, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L1427" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>association(module, :one | :many, atom, module, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: Ecto.Association.t</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Internal function for integrating associations into schemas.</p>
+<p>This function exists as an extension point for libraries to
+add new types of associations to Ecto. For the existing APIs,
+see <a href="#belongs_to/3"><code class="inline">belongs_to/3</code></a>, <a href="#has_many/3"><code class="inline">has_many/3</code></a>, <a href="#has_one/3"><code class="inline">has_one/3</code></a> and <a href="#many_to_many/3"><code class="inline">many_to_many/3</code></a>.</p>
+<p>This function expects the current schema, the association cardinality,
+the association name, the association module (that implements
+<code class="inline">Ecto.Association</code> callbacks) and a keyword list of options.</p>
+
+  </section>
+</div>
+<div class="detail" id="belongs_to/3">
+  
+  
+    <span id="belongs_to/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/belongs_to%2F3" class="dashAnchor"></a>
+  <a href="#belongs_to/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">belongs_to(name, queryable, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L926" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Indicates a one-to-one or many-to-one association with another schema.</p>
+<p>The current schema belongs to zero or one records of the other schema. The other
+schema often has a <code class="inline">has_one</code> or a <code class="inline">has_many</code> field with the reverse association.</p>
+<p>You should use <code class="inline">belongs_to</code> in the table that contains the foreign key. Imagine
+a company &lt;-&gt; employee relationship. If the employee contains the <code class="inline">company_id</code> in
+the underlying database table, we say the employee belongs to company.</p>
+<p>In fact, when you invoke this macro, a field with the name of foreign key is
+automatically defined in the schema for you.</p>
+<h2 id="belongs_to/3-options" class="section-heading">
+  <a href="#belongs_to/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:foreign_key</code> - Sets the foreign key field name, defaults to the name
+of the association suffixed by <code class="inline">_id</code>. For example, <code class="inline">belongs_to :company</code>
+will define foreign key of <code class="inline">:company_id</code></p>
+</li>
+<li><p><code class="inline">:references</code> - Sets the key on the other schema to be used for the
+association, defaults to: <code class="inline">:id</code></p>
+</li>
+<li><p><code class="inline">:define_field</code> - When false, does not automatically define a <code class="inline">:foreign_key</code>
+field, implying the user is defining the field manually elsewhere</p>
+</li>
+<li><p><code class="inline">:type</code> - Sets the type of automatically defined <code class="inline">:foreign_key</code>.
+Defaults to: <code class="inline">:integer</code> and can be set per schema via <code class="inline">@foreign_key_type</code></p>
+</li>
+<li><p><code class="inline">:on_replace</code> - The action taken on associations when the record is
+replaced when casting or manipulating parent changeset. May be
+<code class="inline">:raise</code> (default), <code class="inline">:mark_as_invalid</code>, <code class="inline">:nilify</code>, <code class="inline">:update</code>, or <code class="inline">:delete</code>.
+See <a href="Ecto.Changeset.html"><code class="inline">Ecto.Changeset</code></a>’s section on related data for more info.</p>
+</li>
+<li><p><code class="inline">:defaults</code> - Default values to use when building the association</p>
+</li>
+<li><p><code class="inline">:primary_key</code> - If the underlying belongs_to field is a primary key</p>
+</li>
+<li><p><code class="inline">:source</code> - The source for the underlying field</p>
+</li>
+</ul>
+<h2 id="belongs_to/3-examples" class="section-heading">
+  <a href="#belongs_to/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">defmodule Comment do
+  use Ecto.Schema
+
+  schema &quot;comments&quot; do
+    belongs_to :post, Post
+  end
+end
+
+# The post can come preloaded on the comment record
+[comment] = Repo.all(from(c in Comment, where: c.id == 42, preload: :post))
+comment.post #=&gt; %Post{...}</code></pre>
+<p>If you need custom options on the underlying field, you can define the
+field explicitly and then pass <code class="inline">define_field: false</code> to <code class="inline">belongs_to</code>:</p>
+<pre><code class="elixir">defmodule Comment do
+  use Ecto.Schema
+
+  schema &quot;comments&quot; do
+    field :post_id, :integer, ... # custom options
+    belongs_to :post, Post, define_field: false
+  end
+end</code></pre>
+<h2 id="belongs_to/3-polymorphic-associations" class="section-heading">
+  <a href="#belongs_to/3-polymorphic-associations" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Polymorphic associations
+</h2>
+
+<p>One common use case for belongs to associations is to handle
+polymorphism. For example, imagine you have defined a Comment
+schema and you wish to use it for commenting on both tasks and
+posts.</p>
+<p>Some abstractions would force you to define some sort of
+polymorphic association with two fields in your database:</p>
+<pre><code class="elixir">* commentable_type
+* commentable_id</code></pre>
+<p>The problem with this approach is that it breaks references in
+the database. You can’t use foreign keys and it is very inefficient,
+both in terms of query time and storage.</p>
+<p>In Ecto, we have three ways to solve this issue. The simplest
+is to define multiple fields in the Comment schema, one for each
+association:</p>
+<pre><code class="elixir">* task_id
+* post_id</code></pre>
+<p>Unless you have dozens of columns, this is simpler for the developer,
+more DB friendly and more efficient in all aspects.</p>
+<p>Alternatively, because Ecto does not tie a schema to a given table,
+we can use separate tables for each association. Let’s start over
+and define a new Comment schema:</p>
+<pre><code class="elixir">defmodule Comment do
+  use Ecto.Schema
+
+  schema &quot;abstract table: comments&quot; do
+    # This will be used by associations on each &quot;concrete&quot; table
+    field :assoc_id, :integer
+  end
+end</code></pre>
+<p>Notice we have changed the table name to “abstract table: comments”.
+You can choose whatever name you want, the point here is that this
+particular table will never exist.</p>
+<p>Now in your Post and Task schemas:</p>
+<pre><code class="elixir">defmodule Post do
+  use Ecto.Schema
+
+  schema &quot;posts&quot; do
+    has_many :comments, {&quot;posts_comments&quot;, Comment}, foreign_key: :assoc_id
+  end
+end
+
+defmodule Task do
+  use Ecto.Schema
+
+  schema &quot;tasks&quot; do
+    has_many :comments, {&quot;tasks_comments&quot;, Comment}, foreign_key: :assoc_id
+  end
+end</code></pre>
+<p>Now each association uses its own specific table, “posts_comments”
+and “tasks_comments”, which must be created on migrations. The
+advantage of this approach is that we never store unrelated data
+together, also ensuring we keep database references fast and correct.</p>
+<p>When using this technique, the only limitation is that you cannot
+build comments directly. For example, the command below</p>
+<pre><code class="elixir">Repo.insert!(%Comment{})</code></pre>
+<p>will attempt to use the abstract table. Instead, one should use</p>
+<pre><code class="elixir">Repo.insert!(build_assoc(post, :comments))</code></pre>
+<p>leveraging the <a href="Ecto.html#build_assoc/3"><code class="inline">Ecto.build_assoc/3</code></a> function. You can also
+use <a href="Ecto.html#assoc/2"><code class="inline">Ecto.assoc/2</code></a> and <code class="inline">Ecto.Query.assoc/2</code> in the query syntax
+to easily retrieve associated comments to a given post or
+task:</p>
+<pre><code class="elixir"># Fetch all comments associated with the given task
+Repo.all(assoc(task, :comments))</code></pre>
+<p>Or all comments in a given table:</p>
+<pre><code class="elixir">Repo.all from(c in {&quot;posts_comments&quot;, Comment}), ...)</code></pre>
+<p>The third and final option is to use <a href="#many_to_many/3"><code class="inline">many_to_many/3</code></a> to
+define the relationships between the resources. In this case,
+the comments table won’t have the foreign key, instead there
+is a intermediary table responsible for associating the entries:</p>
+<pre><code class="elixir">defmodule Comment do
+  use Ecto.Schema
+  schema &quot;comments&quot; do
+    # ...
+  end
+end</code></pre>
+<p>In your posts and tasks:</p>
+<pre><code class="elixir">defmodule Post do
+  use Ecto.Schema
+
+  schema &quot;posts&quot; do
+    many_to_many :comments, Comment, join_through: &quot;posts_comments&quot;
+  end
+end
+
+defmodule Task do
+  use Ecto.Schema
+
+  schema &quot;tasks&quot; do
+    many_to_many :comments, Comment, join_through: &quot;tasks_comments&quot;
+  end
+end</code></pre>
+<p>See <a href="#many_to_many/3"><code class="inline">many_to_many/3</code></a> for more information on this particular approach.</p>
+
+  </section>
+</div>
+<div class="detail" id="embedded_schema/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/embedded_schema%2F1" class="dashAnchor"></a>
+  <a href="#embedded_schema/1" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">embedded_schema(list)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L376" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Defines an embedded schema.</p>
+<p>An embedded schema does not require a source name
+and it does not include a metadata field.</p>
+<p>Embedded schemas by default set the primary key type
+to <code class="inline">:binary_id</code> but such can be configured with the
+<code class="inline">@primary_key</code> attribute.</p>
+<p>Embedded schemas don’t define the <code class="inline">__meta__</code> field.</p>
+
+  </section>
+</div>
+<div class="detail" id="embeds_many/3">
+  
+  
+    <span id="embeds_many/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/embeds_many%2F3" class="dashAnchor"></a>
+  <a href="#embeds_many/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">embeds_many(name, schema, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L1396" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Indicates an embedding of many schemas.</p>
+<p>The current schema has zero or more records of the other schema embedded
+inside of it. Embeds have all the things regular schemas have.</p>
+<p>It is recommended to declare your <a href="#embeds_many/3"><code class="inline">embeds_many/3</code></a> field with type
+<code class="inline">{:array, :map}</code> and default value of <code class="inline">[]</code> at the database level.
+In fact, Ecto will automatically translate <code class="inline">nil</code> values from the
+database into empty lists for embeds many (this behaviour is specific
+to <a href="#embeds_many/3"><code class="inline">embeds_many/3</code></a> fields in order to mimic <a href="#has_many/3"><code class="inline">has_many/3</code></a>).</p>
+<p>The embedded may or may not have a primary key. Ecto use the primary keys
+to detect if an embed is being updated or not. If a primary is not present
+and you still want the list of embeds to be updated, <code class="inline">:on_replace</code> must be
+set to <code class="inline">:delete</code>, forcing all current embeds to be deleted and replaced by
+new ones whenever a new list of embeds is set.</p>
+<p>For encoding and decoding of embeds, please read the docs for
+<a href="#embeds_one/3"><code class="inline">embeds_one/3</code></a>.</p>
+<h2 id="embeds_many/3-options" class="section-heading">
+  <a href="#embeds_many/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:on_replace</code> - The action taken on associations when the embed is
+replaced when casting or manipulating parent changeset. May be
+<code class="inline">:raise</code> (default), <code class="inline">:mark_as_invalid</code>, or <code class="inline">:delete</code>.
+See <a href="Ecto.Changeset.html"><code class="inline">Ecto.Changeset</code></a>’s section on related data for more info.
+</li>
+</ul>
+<h2 id="embeds_many/3-examples" class="section-heading">
+  <a href="#embeds_many/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">defmodule Order do
+  use Ecto.Schema
+
+  schema &quot;orders&quot; do
+    embeds_many :items, Item
+  end
+end
+
+defmodule Item do
+  use Ecto.Schema
+
+  embedded_schema do
+    field :name
+  end
+end
+
+# The items are loaded with the order
+order = Repo.get!(Order, 42)
+order.items #=&gt; [%Item{...}, ...]</code></pre>
+<p>Adding and removal of embeds can only be done via the <a href="Ecto.Changeset.html"><code class="inline">Ecto.Changeset</code></a>
+API so Ecto can properly track the embed life-cycle:</p>
+<pre><code class="elixir"># Order has no items
+order = Repo.get!(Order, 42)
+order.items
+# =&gt; []
+
+items  = [%Item{title: &quot;Soap&quot;}]
+
+# Generate a changeset
+changeset = Ecto.Changeset.change(order)
+
+# Put a one or more new items
+changeset = Ecto.Changeset.put_embed(changeset, :items, items)
+
+# Update the order and fetch items
+items = Repo.update!(changeset).items
+
+# Items are generated with a unique identification
+items
+# =&gt; [%Item{id: &quot;20a97d94-f79b-4e63-a875-85deed7719b7&quot;, title: &quot;Soap&quot;}]</code></pre>
+<p>Updating of embeds must be done using a changeset for each changed embed.</p>
+<pre><code class="elixir"># Order has an existing items
+order = Repo.get!(Order, 42)
+order.items
+# =&gt; [%Item{id: &quot;20a97d94-f79b-4e63-a875-85deed7719b7&quot;, title: &quot;Soap&quot;}]
+
+# Generate a changeset
+changeset = Ecto.Changeset.change(order)
+
+# Put the updated item as a changeset
+current_item = List.first(order.items)
+item_changeset = Ecto.Changeset.change(current_item, title: &quot;Mujju&#39;s Soap&quot;)
+order_changeset = Ecto.Changeset.put_embed(changeset, :items, [item_changeset])
+
+# Update the order and fetch items
+items = Repo.update!(order_changeset).items
+
+# Item has the updated title
+items
+# =&gt; [%Item{id: &quot;20a97d94-f79b-4e63-a875-85deed7719b7&quot;, title: &quot;Mujju&#39;s Soap&quot;}]</code></pre>
+<h2 id="embeds_many/3-inline-embedded-schema" class="section-heading">
+  <a href="#embeds_many/3-inline-embedded-schema" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Inline embedded schema
+</h2>
+
+<p>The schema module can be defined inline in the parent schema in simple
+cases:</p>
+<pre><code class="elixir">defmodule Parent do
+  use Ecto.Schema
+
+  schema &quot;parents&quot; do
+    field :name, :string
+
+    embeds_many :children, Child do
+      field :name, :string
+      field :age,  :integer
+    end
+  end
+end</code></pre>
+<p>When defining an inline embed, the <code class="inline">:primary_key</code> option may be given to
+customize the embed primary key type.</p>
+<p>Defining embedded schema in such a way will define a <code class="inline">Parent.Child</code> module
+with the appropriate struct. In order to properly cast the embedded schema.
+When casting the inline-defined embedded schemas you need to use the <code class="inline">:with</code>
+option of <code class="inline">cast_embed/3</code> to provide the proper function to do the casting.
+For example:</p>
+<pre><code class="elixir">def changeset(schema, params) do
+  schema
+  |&gt; cast(params, [:name])
+  |&gt; cast_embed(:children, with: &amp;child_changeset/2)
+end
+
+defp child_changeset(schema, params) do
+  schema
+  |&gt; cast(params, [:name, :age])
+end</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="embeds_many/4">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/embeds_many%2F4" class="dashAnchor"></a>
+  <a href="#embeds_many/4" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">embeds_many(name, schema, opts, list)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L1408" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Indicates an embedding of many schemas.</p>
+<p>For options and examples see documentation of <a href="#embeds_many/3"><code class="inline">embeds_many/3</code></a>.</p>
+
+  </section>
+</div>
+<div class="detail" id="embeds_one/3">
+  
+  
+    <span id="embeds_one/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/embeds_one%2F3" class="dashAnchor"></a>
+  <a href="#embeds_one/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">embeds_one(name, schema, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L1234" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Indicates an embedding of a schema.</p>
+<p>The current schema has zero or one records of the other schema embedded
+inside of it. It uses a field similar to the <code class="inline">:map</code> type for storage,
+but allows embeds to have all the things regular schema can.</p>
+<p>You must declare your <a href="#embeds_one/3"><code class="inline">embeds_one/3</code></a> field with type <code class="inline">:map</code> at the
+database level.</p>
+<p>The embedded may or may not have a primary key. Ecto use the primary keys
+to detect if an embed is being updated or not. If a primary is not present,
+<code class="inline">:on_replace</code> should be set to either <code class="inline">:update</code> or <code class="inline">:delete</code> if there is a
+desire to either update or delete the current embed when a new one is set.</p>
+<h2 id="embeds_one/3-options" class="section-heading">
+  <a href="#embeds_one/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:on_replace</code> - The action taken on associations when the embed is
+replaced when casting or manipulating parent changeset. May be
+<code class="inline">:raise</code> (default), <code class="inline">:mark_as_invalid</code>, <code class="inline">:update</code>, or <code class="inline">:delete</code>.
+See <a href="Ecto.Changeset.html"><code class="inline">Ecto.Changeset</code></a>’s section on related data for more info.
+</li>
+</ul>
+<h2 id="embeds_one/3-examples" class="section-heading">
+  <a href="#embeds_one/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">defmodule Order do
+  use Ecto.Schema
+
+  schema &quot;orders&quot; do
+    embeds_one :item, Item
+  end
+end
+
+defmodule Item do
+  use Ecto.Schema
+
+  embedded_schema do
+    field :name
+  end
+end
+
+# The item is loaded with the order
+order = Repo.get!(Order, 42)
+order.item #=&gt; %Item{...}</code></pre>
+<p>Adding and removal of embeds can only be done via the <a href="Ecto.Changeset.html"><code class="inline">Ecto.Changeset</code></a>
+API so Ecto can properly track the embed life-cycle:</p>
+<pre><code class="elixir">order = Repo.get!(Order, 42)
+item  = %Item{title: &quot;Soap&quot;}
+
+# Generate a changeset
+changeset = Ecto.Changeset.change(order)
+
+# Put a new embed to the changeset
+changeset = Ecto.Changeset.put_embed(changeset, :item, item)
+
+# Update the order, and fetch the item
+item = Repo.update!(changeset).item
+
+# Item is generated with a unique identification
+item
+# =&gt; %Item{id: &quot;20a97d94-f79b-4e63-a875-85deed7719b7&quot;, title: &quot;Soap&quot;}</code></pre>
+<h2 id="embeds_one/3-inline-embedded-schema" class="section-heading">
+  <a href="#embeds_one/3-inline-embedded-schema" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Inline embedded schema
+</h2>
+
+<p>The schema module can be defined inline in the parent schema in simple
+cases:</p>
+<pre><code class="elixir">defmodule Parent do
+  use Ecto.Schema
+
+  schema &quot;parents&quot; do
+    field :name, :string
+
+    embeds_one :child, Child do
+      field :name, :string
+      field :age,  :integer
+    end
+  end
+end</code></pre>
+<p>When defining an inline embed, the <code class="inline">:primary_key</code> option may be given to
+customize the embed primary key type.</p>
+<p>Defining embedded schema in such a way will define a <code class="inline">Parent.Child</code> module
+with the appropriate struct. In order to properly cast the embedded schema.
+When casting the inline-defined embedded schemas you need to use the <code class="inline">:with</code>
+option of <code class="inline">cast_embed/3</code> to provide the proper function to do the casting.
+For example:</p>
+<pre><code class="elixir">def changeset(schema, params) do
+  schema
+  |&gt; cast(params, [:name])
+  |&gt; cast_embed(:child, with: &amp;child_changeset/2)
+end
+
+defp child_changeset(schema, params) do
+  schema
+  |&gt; cast(params, [:name, :age])
+end</code></pre>
+<h2 id="embeds_one/3-encoding-and-decoding" class="section-heading">
+  <a href="#embeds_one/3-encoding-and-decoding" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Encoding and decoding
+</h2>
+
+<p>Because many databases do not support direct encoding and decoding
+of embeds, it is often emulated by Ecto by using specific encoding
+and decoding rules.</p>
+<p>For example, PostgreSQL will store embeds on top of JSONB columns,
+which means types in embedded schemas won’t go through the usual
+dump-&gt;DB-&gt;load cycle but rather encode-&gt;DB-&gt;decode-&gt;cast. This means
+that, when using embedded schemas with databases like PG or MySQL,
+make sure all of your types can be JSON encoded/decoded correctly.
+Ecto provides this guarantee for all built-in types.</p>
+
+  </section>
+</div>
+<div class="detail" id="embeds_one/4">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/embeds_one%2F4" class="dashAnchor"></a>
+  <a href="#embeds_one/4" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">embeds_one(name, schema, opts, list)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L1246" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Indicates an embedding of a schema.</p>
+<p>For options and examples see documentation of <a href="#embeds_one/3"><code class="inline">embeds_one/3</code></a>.</p>
+
+  </section>
+</div>
+<div class="detail" id="field/3">
+  
+  
+    <span id="field/1"></span>
+  
+    <span id="field/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/field%2F3" class="dashAnchor"></a>
+  <a href="#field/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">field(name, type \\ :string, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L498" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Defines a field on the schema with given name and type.</p>
+<p>The field name will be used as is to read and write to the database
+by all of the built-in adapters unless overridden with the <code class="inline">:source</code>
+option.</p>
+<h2 id="field/3-options" class="section-heading">
+  <a href="#field/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:default</code> - Sets the default value on the schema and the struct.
+The default value is calculated at compilation time, so don’t use
+expressions like <code class="inline">DateTime.utc_now</code> or <code class="inline">Ecto.UUID.generate</code> as
+they would then be the same for all records.</p>
+</li>
+<li><p><code class="inline">:source</code> - Defines the name that is to be used in database for this field.</p>
+</li>
+<li><p><code class="inline">:autogenerate</code> - Annotates the field to be autogenerated before
+insertion if value is not set. It will call the <code class="inline">autogenerate/0</code>
+function in the field’s type.</p>
+</li>
+<li><p><code class="inline">:read_after_writes</code> - When true, the field is always read back
+from the database after insert and updates.</p>
+<p>For relational databases, this means the RETURNING option of those
+statements is used. For this reason, MySQL does not support this
+option and will raise an error if a schema is inserted/updated with
+read after writes fields.</p>
+</li>
+<li><p><code class="inline">:virtual</code> - When true, the field is not persisted to the database.
+Notice virtual fields do not support <code class="inline">:autogenerate</code> nor
+<code class="inline">:read_after_writes</code>.</p>
+</li>
+<li><p><code class="inline">:primary_key</code> - When true, the field is used as part of the
+composite primary key</p>
+</li>
+</ul>
+
+  </section>
+</div>
+<div class="detail" id="has_many/3">
+  
+  
+    <span id="has_many/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/has_many%2F3" class="dashAnchor"></a>
+  <a href="#has_many/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">has_many(name, queryable, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L677" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Indicates a one-to-many association with another schema.</p>
+<p>The current schema has zero or more records of the other schema. The other
+schema often has a <code class="inline">belongs_to</code> field with the reverse association.</p>
+<h2 id="has_many/3-options" class="section-heading">
+  <a href="#has_many/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:foreign_key</code> - Sets the foreign key, this should map to a field on the
+other schema, defaults to the underscored name of the current schema
+suffixed by <code class="inline">_id</code></p>
+</li>
+<li><p><code class="inline">:references</code> - Sets the key on the current schema to be used for the
+association, defaults to the primary key on the schema</p>
+</li>
+<li><p><code class="inline">:through</code> - Allow this association to be defined in terms of existing
+associations. Read the section on <code class="inline">:through</code> associations for more info</p>
+</li>
+<li><p><code class="inline">:on_delete</code> - The action taken on associations when parent record
+is deleted. May be <code class="inline">:nothing</code> (default), <code class="inline">:nilify_all</code> and <code class="inline">:delete_all</code>.
+Notice <code class="inline">:on_delete</code> may also be set in migrations when creating a
+reference. If supported, relying on the database via migrations
+is preferred. <code class="inline">:nilify_all</code> and <code class="inline">:delete_all</code> will not cascade to child
+records unless set via database migrations.</p>
+</li>
+<li><p><code class="inline">:on_replace</code> - The action taken on associations when the record is
+replaced when casting or manipulating parent changeset. May be
+<code class="inline">:raise</code> (default), <code class="inline">:mark_as_invalid</code>, <code class="inline">:nilify</code>, or <code class="inline">:delete</code>.
+See <a href="Ecto.Changeset.html"><code class="inline">Ecto.Changeset</code></a>’s section on related data for more info.</p>
+</li>
+<li><p><code class="inline">:defaults</code> - Default values to use when building the association</p>
+</li>
+</ul>
+<h2 id="has_many/3-examples" class="section-heading">
+  <a href="#has_many/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">defmodule Post do
+  use Ecto.Schema
+  schema &quot;posts&quot; do
+    has_many :comments, Comment
+  end
+end
+
+# Get all comments for a given post
+post = Repo.get(Post, 42)
+comments = Repo.all assoc(post, :comments)
+
+# The comments can come preloaded on the post struct
+[post] = Repo.all(from(p in Post, where: p.id == 42, preload: :comments))
+post.comments #=&gt; [%Comment{...}, ...]</code></pre>
+<h2 id="has_many/3-has_many-has_one-through" class="section-heading">
+  <a href="#has_many/3-has_many-has_one-through" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  has_many/has_one :through
+</h2>
+
+<p>Ecto also supports defining associations in terms of other associations
+via the <code class="inline">:through</code> option. Let’s see an example:</p>
+<pre><code class="elixir">defmodule Post do
+  use Ecto.Schema
+
+  schema &quot;posts&quot; do
+    has_many :comments, Comment
+    has_one :permalink, Permalink
+
+    # In the has_many :through example below, the `:comments`
+    # in the list [:comments, :author] refers to the
+    # `has_many :comments` in the Post own schema and the
+    # `:author` refers to the `belongs_to :author` of the
+    # Comment&#39;s schema (the module below).
+    # (see the description below for more details)
+    has_many :comments_authors, through: [:comments, :author]
+
+    # Specify the association with custom source
+    has_many :tags, {&quot;posts_tags&quot;, Tag}
+  end
+end
+
+defmodule Comment do
+  use Ecto.Schema
+
+  schema &quot;comments&quot; do
+    belongs_to :author, Author
+    belongs_to :post, Post
+    has_one :post_permalink, through: [:post, :permalink]
+  end
+end</code></pre>
+<p>In the example above, we have defined a <code class="inline">has_many :through</code> association
+named <code class="inline">:comments_authors</code>. A <code class="inline">:through</code> association always expects a list
+and the first element of the list must be a previously defined association
+in the current module. For example, <code class="inline">:comments_authors</code> first points to
+<code class="inline">:comments</code> in the same module (Post), which then points to <code class="inline">:author</code> in
+the next schema, <code class="inline">Comment</code>.</p>
+<p>This <code class="inline">:through</code> association will return all authors for all comments
+that belongs to that post:</p>
+<pre><code class="elixir"># Get all comments for a given post
+post = Repo.get(Post, 42)
+authors = Repo.all assoc(post, :comments_authors)</code></pre>
+<p>Although we used the <code class="inline">:through</code> association in the example above, Ecto
+also allows developers to dynamically build the through associations using
+the <a href="Ecto.html#assoc/2"><code class="inline">Ecto.assoc/2</code></a> function:</p>
+<pre><code class="elixir">assoc(post, [:comments, :author])</code></pre>
+<p>In fact, given <code class="inline">:through</code> associations are read-only, <strong>using the <a href="Ecto.html#assoc/2"><code class="inline">Ecto.assoc/2</code></a>
+format is the preferred mechanism for working with through associations</strong>. Use
+the schema-based one only if you need to store the through data alongside of
+the parent struct, in specific cases such as preloading.</p>
+<p><code class="inline">:through</code> associations can also be preloaded. In such cases, not only
+the <code class="inline">:through</code> association is preloaded but all intermediate steps are
+preloaded too:</p>
+<pre><code class="elixir">[post] = Repo.all(from(p in Post, where: p.id == 42, preload: :comments_authors))
+post.comments_authors #=&gt; [%Author{...}, ...]
+
+# The comments for each post will be preloaded too
+post.comments #=&gt; [%Comment{...}, ...]
+
+# And the author for each comment too
+hd(post.comments).author #=&gt; %Author{...}</code></pre>
+<p>When the <code class="inline">:through</code> association is expected to return one or zero items,
+<code class="inline">has_one :through</code> should be used instead, as in the example at the beginning
+of this section:</p>
+<pre><code class="elixir"># How we defined the association above
+has_one :post_permalink, through: [:post, :permalink]
+
+# Get a preloaded comment
+[comment] = Repo.all(Comment) |&gt; Repo.preload(:post_permalink)
+comment.post_permalink #=&gt; %Permalink{...}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="has_one/3">
+  
+  
+    <span id="has_one/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/has_one%2F3" class="dashAnchor"></a>
+  <a href="#has_one/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">has_one(name, queryable, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L734" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Indicates a one-to-one association with another schema.</p>
+<p>The current schema has zero or one records of the other schema. The other
+schema often has a <code class="inline">belongs_to</code> field with the reverse association.</p>
+<h2 id="has_one/3-options" class="section-heading">
+  <a href="#has_one/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:foreign_key</code> - Sets the foreign key, this should map to a field on the
+other schema, defaults to the underscored name of the current schema
+suffixed by <code class="inline">_id</code></p>
+</li>
+<li><p><code class="inline">:references</code>  - Sets the key on the current schema to be used for the
+association, defaults to the primary key on the schema</p>
+</li>
+<li><p><code class="inline">:through</code> - If this association must be defined in terms of existing
+associations. Read the section in <a href="#has_many/3"><code class="inline">has_many/3</code></a> for more information</p>
+</li>
+<li><p><code class="inline">:on_delete</code> - The action taken on associations when parent record
+is deleted. May be <code class="inline">:nothing</code> (default), <code class="inline">:nilify_all</code> and <code class="inline">:delete_all</code>.
+Notice <code class="inline">:on_delete</code> may also be set in migrations when creating a
+reference. If supported, relying on the database via migrations
+is preferred. <code class="inline">:nilify_all</code> and <code class="inline">:delete_all</code> will not cascade to child
+records unless set via database migrations.</p>
+</li>
+<li><p><code class="inline">:on_replace</code> - The action taken on associations when the record is
+replaced when casting or manipulating parent changeset. May be
+<code class="inline">:raise</code> (default), <code class="inline">:mark_as_invalid</code>, <code class="inline">:nilify</code>, <code class="inline">:update</code>, or
+<code class="inline">:delete</code>. See <a href="Ecto.Changeset.html"><code class="inline">Ecto.Changeset</code></a>’s section on related data for more info.</p>
+</li>
+<li><p><code class="inline">:defaults</code> - Default values to use when building the association</p>
+</li>
+</ul>
+<h2 id="has_one/3-examples" class="section-heading">
+  <a href="#has_one/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">defmodule Post do
+  use Ecto.Schema
+
+  schema &quot;posts&quot; do
+    has_one :permalink, Permalink
+
+    # Specify the association with custom source
+    has_one :category, {&quot;posts_categories&quot;, Category}
+  end
+end
+
+# The permalink can come preloaded on the post struct
+[post] = Repo.all(from(p in Post, where: p.id == 42, preload: :permalink))
+post.permalink #=&gt; %Permalink{...}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="many_to_many/3">
+  
+  
+    <span id="many_to_many/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/many_to_many%2F3" class="dashAnchor"></a>
+  <a href="#many_to_many/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">many_to_many(name, queryable, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L1104" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Indicates a many-to-many association with another schema.</p>
+<p>The association happens through a join schema or source, containing
+foreign keys to the associated schemas. For example, the association
+below:</p>
+<pre><code class="elixir"># from MyApp.Post
+many_to_many :tags, MyApp.Tag, join_through: &quot;posts_tags&quot;</code></pre>
+<p>is backed by relational databases through a join table as follows:</p>
+<pre><code class="elixir">[Post] &lt;-&gt; [posts_tags] &lt;-&gt; [Tag]
+  id   &lt;--   post_id
+              tag_id    --&gt;  id</code></pre>
+<p>More information on the migration for creating such a schema is shown
+below.</p>
+<h2 id="many_to_many/3-options" class="section-heading">
+  <a href="#many_to_many/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:join_through</code> - specifies the source of the associated data.
+It may be a string, like “posts_tags”, representing the
+underlying storage table or an atom, like <code class="inline">MyApp.PostTag</code>,
+representing a schema. This option is required.</p>
+</li>
+<li><p><code class="inline">:join_keys</code> - specifies how the schemas are associated. It
+expects a keyword list with two entries, the first being how
+the join table should reach the current schema and the second
+how the join table should reach the associated schema. In the
+example above, it defaults to: <code class="inline">[post_id: :id, tag_id: :id]</code>.
+The keys are inflected from the schema names.</p>
+</li>
+<li><p><code class="inline">:on_delete</code> - The action taken on associations when the parent record
+is deleted. May be <code class="inline">:nothing</code> (default) or <code class="inline">:delete_all</code>.
+<code class="inline">:delete_all</code> will only remove data from the join source, never the
+associated records. Notice <code class="inline">:on_delete</code> may also be set in migrations
+when creating a reference. If supported, relying on the database via
+migrations is preferred. <code class="inline">:nilify_all</code> and <code class="inline">:delete_all</code> will not cascade
+to child records unless set via database migrations.</p>
+</li>
+<li><p><code class="inline">:on_replace</code> - The action taken on associations when the record is
+replaced when casting or manipulating parent changeset. May be
+<code class="inline">:raise</code> (default), <code class="inline">:mark_as_invalid</code>, or <code class="inline">:delete</code>.
+<code class="inline">:delete</code> will only remove data from the join source, never the
+associated records. See <a href="Ecto.Changeset.html"><code class="inline">Ecto.Changeset</code></a>’s section on related data
+for more info.</p>
+</li>
+<li><p><code class="inline">:defaults</code> - Default values to use when building the association</p>
+</li>
+<li><p><code class="inline">:unique</code> - When true, checks if the associated entries are unique.
+This is done by checking the primary key of the associated entries during
+repository operations. Keep in mind this does not guarantee uniqueness at the
+database level. For such it is preferred to set a unique index in the database.
+For example: <code class="inline">create unique_index(:posts_tags, [:post_id, :tag_id])</code></p>
+</li>
+</ul>
+<h2 id="many_to_many/3-removing-data" class="section-heading">
+  <a href="#many_to_many/3-removing-data" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Removing data
+</h2>
+
+<p>If you attempt to remove associated <code class="inline">many_to_many</code> data, <strong>Ecto will
+always remove data from the join schema and never from the target
+associations</strong> be it by setting <code class="inline">:on_replace</code> to <code class="inline">:delete</code>, <code class="inline">:on_delete</code>
+to <code class="inline">:delete_all</code> or by using changeset functions such as
+<a href="Ecto.Changeset.html#put_assoc/3"><code class="inline">Ecto.Changeset.put_assoc/3</code></a>. For example, if a <code class="inline">Post</code> has a many to many
+relationship with <code class="inline">Tag</code>, setting <code class="inline">:on_delete</code> to <code class="inline">:delete_all</code> will
+only delete entries from the “posts_tags” table in case <code class="inline">Post</code> is
+deleted.</p>
+<h2 id="many_to_many/3-migration" class="section-heading">
+  <a href="#many_to_many/3-migration" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Migration
+</h2>
+
+<p>How your migration should be structured depends on the value you pass
+in <code class="inline">:join_through</code>. If <code class="inline">:join_through</code> is simply a string, representing
+a table, you may define a table without primary keys and you must not
+include any further columns, as those values won’t be set by Ecto:</p>
+<pre><code class="elixir">create table(:posts_tags, primary_key: false) do
+  add :post_id, references(:posts)
+  add :tag_id, references(:tags)
+end</code></pre>
+<p>However, if your <code class="inline">:join_through</code> is a schema, like <code class="inline">MyApp.PostTag</code>, your
+join table may be structured as any other table in your codebase,
+including timestamps:</p>
+<pre><code class="elixir">create table(:posts_tags) do
+  add :post_id, references(:posts)
+  add :tag_id, references(:tags)
+  timestamps
+end</code></pre>
+<p>Because <code class="inline">:join_through</code> contains a schema, in such cases, autogenerated
+values and primary keys will be automatically handled by Ecto.</p>
+<h2 id="many_to_many/3-examples" class="section-heading">
+  <a href="#many_to_many/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">defmodule Post do
+  use Ecto.Schema
+  schema &quot;posts&quot; do
+    many_to_many :tags, Tag, join_through: &quot;posts_tags&quot;
+  end
+end
+
+# Let&#39;s create a post and a tag
+post = Repo.insert!(%Post{})
+tag = Repo.insert!(%Tag{name: &quot;introduction&quot;})
+
+# We can associate at any time post and tags together using changesets
+post
+|&gt; Repo.preload(:tags) # Load existing data
+|&gt; Ecto.Changeset.change() # Build the changeset
+|&gt; Ecto.Changeset.put_assoc(:tags, [tag]) # Set the association
+|&gt; Repo.update!
+
+# In a later moment, we may get all tags for a given post
+post = Repo.get(Post, 42)
+tags = Repo.all(assoc(post, :tags))
+
+# The tags may also be preloaded on the post struct for reading
+[post] = Repo.all(from(p in Post, where: p.id == 42, preload: :tags))
+post.tags #=&gt; [%Tag{...}, ...]</code></pre>
+<h2 id="many_to_many/3-join-schema-example" class="section-heading">
+  <a href="#many_to_many/3-join-schema-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Join Schema Example
+</h2>
+
+<p>You may prefer to use a join schema to handle many_to_many associations. The
+decoupled nature of Ecto allows us to create a “join” struct which
+<code class="inline">belongs_to</code> both sides of the many to many association.</p>
+<p>In our example, a User has and belongs to many Organizations</p>
+<pre><code class="elixir">defmodule UserOrganization do
+  use Ecto.Schema
+
+  @primary_key false
+  schema &quot;users_organizations&quot; do
+    belongs_to :user, User
+    belongs_to :organization, Organization
+    timestamps # Added bonus, a join schema will also allow you to set timestamps
+  end
+
+  def changeset(struct, params \\ %{}) do
+    struct
+    |&gt; Ecto.Changeset.cast(params, [:user_id, :organization_id])
+    |&gt; Ecto.Changeset.validate_required([:user_id, :organization_id])
+    # Maybe do some counter caching here!
+  end
+end
+
+defmodule User do
+  use Ecto.Schema
+
+  schema &quot;users&quot; do
+    many_to_many :organizations, Organization, join_through: UserOrganization
+  end
+end
+
+defmodule Organization do
+  use Ecto.Schema
+
+  schema &quot;organizations&quot; do
+    many_to_many :users, User, join_through: UserOrganization
+  end
+end
+
+# Then to create the association, pass in the ID&#39;s of an existing
+# User and Organization to UserOrganization.changeset
+changeset = UserOrganization.changeset(%UserOrganization{}, %{user_id: id, organization_id: id})
+
+case Repo.insert(changeset) do
+  {:ok, assoc} -&gt; # Assoc was created!
+  {:error, changeset} -&gt; # Handle the error
+end</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="schema/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/schema%2F2" class="dashAnchor"></a>
+  <a href="#schema/2" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">schema(source, list)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L387" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Defines a schema struct with a source name and field definitions.</p>
+<p>An additional field called <code class="inline">__meta__</code> is added to the struct for storing
+internal Ecto state. This field always has a <a href="Ecto.Schema.Metadata.html"><code class="inline">Ecto.Schema.Metadata</code></a> struct
+as value and can be manipulated with the <a href="Ecto.html#put_meta/2"><code class="inline">Ecto.put_meta/2</code></a> function.</p>
+
+  </section>
+</div>
+<div class="detail" id="timestamps/1">
+  
+  
+    <span id="timestamps/0"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/timestamps%2F1" class="dashAnchor"></a>
+  <a href="#timestamps/1" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">timestamps(opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/schema.ex#L520" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates <code class="inline">:inserted_at</code> and <code class="inline">:updated_at</code> timestamp fields.</p>
+<p>The fields generated by this macro will automatically be set to
+the current time when inserting and updating values in a repository.</p>
+<h2 id="timestamps/1-options" class="section-heading">
+  <a href="#timestamps/1-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:type</code> - the timestamps type, defaults to <code class="inline">:naive_datetime</code>.
+</li>
+<li><code class="inline">:inserted_at</code> - the name of the column for insertion times or <code class="inline">false</code>
+</li>
+<li><code class="inline">:updated_at</code> - the name of the column for update times or <code class="inline">false</code>
+</li>
+<li><code class="inline">:autogenerate</code> - a module-function-args tuple used for generating
+both <code class="inline">inserted_at</code> and <code class="inline">updated_at</code> timestamps
+</li>
+</ul>
+<p>All options can be pre-configured by setting <code class="inline">@timestamps_opts</code>.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

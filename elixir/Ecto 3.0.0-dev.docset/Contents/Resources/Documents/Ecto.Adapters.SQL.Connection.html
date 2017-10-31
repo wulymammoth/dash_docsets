@@ -1,0 +1,758 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Ecto.Adapters.SQL.Connection – Ecto v3.0.0-dev</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+      <link rel="canonical" href="http://hexdocs.pm/ecto/Ecto.Adapters.SQL.Connection.html" />
+    
+    
+      
+        <link rel="icon" type="image/png" href="assets/logo.png" />
+      
+      
+    
+    <script src="dist/sidebar_items-d4f8a3d044.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Ecto.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.0.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Ecto" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Ecto v3.0.0-dev</small>
+        Ecto.Adapters.SQL.Connection <small>behaviour</small>
+        
+          <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Specifies the behaviour to be implemented by all SQL connections.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:cached/0">cached()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>The cache query which is a DBConnection Query</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:prepared/0">prepared()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>The prepared query which is an SQL command</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+          
+  <div class="summary-callbacks summary">
+    <h2>
+      <a href="#callbacks">Callbacks</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:all/1">all(query)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Receives a query and must return a SELECT query</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:child_spec/1">child_spec(options)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Receives options and returns <a href="https://hexdocs.pm/db_connection/1.1.2/DBConnection.html"><code class="inline">DBConnection</code></a> supervisor child
+specification</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:delete/4">delete(prefix, table, filters, returning)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns a DELETE for the <code class="inline">filters</code> returning the given <code class="inline">returning</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:delete_all/1">delete_all(query)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Receives a query and must return a DELETE query</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:execute/4">execute(connection, prepared_query, params, options)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:execute_ddl/1">execute_ddl(command)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Receives a DDL command and returns a query that executes it</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:insert/6">insert(prefix, table, header, rows, on_conflict, returning)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns an INSERT for the given <code class="inline">rows</code> in <code class="inline">table</code> returning
+the given <code class="inline">returning</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:prepare_execute/5">prepare_execute(connection, name, prepared, params, options)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Prepares and executes the given query with <a href="https://hexdocs.pm/db_connection/1.1.2/DBConnection.html"><code class="inline">DBConnection</code></a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:stream/4">stream(connection, prepared_query, params, options)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns a stream that prepares and executes the given query with
+<a href="https://hexdocs.pm/db_connection/1.1.2/DBConnection.html"><code class="inline">DBConnection</code></a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:to_constraints/1">to_constraints(exception)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Receives the exception returned by <code class="inline">query/4</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:update/5">update(prefix, table, fields, filters, returning)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns an UPDATE for the given <code class="inline">fields</code> in <code class="inline">table</code> filtered by
+<code class="inline">filters</code> returning the given <code class="inline">returning</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:update_all/1">update_all(query)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Receives a query and values to update and must return an UPDATE query</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:cached/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/cached" class="dashAnchor"></a>
+  <a href="#t:cached/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">cached()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L10" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>cached() :: map</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>The cache query which is a DBConnection Query</p>
+
+  </section>
+</div>
+<div class="detail" id="t:prepared/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/prepared" class="dashAnchor"></a>
+  <a href="#t:prepared/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">prepared()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L7" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>prepared() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>The prepared query which is an SQL command</p>
+
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+
+      
+        <section id="callbacks" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#callbacks">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Callbacks
+          </h1>
+          <div class="detail" id="c:all/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/all%2F1" class="dashAnchor"></a>
+  <a href="#c:all/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">all(query)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L58" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>all(query :: <a href="Ecto.Query.html#t:t/0">Ecto.Query.t</a>) :: iodata</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Receives a query and must return a SELECT query.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:child_spec/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/child_spec%2F1" class="dashAnchor"></a>
+  <a href="#c:child_spec/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">child_spec(options)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L16" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>child_spec(options :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: {module, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Receives options and returns <a href="https://hexdocs.pm/db_connection/1.1.2/DBConnection.html"><code class="inline">DBConnection</code></a> supervisor child
+specification.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:delete/4">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/delete%2F4" class="dashAnchor"></a>
+  <a href="#c:delete/4" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">delete(prefix, table, filters, returning)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L88" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>delete(prefix :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>, table :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>, filters :: [atom], returning :: [atom]) :: iodata</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns a DELETE for the <code class="inline">filters</code> returning the given <code class="inline">returning</code>.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:delete_all/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/delete_all%2F1" class="dashAnchor"></a>
+  <a href="#c:delete_all/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">delete_all(query)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L68" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>delete_all(query :: <a href="Ecto.Query.html#t:t/0">Ecto.Query.t</a>) :: iodata</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Receives a query and must return a DELETE query.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:execute/4">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/execute%2F4" class="dashAnchor"></a>
+  <a href="#c:execute/4" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">execute(connection, prepared_query, params, options)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L27" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>execute(connection :: <a href="https://hexdocs.pm/db_connection/1.1.2/DBConnection.html#t:t/0">DBConnection.t</a>, prepared_query :: <a href="#t:cached/0">cached</a>, params :: [term], options :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, term} |
+  {:error | :reset, <a href="https://hexdocs.pm/elixir/Exception.html#t:t/0">Exception.t</a>}</pre>
+        
+          <pre>execute(connection :: <a href="https://hexdocs.pm/db_connection/1.1.2/DBConnection.html#t:t/0">DBConnection.t</a>, prepared_query :: <a href="#t:prepared/0">prepared</a>, params :: [term], options :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, term} |
+  {:error, <a href="https://hexdocs.pm/elixir/Exception.html#t:t/0">Exception.t</a>}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:execute_ddl/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/execute_ddl%2F1" class="dashAnchor"></a>
+  <a href="#c:execute_ddl/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">execute_ddl(command)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L96" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>execute_ddl(command :: <a href="Ecto.Adapter.Migration.html#t:command/0">Ecto.Adapter.Migration.command</a>) ::
+  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a> |
+  [iodata]</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Receives a DDL command and returns a query that executes it.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:insert/6">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/insert%2F6" class="dashAnchor"></a>
+  <a href="#c:insert/6" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">insert(prefix, table, header, rows, on_conflict, returning)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L74" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>insert(prefix :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>, table :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>, header :: [atom], rows :: [[atom | nil]], on_conflict :: <a href="Ecto.Adapter.html#t:on_conflict/0">Ecto.Adapter.on_conflict</a>, returning :: [atom]) :: iodata</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns an INSERT for the given <code class="inline">rows</code> in <code class="inline">table</code> returning
+the given <code class="inline">returning</code>.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:prepare_execute/5">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/prepare_execute%2F5" class="dashAnchor"></a>
+  <a href="#c:prepare_execute/5" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">prepare_execute(connection, name, prepared, params, options)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L21" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>prepare_execute(connection :: <a href="https://hexdocs.pm/db_connection/1.1.2/DBConnection.html#t:t/0">DBConnection.t</a>, name :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>, <a href="#t:prepared/0">prepared</a>, params :: [term], options :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, query :: map, term} |
+  {:error, <a href="https://hexdocs.pm/elixir/Exception.html#t:t/0">Exception.t</a>}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Prepares and executes the given query with <a href="https://hexdocs.pm/db_connection/1.1.2/DBConnection.html"><code class="inline">DBConnection</code></a>.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:stream/4">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/stream%2F4" class="dashAnchor"></a>
+  <a href="#c:stream/4" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">stream(connection, prepared_query, params, options)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L36" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>stream(connection :: <a href="https://hexdocs.pm/db_connection/1.1.2/DBConnection.html#t:conn/0">DBConnection.conn</a>, prepared_query :: <a href="#t:prepared/0">prepared</a>, params :: [term], options :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: <a href="https://hexdocs.pm/elixir/Enum.html#t:t/0">Enum.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns a stream that prepares and executes the given query with
+<a href="https://hexdocs.pm/db_connection/1.1.2/DBConnection.html"><code class="inline">DBConnection</code></a>.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:to_constraints/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/to_constraints%2F1" class="dashAnchor"></a>
+  <a href="#c:to_constraints/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">to_constraints(exception)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L51" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>to_constraints(exception :: <a href="https://hexdocs.pm/elixir/Exception.html#t:t/0">Exception.t</a>) :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Receives the exception returned by <code class="inline">query/4</code>.</p>
+<p>The constraints are in the keyword list and must return the
+constraint type, like <code class="inline">:unique</code>, and the constraint name as
+a string, for example:</p>
+<pre><code class="elixir">[unique: &quot;posts_title_index&quot;]</code></pre>
+<p>Must return an empty list if the error does not come
+from any constraint.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:update/5">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/update%2F5" class="dashAnchor"></a>
+  <a href="#c:update/5" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">update(prefix, table, fields, filters, returning)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L82" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>update(prefix :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>, table :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>, fields :: [atom], filters :: [atom], returning :: [atom]) :: iodata</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns an UPDATE for the given <code class="inline">fields</code> in <code class="inline">table</code> filtered by
+<code class="inline">filters</code> returning the given <code class="inline">returning</code>.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:update_all/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/update_all%2F1" class="dashAnchor"></a>
+  <a href="#c:update_all/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">update_all(query)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/connection.ex#L63" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>update_all(query :: <a href="Ecto.Query.html#t:t/0">Ecto.Query.t</a>) :: iodata</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Receives a query and values to update and must return an UPDATE query.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

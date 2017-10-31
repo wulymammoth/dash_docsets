@@ -1,0 +1,461 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Ecto.Adapters.SQL – Ecto v3.0.0-dev</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+      <link rel="canonical" href="http://hexdocs.pm/ecto/Ecto.Adapters.SQL.html" />
+    
+    
+      
+        <link rel="icon" type="image/png" href="assets/logo.png" />
+      
+      
+    
+    <script src="dist/sidebar_items-d4f8a3d044.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Ecto.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.0.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Ecto" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Ecto v3.0.0-dev</small>
+        Ecto.Adapters.SQL
+        
+          <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Behaviour and implementation for SQL adapters.</p>
+<p>The implementation for SQL adapter relies on <a href="https://hexdocs.pm/db_connection/1.1.2/DBConnection.html"><code class="inline">DBConnection</code></a>
+to provide pooling, prepare, execute and more.</p>
+<p>Developers that use <a href="Ecto.Adapters.SQL.html#content"><code class="inline">Ecto.Adapters.SQL</code></a> should implement
+the callbacks required both by this module and the ones
+from <a href="Ecto.Adapters.SQL.Connection.html"><code class="inline">Ecto.Adapters.SQL.Connection</code></a> for handling connections
+and performing queries.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#do_stream/6">do_stream(repo, arg2, arg, params, mapper, opts)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#query/4">query(repo, sql, params \\ [], opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Runs custom SQL query on given repo</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#query!/4">query!(repo, sql, params \\ [], opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Same as <a href="#query/4"><code class="inline">query/4</code></a> but raises on invalid queries</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#stream/4">stream(repo, sql, params \\ [], opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns a stream that runs a custom SQL query on given repo when reduced</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#to_sql/3">to_sql(kind, repo, queryable)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Converts the given query to SQL according to its kind and the
+adapter in the given repository</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="do_stream/6">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/do_stream%2F6" class="dashAnchor"></a>
+  <a href="#do_stream/6" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">do_stream(repo, arg2, arg, params, mapper, opts)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql.ex#L507" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="query/4">
+  
+  
+    <span id="query/2"></span>
+  
+    <span id="query/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/query%2F4" class="dashAnchor"></a>
+  <a href="#query/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">query(repo, sql, params \\ [], opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql.ex#L248" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>query(<a href="Ecto.Repo.html#t:t/0">Ecto.Repo.t</a>, <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>, [term], <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  {:ok, %{:rows => nil | [[term] | binary], :num_rows => non_neg_integer, optional(atom) => any}} |
+  {:error, <a href="https://hexdocs.pm/elixir/Exception.html#t:t/0">Exception.t</a>}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Runs custom SQL query on given repo.</p>
+<p>In case of success, it must return an <code class="inline">:ok</code> tuple containing
+a map with at least two keys:</p>
+<ul>
+<li><p><code class="inline">:num_rows</code> - the number of rows affected</p>
+</li>
+<li><p><code class="inline">:rows</code> - the result set as a list. <code class="inline">nil</code> may be returned
+instead of the list if the command does not yield any row
+as result (but still yields the number of affected rows,
+like a <code class="inline">delete</code> command without returning would)</p>
+</li>
+</ul>
+<h2 id="query/4-options" class="section-heading">
+  <a href="#query/4-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:timeout</code> - The time in milliseconds to wait for a query to finish,
+<code class="inline">:infinity</code> will wait indefinitely. (default: 15_000)</p>
+</li>
+<li><p><code class="inline">:pool_timeout</code> - The time in milliseconds to wait for a call to the pool
+to finish, <code class="inline">:infinity</code> will wait indefinitely. (default: 5_000)</p>
+</li>
+<li><p><code class="inline">:log</code> - When false, does not log the query</p>
+</li>
+</ul>
+<h2 id="query/4-examples" class="section-heading">
+  <a href="#query/4-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; Ecto.Adapters.SQL.query(MyRepo, &quot;SELECT $1::integer + $2&quot;, [40, 2])
+{:ok, %{rows: [[42]], num_rows: 1}}</code></pre>
+<p>For convenience, this function is also available under the repository:</p>
+<pre><code class="iex elixir">iex&gt; MyRepo.query(&quot;SELECT $1::integer + $2&quot;, [40, 2])
+{:ok, %{rows: [[42]], num_rows: 1}}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="query!/4">
+  
+  
+    <span id="query!/2"></span>
+  
+    <span id="query!/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/query%21%2F4" class="dashAnchor"></a>
+  <a href="#query!/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">query!(repo, sql, params \\ [], opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql.ex#L199" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>query!(<a href="Ecto.Repo.html#t:t/0">Ecto.Repo.t</a>, <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>, [term], <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) ::
+  %{:rows => nil | [[term] | binary], :num_rows => non_neg_integer, optional(atom) => any} |
+  no_return</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Same as <a href="#query/4"><code class="inline">query/4</code></a> but raises on invalid queries.</p>
+
+  </section>
+</div>
+<div class="detail" id="stream/4">
+  
+  
+    <span id="stream/2"></span>
+  
+    <span id="stream/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/stream%2F4" class="dashAnchor"></a>
+  <a href="#stream/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">stream(repo, sql, params \\ [], opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql.ex#L490" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>stream(<a href="Ecto.Repo.html#t:t/0">Ecto.Repo.t</a>, <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>, [term], <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: <a href="https://hexdocs.pm/elixir/Enum.html#t:t/0">Enum.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns a stream that runs a custom SQL query on given repo when reduced.</p>
+<p>In case of success it is a enumerable containing maps with at least two keys:</p>
+<ul>
+<li><p><code class="inline">:num_rows</code> - the number of rows affected</p>
+</li>
+<li><p><code class="inline">:rows</code> - the result set as a list. <code class="inline">nil</code> may be returned
+instead of the list if the command does not yield any row
+as result (but still yields the number of affected rows,
+like a <code class="inline">delete</code> command without returning would)</p>
+</li>
+</ul>
+<p>In case of failure it raises an exception.</p>
+<p>If the adapter supports a collectable stream, the stream may also be used as
+the collectable in <a href="https://hexdocs.pm/elixir/Enum.html#into/3"><code class="inline">Enum.into/3</code></a>. Behaviour depends on the adapter.</p>
+<h2 id="stream/4-options" class="section-heading">
+  <a href="#stream/4-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:timeout</code> - The time in milliseconds to wait for a query to finish,
+<code class="inline">:infinity</code> will wait indefinitely (default: 15_000)
+</li>
+<li><code class="inline">:pool_timeout</code> - The time in milliseconds to wait for a call to the pool
+to finish, <code class="inline">:infinity</code> will wait indefinitely (default: 5_000)
+</li>
+<li><code class="inline">:log</code> - When false, does not log the query
+</li>
+<li><code class="inline">:max_rows</code> - The number of rows to load from the database as we stream
+</li>
+</ul>
+<h2 id="stream/4-examples" class="section-heading">
+  <a href="#stream/4-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; Ecto.Adapters.SQL.stream(MyRepo, &quot;SELECT $1::integer + $2&quot;, [40, 2]) |&gt; Enum.to_list()
+[%{rows: [[42]], num_rows: 1}]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="to_sql/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/to_sql%2F3" class="dashAnchor"></a>
+  <a href="#to_sql/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">to_sql(kind, repo, queryable)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql.ex#L174" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>to_sql(:all | :update_all | :delete_all, <a href="Ecto.Repo.html#t:t/0">Ecto.Repo.t</a>, <a href="Ecto.Queryable.html#t:t/0">Ecto.Queryable.t</a>) :: {<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>, [term]}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Converts the given query to SQL according to its kind and the
+adapter in the given repository.</p>
+<h2 id="to_sql/3-examples" class="section-heading">
+  <a href="#to_sql/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<p>The examples below are meant for reference. Each adapter will
+return a different result:</p>
+<pre><code class="iex elixir">iex&gt; Ecto.Adapters.SQL.to_sql(:all, repo, Post)
+{&quot;SELECT p.id, p.title, p.inserted_at, p.created_at FROM posts as p&quot;, []}
+
+iex&gt; Ecto.Adapters.SQL.to_sql(:update_all, repo,
+                              from(p in Post, update: [set: [title: ^&quot;hello&quot;]]))
+{&quot;UPDATE posts AS p SET title = $1&quot;, [&quot;hello&quot;]}</code></pre>
+<p>This function is also available under the repository with name <code class="inline">to_sql</code>:</p>
+<pre><code class="iex elixir">iex&gt; Repo.to_sql(:all, Post)
+{&quot;SELECT p.id, p.title, p.inserted_at, p.created_at FROM posts as p&quot;, []}</code></pre>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

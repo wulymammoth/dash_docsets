@@ -1,0 +1,626 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Ecto.Adapters.SQL.Sandbox – Ecto v3.0.0-dev</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+      <link rel="canonical" href="http://hexdocs.pm/ecto/Ecto.Adapters.SQL.Sandbox.html" />
+    
+    
+      
+        <link rel="icon" type="image/png" href="assets/logo.png" />
+      
+      
+    
+    <script src="dist/sidebar_items-d4f8a3d044.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Ecto.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.0.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Ecto" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Ecto v3.0.0-dev</small>
+        Ecto.Adapters.SQL.Sandbox
+        
+          <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/sandbox.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>A pool for concurrent transactional tests.</p>
+<p>The sandbox pool is implemented on top of an ownership mechanism.
+When started, the pool is in automatic mode, which means the
+repository will automatically check connections out as with any
+other pool.</p>
+<p>The <a href="#mode/2"><code class="inline">mode/2</code></a> function can be used to change the pool mode to
+manual or shared. In both modes, the connection must be explicitly
+checked out before use. When explicit checkouts are made, the
+sandbox will wrap the connection in a transaction by default and
+control who has access to it. This means developers have a safe
+mechanism for running concurrent tests against the database.</p>
+<h2 id="module-database-support" class="section-heading">
+  <a href="#module-database-support" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Database support
+</h2>
+
+<p>While both PostgreSQL and MySQL support SQL Sandbox, only PostgreSQL
+supports concurrent tests while running the SQL Sandbox. Therefore, do
+not run concurrent tests with MySQL as you may run into deadlocks due to
+its transaction implementation.</p>
+<h2 id="module-example" class="section-heading">
+  <a href="#module-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<p>The first step is to configure your database to use the
+<a href="Ecto.Adapters.SQL.Sandbox.html#content"><code class="inline">Ecto.Adapters.SQL.Sandbox</code></a> pool. You set those options in your
+<code class="inline">config/config.exs</code> (or preferably <code class="inline">config/test.exs</code>) if you
+haven’t yet:</p>
+<pre><code class="elixir">config :my_app, Repo,
+  pool: Ecto.Adapters.SQL.Sandbox</code></pre>
+<p>Now with the test database properly configured, you can write
+transactional tests:</p>
+<pre><code class="elixir"># At the end of your test_helper.exs
+# Set the pool mode to manual for explicit checkouts
+Ecto.Adapters.SQL.Sandbox.mode(Repo, :manual)
+
+defmodule PostTest do
+  # Once the mode is manual, tests can also be async
+  use ExUnit.Case, async: true
+
+  setup do
+    # Explicitly get a connection before each test
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
+  end
+
+  test &quot;create post&quot; do
+    # Use the repository as usual
+    assert %Post{} = Repo.insert!(%Post{})
+  end
+end</code></pre>
+<h2 id="module-collaborating-processes" class="section-heading">
+  <a href="#module-collaborating-processes" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Collaborating processes
+</h2>
+
+<p>The example above is straight-forward because we have only
+a single process using the database connection. However,
+sometimes a test may need to interact with multiple processes,
+all using the same connection so they all belong to the same
+transaction.</p>
+<p>Before we discuss solutions, let’s see what happens if we try
+to use a connection from a new process without explicitly
+checking it out first:</p>
+<pre><code class="elixir">setup do
+  # Explicitly get a connection before each test
+  :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
+end
+
+test &quot;create two posts, one sync, another async&quot; do
+  task = Task.async(fn -&gt;
+    Repo.insert!(%Post{title: &quot;async&quot;})
+  end)
+  assert %Post{} = Repo.insert!(%Post{title: &quot;sync&quot;})
+  assert %Post{} = Task.await(task)
+end</code></pre>
+<p>The test above will fail with an error similar to:</p>
+<pre><code class="elixir">** (RuntimeError) cannot find ownership process for #PID&lt;0.35.0&gt;</code></pre>
+<p>That’s because the <code class="inline">setup</code> block is checking out the connection only
+for the test process. Once we spawn a Task, there is no connection
+assigned to it and it will fail.</p>
+<p>The sandbox module provides two ways of doing so, via allowances or
+by running in shared mode.</p>
+<h3 id="module-allowances" class="section-heading">
+  <a href="#module-allowances" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Allowances
+</h3>
+
+<p>The idea behind allowances is that you can explicitly tell a process
+which checked out connection it should use, allowing multiple processes
+to collaborate over the same connection. Let’s give it a try:</p>
+<pre><code class="elixir">test &quot;create two posts, one sync, another async&quot; do
+  parent = self()
+  task = Task.async(fn -&gt;
+    Ecto.Adapters.SQL.Sandbox.allow(Repo, parent, self())
+    Repo.insert!(%Post{title: &quot;async&quot;})
+  end)
+  assert %Post{} = Repo.insert!(%Post{title: &quot;sync&quot;})
+  assert %Post{} = Task.await(task)
+end</code></pre>
+<p>And that’s it, by calling <a href="#allow/3"><code class="inline">allow/3</code></a>, we are explicitly assigning
+the parent’s connection (i.e. the test process’ connection) to
+the task.</p>
+<p>Because allowances use an explicit mechanism, their advantage
+is that you can still run your tests in async mode. The downside
+is that you need to explicitly control and allow every single
+process. This is not always possible. In such cases, you will
+want to use shared mode.</p>
+<h3 id="module-shared-mode" class="section-heading">
+  <a href="#module-shared-mode" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Shared mode
+</h3>
+
+<p>Shared mode allows a process to share its connection with any other
+process automatically, without relying on explicit allowances.
+Let’s change the example above to use shared mode:</p>
+<pre><code class="elixir">setup do
+  # Explicitly get a connection before each test
+  :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
+  # Setting the shared mode must be done only after checkout
+  Ecto.Adapters.SQL.Sandbox.mode(Repo, {:shared, self()})
+end
+
+test &quot;create two posts, one sync, another async&quot; do
+  task = Task.async(fn -&gt;
+    Repo.insert!(%Post{title: &quot;async&quot;})
+  end)
+  assert %Post{} = Repo.insert!(%Post{title: &quot;sync&quot;})
+  assert %Post{} = Task.await(task)
+end</code></pre>
+<p>By calling <code class="inline">mode({:shared, self()})</code>, any process that needs
+to talk to the database will now use the same connection as the
+one checked out by the test process during the <code class="inline">setup</code> block.</p>
+<p>Make sure to always check a connection out before setting the mode
+to <code class="inline">{:shared, self()}</code>.</p>
+<p>The advantage of shared mode is that by calling a single function,
+you will ensure all upcoming processes and operations will use that
+shared connection, without a need to explicitly allow them. The
+downside is that tests can no longer run concurrently in shared mode.</p>
+<h3 id="module-summing-up" class="section-heading">
+  <a href="#module-summing-up" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Summing up
+</h3>
+
+<p>There are two mechanisms for explicit ownerships:</p>
+<ul>
+<li><p>Using allowances - requires explicit allowances via <a href="#allow/3"><code class="inline">allow/3</code></a>.
+Tests may run concurrently.</p>
+</li>
+<li><p>Using shared mode - does not require explicit allowances.
+Tests cannot run concurrently.</p>
+</li>
+</ul>
+<h2 id="module-faq" class="section-heading">
+  <a href="#module-faq" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  FAQ
+</h2>
+
+<p>When running the sandbox mode concurrently, developers may run into
+issues we explore in the upcoming sections.</p>
+<h3 id="module-owner-exited-while-client-is-still-running" class="section-heading">
+  <a href="#module-owner-exited-while-client-is-still-running" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  “owner exited while client is still running”
+</h3>
+
+<p>In some situations, you may see error reports similar to the one below:</p>
+<pre><code class="elixir">21:57:43.910 [error] Postgrex.Protocol (#PID&lt;0.284.0&gt;) disconnected:
+    ** (DBConnection.Error) owner #PID&lt;&gt; exited while client #PID&lt;&gt; is still running</code></pre>
+<p>Such errors are usually followed by another error report from another
+process that failed while executing a database query.</p>
+<p>To understand the failure, we need to answer the question: who are the
+owner and client processes? The owner process is the one that checks
+out the connection, which, in the majority of cases, is the test process,
+the one running your tests. In other words, the error happens because
+the test process has finished, either because the test succeeded or
+because it failed, while the client process was trying to get information
+from the database. Since the owner process, the one that owns the
+connection, no longer exists, Ecto will check the connection back in
+and notify the client process using the connection that the connection
+owner is no longer available.</p>
+<p>This can happen in different situations. For example, imagine you query
+a GenServer in your test that is using a database connection:</p>
+<pre><code class="elixir">test &quot;gets results from GenServer&quot; do
+  {:ok, pid} = MyAppServer.start_link()
+  Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), pid)
+  assert MyAppServer.get_my_data_fast(timeout: 1000) == [...]
+end</code></pre>
+<p>In the test above, we spawn the server and allow it to perform database
+queries using the connection owned by the test process. Since we gave
+a timeout of 1 second, in case the database takes longer than one second
+to reply, the test process will fail, due to the timeout, making the
+“owner down” message to be printed because the server process is still
+waiting on a connection reply.</p>
+<p>In some situations, such failures may be intermittent. Imagine that you
+allow a process that queries the database every half second:</p>
+<pre><code class="elixir">test &quot;queries periodically&quot; do
+  {:ok, pid} = PeriodicServer.start_link()
+  Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), pid)
+  # more tests
+end</code></pre>
+<p>Because the server is querying the database from time to time, there is
+a chance that, when the test exists, the periodic process may be querying
+the database, regardless of test success or failure.</p>
+<h3 id="module-owner-timed-out-because-it-owned-the-connection-for-longer-than-nms" class="section-heading">
+  <a href="#module-owner-timed-out-because-it-owned-the-connection-for-longer-than-nms" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  “owner timed out because it owned the connection for longer than Nms”
+</h3>
+
+<p>In some situations, you may see error reports similar to the one below:</p>
+<pre><code class="elixir">09:56:43.081 [error] Postgrex.Protocol (#PID&lt;&gt;) disconnected:
+    ** (DBConnection.ConnectionError) owner #PID&lt;&gt; timed out
+    because it owned the connection for longer than 15000ms</code></pre>
+<p>If you have a long running test (or you’re debugging with IEx.pry), the timeout for the connection ownership may
+be too short.  You can increase the timeout by setting the
+<code class="inline">:ownership_timeout</code> options for your repo config in <code class="inline">config/config.exs</code> (or preferably in <code class="inline">config/test.exs</code>):</p>
+<pre><code class="elixir">config :my_app, MyApp.Repo,
+  ownership_timeout: NEW_TIMEOUT_IN_MILLISECONDS</code></pre>
+<p>The <code class="inline">:ownership_timeout</code> option is part of
+<a href="https://hexdocs.pm/db_connection/DBConnection.Ownership.html"><code class="inline">DBConnection.Ownership</code></a>
+and defaults to 15000ms. Timeouts are given as integers in milliseconds.</p>
+<p>Alternately, if this is an issue for only a handful of long-running tests,
+you can pass an <code class="inline">:ownership_timeout</code> option when calling
+<a href="Ecto.Adapters.SQL.Sandbox.html#checkout/2"><code class="inline">Ecto.Adapters.SQL.Sandbox.checkout/2</code></a> instead of setting a longer timeout
+globally in your config.</p>
+<h3 id="module-database-locks-and-deadlocks" class="section-heading">
+  <a href="#module-database-locks-and-deadlocks" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Database locks and deadlocks
+</h3>
+
+<p>Since the sandbox relies on concurrent transactional tests, there is
+a chance your tests may trigger deadlocks in your database. This is
+specially true with MySQL, where the solutions presented here are not
+enough to avoid deadlocks and therefore making the use of concurrent tests
+with MySQL prohibited.</p>
+<p>However, even on databases like PostgreSQL, performance degradations or
+deadlocks may still occur. For example, imagine multiple tests are
+trying to insert the same user to the database. They will attempt to
+retrieve the same database lock, causing only one test to succeed and
+run while all other tests wait for the lock.</p>
+<p>In other situations, two different tests may proceed in a way that
+each test retrieves locks desired by the other, leading to a situation
+that cannot be resolved, a deadlock. For instance:</p>
+<pre><code class="elixir">Transaction 1:                Transaction 2:
+begin
+                              begin
+update posts where id = 1
+                              update posts where id = 2
+                              update posts where id = 1
+update posts where id = 2
+                      **deadlock**</code></pre>
+<p>There are different ways to avoid such problems. One of them is
+to make sure your tests work on distinct data. Regardless of
+your choice between using fixtures or factories for test data,
+make sure you get a new set of data per test. This is specially
+important for data that is meant to be unique like user emails.</p>
+<p>For example, instead of:</p>
+<pre><code class="elixir">def insert_user do
+  Repo.insert! %User{email: &quot;sample@example.com&quot;}
+end</code></pre>
+<p>prefer:</p>
+<pre><code class="elixir">def insert_user do
+  Repo.insert! %User{email: &quot;sample-#{counter()}@example.com&quot;}
+end
+
+defp counter do
+  System.unique_integer [:positive]
+end</code></pre>
+<p>Deadlocks may happen in other circumstances. If you believe you
+are hitting a scenario that has not been described here, please
+report an issue so we can improve our examples. As a last resort,
+you can always disable the test triggering the deadlock from
+running asynchronously by setting  “async: false”.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#allow/4">allow(repo, parent, allow, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Allows the <code class="inline">allow</code> process to use the same connection as <code class="inline">parent</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#checkin/2">checkin(repo, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Checks in the connection back into the sandbox pool</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#checkout/2">checkout(repo, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Checks a connection out for the given <code class="inline">repo</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#mode/2">mode(repo, mode)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Sets the mode for the <code class="inline">repo</code> pool</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#unboxed_run/2">unboxed_run(repo, fun)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Runs a function outside of the sandbox</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="allow/4">
+  
+  
+    <span id="allow/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/allow%2F4" class="dashAnchor"></a>
+  <a href="#allow/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">allow(repo, parent, allow, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/sandbox.ex#L511" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Allows the <code class="inline">allow</code> process to use the same connection as <code class="inline">parent</code>.</p>
+
+  </section>
+</div>
+<div class="detail" id="checkin/2">
+  
+  
+    <span id="checkin/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/checkin%2F2" class="dashAnchor"></a>
+  <a href="#checkin/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">checkin(repo, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/sandbox.ex#L503" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Checks in the connection back into the sandbox pool.</p>
+
+  </section>
+</div>
+<div class="detail" id="checkout/2">
+  
+  
+    <span id="checkout/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/checkout%2F2" class="dashAnchor"></a>
+  <a href="#checkout/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">checkout(repo, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/sandbox.ex#L467" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Checks a connection out for the given <code class="inline">repo</code>.</p>
+<p>The process calling <a href="#checkout/2"><code class="inline">checkout/2</code></a> will own the connection
+until it calls <a href="#checkin/2"><code class="inline">checkin/2</code></a> or until it crashes when then
+the connection will be automatically reclaimed by the pool.</p>
+<h2 id="checkout/2-options" class="section-heading">
+  <a href="#checkout/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:sandbox</code> - when true the connection is wrapped in
+a transaction. Defaults to true.</p>
+</li>
+<li><p><code class="inline">:isolation</code> - set the query to the given isolation level</p>
+</li>
+<li><p><code class="inline">:ownership_timeout</code> - limits how long the connection can be
+owned. Defaults to the compiled value from your repo config in
+<code class="inline">config/config.exs</code> (or preferably in <code class="inline">config/test.exs</code>), or
+15000 ms if not set.</p>
+</li>
+</ul>
+
+  </section>
+</div>
+<div class="detail" id="mode/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/mode%2F2" class="dashAnchor"></a>
+  <a href="#mode/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">mode(repo, mode)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/sandbox.ex#L423" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Sets the mode for the <code class="inline">repo</code> pool.</p>
+<p>The mode can be <code class="inline">:auto</code>, <code class="inline">:manual</code> or <code class="inline">{:shared, &lt;pid&gt;}</code>.</p>
+
+  </section>
+</div>
+<div class="detail" id="unboxed_run/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/unboxed_run%2F2" class="dashAnchor"></a>
+  <a href="#unboxed_run/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">unboxed_run(repo, fun)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/sql/sandbox.ex#L519" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Runs a function outside of the sandbox.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

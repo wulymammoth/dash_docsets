@@ -1,0 +1,1962 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Ecto.Query – Ecto v3.0.0-dev</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+      <link rel="canonical" href="http://hexdocs.pm/ecto/Ecto.Query.html" />
+    
+    
+      
+        <link rel="icon" type="image/png" href="assets/logo.png" />
+      
+      
+    
+    <script src="dist/sidebar_items-d4f8a3d044.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Ecto.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.0.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Ecto" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Ecto v3.0.0-dev</small>
+        Ecto.Query
+        
+          <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L8" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Provides the Query DSL.</p>
+<p>Queries are used to retrieve and manipulate data from a repository
+(see <a href="Ecto.Repo.html"><code class="inline">Ecto.Repo</code></a>). Ecto queries come in two flavors: keyword-based
+and macro-based. Most examples will use the keyword-based syntax,
+the macro one will be explored in later sections.</p>
+<p>Let’s see a sample query:</p>
+<pre><code class="elixir"># Imports only from/2 of Ecto.Query
+import Ecto.Query, only: [from: 2]
+
+# Create a query
+query = from u in &quot;users&quot;,
+          where: u.age &gt; 18,
+          select: u.name
+
+# Send the query to the repository
+Repo.all(query)</code></pre>
+<p>In the example above, we are directly querying the “users” table
+from the database.</p>
+<h2 id="module-query-expressions" class="section-heading">
+  <a href="#module-query-expressions" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Query expressions
+</h2>
+
+<p>Ecto allows a limited set of expressions inside queries. In the
+query below, for example, we use <code class="inline">u.age</code> to access a field, the
+<code class="inline">&gt;</code> comparison operator and the literal <code class="inline">0</code>:</p>
+<pre><code class="elixir">query = from u in &quot;users&quot;, where: u.age &gt; 0, select: u.name</code></pre>
+<p>You can find the full list of operations in <a href="Ecto.Query.API.html"><code class="inline">Ecto.Query.API</code></a>.
+Besides the operations listed there, the following literals are
+supported in queries:</p>
+<ul>
+<li>Integers: <code class="inline">1</code>, <code class="inline">2</code>, <code class="inline">3</code>
+</li>
+<li>Floats: <code class="inline">1.0</code>, <code class="inline">2.0</code>, <code class="inline">3.0</code>
+</li>
+<li>Booleans: <code class="inline">true</code>, <code class="inline">false</code>
+</li>
+<li>Binaries: <code class="inline">&lt;&lt;1, 2, 3&gt;&gt;</code>
+</li>
+<li>Strings: <code class="inline">&quot;foo bar&quot;</code>, <code class="inline">~s(this is a string)</code>
+</li>
+<li>Arrays: <code class="inline">[1, 2, 3]</code>, <code class="inline">~w(interpolate words)</code>
+</li>
+</ul>
+<p>All other types and dynamic values must be passed as a parameter using
+interpolation as explained below.</p>
+<h2 id="module-interpolation-and-casting" class="section-heading">
+  <a href="#module-interpolation-and-casting" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Interpolation and casting
+</h2>
+
+<p>External values and Elixir expressions can be injected into a query
+expression with <code class="inline">^</code>:</p>
+<pre><code class="elixir">def with_minimum(age, height_ft) do
+  from u in &quot;users&quot;,
+    where: u.age &gt; ^age and u.height &gt; ^(height_ft * 3.28),
+    select: u.name
+end
+
+with_minimum(18, 5.0)</code></pre>
+<p>When interpolating values, you may want to explicitly tell Ecto
+what is the expected type of the value being interpolated:</p>
+<pre><code class="elixir">age = &quot;18&quot;
+Repo.all(from u in &quot;users&quot;,
+          where: u.age &gt; type(^age, :integer),
+          select: u.name)</code></pre>
+<p>In the example above, Ecto will cast the age to type integer. When
+a value cannot be cast, <a href="Ecto.Query.CastError.html"><code class="inline">Ecto.Query.CastError</code></a> is raised.</p>
+<p>To avoid the repetition of always specifying the types, you may define
+an <a href="Ecto.Schema.html"><code class="inline">Ecto.Schema</code></a>. In such cases, Ecto will analyze your queries and
+automatically cast the interpolated “age” when compared to the <code class="inline">u.age</code>
+field, as long as the age field is defined with type <code class="inline">:integer</code> in
+your schema:</p>
+<pre><code class="elixir">age = &quot;18&quot;
+Repo.all(from u in User, where: u.age &gt; ^age, select: u.name)</code></pre>
+<p>Another advantage of using schemas is that we no longer need to specify
+the select option in queries, as by default Ecto will retrieve all
+fields specified in the schema:</p>
+<pre><code class="elixir">age = &quot;18&quot;
+Repo.all(from u in User, where: u.age &gt; ^age)</code></pre>
+<p>For this reason, we will use schemas on the remaining examples but
+remember Ecto does not require them in order to write queries.</p>
+<h2 id="module-nil-comparison" class="section-heading">
+  <a href="#module-nil-comparison" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  <code class="inline">nil</code> comparison
+</h2>
+
+<p><code class="inline">nil</code> comparison in filters, such as where and having, is forbidden
+and it will raise an error:</p>
+<pre><code class="elixir"># Raises if age is nil
+from u in User, where: u.age == ^age</code></pre>
+<p>This is done as a security measure to avoid attacks that attempt
+to traverse entries with nil columns. To check that value is <code class="inline">nil</code>,
+use <code class="inline">is_nil/1</code> instead:</p>
+<pre><code class="elixir">from u in User, where: is_nil(u.age)</code></pre>
+<h2 id="module-composition" class="section-heading">
+  <a href="#module-composition" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Composition
+</h2>
+
+<p>Ecto queries are composable. For example, the query above can
+actually be defined in two parts:</p>
+<pre><code class="elixir"># Create a query
+query = from u in User, where: u.age &gt; 18
+
+# Extend the query
+query = from u in query, select: u.name</code></pre>
+<p>Composing queries uses the same syntax as creating a query.
+The difference is that, instead of passing a schema like <code class="inline">User</code>
+on the right side of <code class="inline">in</code>, we passed the query itself.</p>
+<p>Any value can be used on the right-side of <code class="inline">in</code> as long as it implements
+the <a href="Ecto.Queryable.html"><code class="inline">Ecto.Queryable</code></a> protocol. For now, we know the protocol is
+implemented for both atoms (like <code class="inline">User</code>) and strings (like “users”).</p>
+<p>In any case, regardless if a schema has been given or not, Ecto
+queries are always composable thanks to its binding system.</p>
+<h3 id="module-query-bindings" class="section-heading">
+  <a href="#module-query-bindings" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Query bindings
+</h3>
+
+<p>On the left side of <code class="inline">in</code> we specify the query bindings.  This is
+done inside from and join clauses.  In the query below <code class="inline">u</code> is a
+binding and <code class="inline">u.age</code> is a field access using this binding.</p>
+<pre><code class="elixir">query = from u in User, where: u.age &gt; 18</code></pre>
+<p>Bindings are not exposed from the query.  When composing queries you
+must specify bindings again for each refinement query.  For example
+to further narrow-down above query we again need to tell Ecto what
+bindings to expect:</p>
+<pre><code class="elixir">query = from u in query, select: u.city</code></pre>
+<p>Bindings in Ecto are positional, and the names do not have to be
+consistent between input and refinement queries. For example, the
+query above could also be written as:</p>
+<pre><code class="elixir">query = from q in query, select: q.city</code></pre>
+<p>It would make no difference to Ecto. This is important because
+it allows developers to compose queries without caring about
+the bindings used in the initial query.</p>
+<p>When using joins, the bindings should be matched in the order they
+are specified:</p>
+<pre><code class="elixir"># Create a query
+query = from p in Post,
+          join: c in Comment, where: c.post_id == p.id
+
+# Extend the query
+query = from [p, c] in query,
+          select: {p.title, c.body}</code></pre>
+<p>You are not required to specify all bindings when composing.
+For example, if we would like to order the results above by
+post insertion date, we could further extend it as:</p>
+<pre><code class="elixir">query = from q in query, order_by: q.inserted_at</code></pre>
+<p>The example above will work if the input query has 1 or 10
+bindings. In the example above, we will always sort by the
+<code class="inline">inserted_at</code> column from the <code class="inline">from</code> source.</p>
+<p>Similarly, if you are interested only on the last binding
+(or the last bindings) in a query, you can use … to
+specify “all bindings before” and match on the last one.</p>
+<p>For instance, imagine you wrote:</p>
+<pre><code class="elixir">posts_with_comments =
+  from p in query, join: c in Comment, where: c.post_id == p.id</code></pre>
+<p>And now we want to make sure to return both the post title
+and the comment body. Although we may not know how many
+bindings there are in the query, we are sure posts is the
+first binding and comments are the last one, so we can write:</p>
+<pre><code class="elixir">from [p, ..., c] in posts_with_comments, select: {p.title, c.body}</code></pre>
+<p>In other words, <code class="inline">...</code> will include all the binding between the first and
+the last, which may be no binding at all, one or many. Using <code class="inline">...</code> can
+be handy from time to time but most of its uses can be avoided by relying
+on the keyword query syntax when writing queries.</p>
+<h3 id="module-bindingless-operations" class="section-heading">
+  <a href="#module-bindingless-operations" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Bindingless operations
+</h3>
+
+<p>Although bindings are extremely useful when working with joins,
+they are not necessary when the query has only the <code class="inline">from</code> clause.
+For such cases, Ecto supports a way for building queries
+without specifying the binding:</p>
+<pre><code class="elixir">from Post,
+  where: [category: &quot;fresh and new&quot;],
+  order_by: [desc: :published_at],
+  select: [:id, :title, :body]</code></pre>
+<p>The query above will select all posts with category “fresh and new”,
+order by the most recently published, and return Post structs with
+only the id, title and body fields set. It is equivalent to:</p>
+<pre><code class="elixir">from p in Post,
+  where: p.category == &quot;fresh and new&quot;,
+  order_by: [desc: p.published_at],
+  select: struct(p, [:id, :title, :body])</code></pre>
+<p>One advantage of bindingless queries is that they are data-driven
+and therefore useful for dynamically building queries. For example,
+the query above could also be written as:</p>
+<pre><code class="elixir">where = [category: &quot;fresh and new&quot;]
+order_by = [desc: :published_at]
+select = [:id, :title, :body]
+from Post, where: ^where, order_by: ^order_by, select: ^select</code></pre>
+<p>This feature is very useful when queries need to be built based
+on some user input, like web search forms, CLIs and so on.</p>
+<h2 id="module-fragments" class="section-heading">
+  <a href="#module-fragments" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Fragments
+</h2>
+
+<p>If you need an escape hatch, Ecto provides fragments
+(see <a href="Ecto.Query.API.html#fragment/1"><code class="inline">Ecto.Query.API.fragment/1</code></a>) to inject SQL (and non-SQL)
+fragments into queries.</p>
+<p>For example, to get all posts while running the “lower(?)”
+function in the database where <code class="inline">p.title</code> is interpolated
+in place of <code class="inline">?</code>, one can write:</p>
+<pre><code class="elixir">from p in Post,
+  where: is_nil(p.published_at) and
+         fragment(&quot;lower(?)&quot;, p.title) == ^title</code></pre>
+<p>Also, most adapters provide direct APIs for queries, like
+<a href="Ecto.Adapters.SQL.html#query/4"><code class="inline">Ecto.Adapters.SQL.query/4</code></a>, allowing developers to
+completely bypass Ecto queries.</p>
+<h2 id="module-macro-api" class="section-heading">
+  <a href="#module-macro-api" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Macro API
+</h2>
+
+<p>In all examples so far we have used the <strong>keywords query syntax</strong> to
+create a query:</p>
+<pre><code class="elixir">import Ecto.Query
+from u in &quot;users&quot;, where: u.age &gt; 18, select: u.name</code></pre>
+<p>Due to the prevalence of the pipe operator in Elixir, Ecto also supports
+a pipe-based syntax:</p>
+<pre><code class="elixir">&quot;users&quot;
+|&gt; where([u], u.age &gt; 18)
+|&gt; select([u], u.name)</code></pre>
+<p>The keyword-based and pipe-based examples are equivalent. The downside
+of using macros is that the binding must be specified for every operation.
+However, since keyword-based and pipe-based examples are equivalent, the
+bindingless syntax also works for macros:</p>
+<pre><code class="elixir">&quot;users&quot;
+|&gt; where([u], u.age &gt; 18)
+|&gt; select([:name])</code></pre>
+<p>Such allows developers to write queries using bindings only in more
+complex query expressions.</p>
+<p>This module documents each of those macros, providing examples in
+both the keywords query and pipe expression formats.</p>
+<h2 id="module-query-prefix" class="section-heading">
+  <a href="#module-query-prefix" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Query Prefix
+</h2>
+
+<p>It is possible to set a prefix for the queries. For Postgres users,
+this will specify the schema where the table is located, while for
+MySQL users this will specify the database where the table is
+located.  When no prefix is set, Postgres queries are assumed to be
+in the public schema, while MySQL queries are assumed to be in the
+database set in the config for the repo.</p>
+<p>To set the prefix on a query:</p>
+<pre><code class="elixir">results =
+  query # May be User or an Ecto.Query itself
+  |&gt; Ecto.Queryable.to_query
+  |&gt; Map.put(:prefix, &quot;foo&quot;)
+  |&gt; Repo.all</code></pre>
+<p>When a prefix is set in a query, all loaded structs will belong to that
+prefix, so operations like update and delete will be applied to the
+proper prefix. In case you want to manually set the prefix for new data,
+specially on insert, use <a href="Ecto.html#put_meta/2"><code class="inline">Ecto.put_meta/2</code></a>.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:t/0">t()</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#distinct/3">distinct(query, binding \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>A distinct query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#dynamic/2">dynamic(binding \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Builds a dynamic query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#exclude/2">exclude(query, field)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets a previously set field on a query</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#first/2">first(queryable, order_by \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Restricts the query to return the first result ordered by primary key</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#from/2">from(expr, kw \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Creates a query</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#group_by/3">group_by(query, binding \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>A group by query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#having/3">having(query, binding \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>An AND having query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#join/5">join(query, qual, binding \\ [], expr, on \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>A join query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#last/2">last(queryable, order_by \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Restricts the query to return the last result ordered by primary key</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#limit/3">limit(query, binding \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>A limit query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#lock/2">lock(query, expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>A lock query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#offset/3">offset(query, binding \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>An offset query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#or_having/3">or_having(query, binding \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>An OR having query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#or_where/3">or_where(query, binding \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>An OR where query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#order_by/3">order_by(query, binding \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>An order by query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#preload/3">preload(query, bindings \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Preloads the associations into the given struct</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#select/3">select(query, binding \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>A select query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#select_merge/3">select_merge(query, binding \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Mergeable select query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#subquery/2">subquery(query, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Converts a query into a subquery</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#update/3">update(query, binding \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>An update query expression</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#where/3">where(query, binding \\ [], expr)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>An AND where query expression</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:t/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/t" class="dashAnchor"></a>
+  <a href="#t:t/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">t()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L308" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>t() :: %Ecto.Query{assocs: term, distinct: term, from: term, group_bys: term, havings: term, joins: term, limit: term, lock: term, offset: term, order_bys: term, prefix: term, preloads: term, select: term, sources: term, updates: term, wheres: term}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="distinct/3">
+  
+  
+    <span id="distinct/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/distinct%2F3" class="dashAnchor"></a>
+  <a href="#distinct/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">distinct(query, binding \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L870" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>A distinct query expression.</p>
+<p>When true, only keeps distinct values from the resulting
+select expression.</p>
+<p>If supported by your database, you can also pass query expressions
+to distinct and it will generate a query with DISTINCT ON. In such
+cases, <code class="inline">distinct</code> accepts exactly the same expressions as <code class="inline">order_by</code>
+and any <code class="inline">distinct</code> expression will be automatically prepended to the
+<code class="inline">order_by</code> expressions in case there is any <code class="inline">order_by</code> expression.</p>
+<h2 id="distinct/3-keywords-examples" class="section-heading">
+  <a href="#distinct/3-keywords-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords examples
+</h2>
+
+<pre><code class="elixir"># Returns the list of different categories in the Post schema
+from(p in Post, distinct: true, select: p.category)
+
+# If your database supports DISTINCT ON(),
+# you can pass expressions to distinct too
+from(p in Post,
+   distinct: p.category,
+   order_by: [p.date])
+
+# The DISTINCT ON() also supports ordering similar to ORDER BY.
+from(p in Post,
+   distinct: [desc: p.category],
+   order_by: [p.date])
+
+# Using atoms
+from(p in Post, distinct: :category, order_by: :date)</code></pre>
+<h2 id="distinct/3-expressions-example" class="section-heading">
+  <a href="#distinct/3-expressions-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions example
+</h2>
+
+<pre><code class="elixir">Post
+|&gt; distinct(true)
+|&gt; order_by([p], [p.category, p.author])</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="dynamic/2">
+  
+  
+    <span id="dynamic/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/dynamic%2F2" class="dashAnchor"></a>
+  <a href="#dynamic/2" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">dynamic(binding \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L406" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Builds a dynamic query expression.</p>
+<p>Dynamic query expressions allows developers to build queries
+expression bit by bit so they are later interpolated in a query.</p>
+<h2 id="dynamic/2-examples" class="section-heading">
+  <a href="#dynamic/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<p>For example, imagine you have a set of conditions you want to
+build your query on:</p>
+<pre><code class="elixir">dynamic = false
+
+dynamic =
+  if params[&quot;is_public&quot;] do
+    dynamic([p], p.is_public or ^dynamic)
+  else
+    dynamic
+  end
+
+dynamic =
+  if params[&quot;allow_reviewers&quot;] do
+    dynamic([p, a], a.reviewer == true or ^dynamic)
+  else
+    dynamic
+  end
+
+from query, where: ^dynamic</code></pre>
+<p>In the example above, we were able to build the query expressions
+bit by bit, using different bindings, and later interpolate it all
+at once inside the query.</p>
+<p>A dynamic expression can always be interpolated inside another dynamic
+expression and into the constructs described below.</p>
+<h2 id="dynamic/2-where-having-and-a-join-s-on" class="section-heading">
+  <a href="#dynamic/2-where-having-and-a-join-s-on" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  <code class="inline">where</code>, <code class="inline">having</code> and a <code class="inline">join</code>’s `on’
+</h2>
+
+<p><code class="inline">dynamic</code> can be interpolated at the root of a <code class="inline">where</code>, <code class="inline">having</code> or
+a <code class="inline">join</code>’s <code class="inline">on</code>.</p>
+<p>For example, the following is forbidden because it is not at the
+root of a <code class="inline">where</code>:</p>
+<pre><code class="elixir">from q in query, where: q.some_condition and ^dynamic</code></pre>
+<p>Fortunately that’s easily solvable by simply rewriting it to:</p>
+<pre><code class="elixir">dynamic = dynamic([q], q.some_condition and ^dynamic)
+from query, where: ^dynamic</code></pre>
+<h2 id="dynamic/2-updates" class="section-heading">
+  <a href="#dynamic/2-updates" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Updates
+</h2>
+
+<p>Dynamic is also supported as each field in an update, for example:</p>
+<pre><code class="elixir">update_to = dynamic([p], p.sum / p.count)
+from query, update: [set: [average: ^update_to]]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="exclude/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/exclude%2F2" class="dashAnchor"></a>
+  <a href="#exclude/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">exclude(query, field)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L483" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Resets a previously set field on a query.</p>
+<p>It can reset any query field except the query source (<code class="inline">from</code>).</p>
+<h2 id="exclude/2-example" class="section-heading">
+  <a href="#exclude/2-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="elixir">query |&gt; Ecto.Query.exclude(:select)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="first/2">
+  
+  
+    <span id="first/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/first%2F2" class="dashAnchor"></a>
+  <a href="#first/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">first(queryable, order_by \\ nil)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L1319" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Restricts the query to return the first result ordered by primary key.</p>
+<p>The query will be automatically ordered by the primary key
+unless <code class="inline">order_by</code> is given or <code class="inline">order_by</code> is set in the query.
+Limit is always set to 1.</p>
+<h2 id="first/2-examples" class="section-heading">
+  <a href="#first/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">Post |&gt; first |&gt; Repo.one
+query |&gt; first(:inserted_at) |&gt; Repo.one</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="from/2">
+  
+  
+    <span id="from/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/from%2F2" class="dashAnchor"></a>
+  <a href="#from/2" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">from(expr, kw \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L552" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Creates a query.</p>
+<p>It can either be a keyword query or a query expression.</p>
+<p>If it is a keyword query the first argument must be
+either an <code class="inline">in</code> expression, or a value that implements
+the <a href="Ecto.Queryable.html"><code class="inline">Ecto.Queryable</code></a> protocol. If the query needs a
+reference to the data source in any other part of the
+expression, then an <code class="inline">in</code> must be used to create a reference
+variable. The second argument should be a keyword query
+where the keys are expression types and the values are
+expressions.</p>
+<p>If it is a query expression the first argument must be
+a value that implements the <a href="Ecto.Queryable.html"><code class="inline">Ecto.Queryable</code></a> protocol
+and the second argument the expression.</p>
+<h2 id="from/2-keywords-example" class="section-heading">
+  <a href="#from/2-keywords-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords example
+</h2>
+
+<pre><code class="elixir">from(c in City, select: c)</code></pre>
+<h2 id="from/2-expressions-example" class="section-heading">
+  <a href="#from/2-expressions-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions example
+</h2>
+
+<pre><code class="elixir">City |&gt; select([c], c)</code></pre>
+<h2 id="from/2-examples" class="section-heading">
+  <a href="#from/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">def paginate(query, page, size) do
+  from query,
+    limit: ^size,
+    offset: ^((page-1) * size)
+end</code></pre>
+<p>The example above does not use <code class="inline">in</code> because <code class="inline">limit</code> and <code class="inline">offset</code>
+do not require a reference to the data source. However, extending
+the query with a where expression would require the use of <code class="inline">in</code>:</p>
+<pre><code class="elixir">def published(query) do
+  from p in query, where: not(is_nil(p.published_at))
+end</code></pre>
+<p>Notice we have created a <code class="inline">p</code> variable to reference the query’s
+original data source. This assumes that the original query
+only had one source. When the given query has more than one source, a variable
+must be given for each in the order they were bound:</p>
+<pre><code class="elixir">def published_multi(query) do
+  from [p,o] in query,
+  where: not(is_nil(p.published_at)) and not(is_nil(o.published_at))
+end</code></pre>
+<p>Note the variables <code class="inline">p</code> and <code class="inline">o</code> can be named whatever you like
+as they have no importance in the query sent to the database.</p>
+
+  </section>
+</div>
+<div class="detail" id="group_by/3">
+  
+  
+    <span id="group_by/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/group_by%2F3" class="dashAnchor"></a>
+  <a href="#group_by/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">group_by(query, binding \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L1147" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>A group by query expression.</p>
+<p>Groups together rows from the schema that have the same values in the given
+fields. Using <code class="inline">group_by</code> “groups” the query giving it different semantics
+in the <code class="inline">select</code> expression. If a query is grouped, only fields that were
+referenced in the <code class="inline">group_by</code> can be used in the <code class="inline">select</code> or if the field
+is given as an argument to an aggregate function.</p>
+<p><code class="inline">group_by</code> also accepts a list of atoms where each atom refers to
+a field in source.</p>
+<h2 id="group_by/3-keywords-examples" class="section-heading">
+  <a href="#group_by/3-keywords-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords examples
+</h2>
+
+<pre><code class="elixir"># Returns the number of posts in each category
+from(p in Post,
+  group_by: p.category,
+  select: {p.category, count(p.id)})
+
+# Using atoms
+from(p in Post, group_by: :category, select: {p.category, count(p.id)})</code></pre>
+<h2 id="group_by/3-expressions-example" class="section-heading">
+  <a href="#group_by/3-expressions-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions example
+</h2>
+
+<pre><code class="elixir">Post |&gt; group_by([p], p.category) |&gt; select([p], count(p.id))</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="having/3">
+  
+  
+    <span id="having/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/having%2F3" class="dashAnchor"></a>
+  <a href="#having/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">having(query, binding \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L1175" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>An AND having query expression.</p>
+<p>Like <code class="inline">where</code>, <code class="inline">having</code> filters rows from the schema, but after the grouping is
+performed giving it the same semantics as <code class="inline">select</code> for a grouped query
+(see <a href="#group_by/3"><code class="inline">group_by/3</code></a>). <code class="inline">having</code> groups the query even if the query has no
+<code class="inline">group_by</code> expression.</p>
+<h2 id="having/3-keywords-example" class="section-heading">
+  <a href="#having/3-keywords-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords example
+</h2>
+
+<pre><code class="elixir"># Returns the number of posts in each category where the
+# average number of comments is above ten
+from(p in Post,
+  group_by: p.category,
+  having: avg(p.num_comments) &gt; 10,
+  select: {p.category, count(p.id)})</code></pre>
+<h2 id="having/3-expressions-example" class="section-heading">
+  <a href="#having/3-expressions-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions example
+</h2>
+
+<pre><code class="elixir">Post
+|&gt; group_by([p], p.category)
+|&gt; having([p], avg(p.num_comments) &gt; 10)
+|&gt; select([p], count(p.id))</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="join/5">
+  
+  
+    <span id="join/3"></span>
+  
+    <span id="join/4"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/join%2F5" class="dashAnchor"></a>
+  <a href="#join/5" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">join(query, qual, binding \\ [], expr, on \\ nil)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L727" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>A join query expression.</p>
+<p>Receives a source that is to be joined to the query and a condition for
+the join. The join condition can be any expression that evaluates
+to a boolean value. The join is by default an inner join, the qualifier
+can be changed by giving the atoms: <code class="inline">:inner</code>, <code class="inline">:left</code>, <code class="inline">:right</code>, <code class="inline">:cross</code>,
+<code class="inline">:full</code>, <code class="inline">:inner_lateral</code> or <code class="inline">:left_lateral</code>. For a keyword query the <code class="inline">:join</code>
+keyword can be changed to: <code class="inline">:inner_join</code>, <code class="inline">:left_join</code>, <code class="inline">:right_join</code>,
+<code class="inline">:cross_join</code>, <code class="inline">:full_join</code>, <code class="inline">:inner_lateral_join</code> or <code class="inline">:left_lateral_join</code>.</p>
+<p>Currently it is possible to join on:</p>
+<ul>
+<li>an <a href="Ecto.Schema.html"><code class="inline">Ecto.Schema</code></a>, such as <code class="inline">p in Post</code>
+</li>
+<li>an Ecto query with zero or more where clauses, such as <code class="inline">from &quot;posts&quot;, where: [public: true]</code>
+</li>
+<li>an association, such as <code class="inline">c in assoc(post, :comments)</code>
+</li>
+<li>a query fragment, such as <code class="inline">c in fragment(&quot;SOME COMPLEX QUERY&quot;)</code>
+</li>
+<li>a subquery, such as <code class="inline">c in subquery(another_query)</code>
+</li>
+</ul>
+<p>The fragment support exists mostly for handling lateral joins.
+See “Joining with fragments” below.</p>
+<h2 id="join/5-keywords-examples" class="section-heading">
+  <a href="#join/5-keywords-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords examples
+</h2>
+
+<pre><code class="elixir">from c in Comment,
+  join: p in Post, on: p.id == c.post_id,
+  select: {p.title, c.text}
+
+from p in Post,
+  left_join: c in assoc(p, :comments),
+  select: {p, c}</code></pre>
+<p>Keywords can also be given or interpolated as part of <code class="inline">on</code>:</p>
+<pre><code class="elixir">from c in Comment,
+  join: p in Post, on: [id: c.post_id],
+  select: {p.title, c.text}</code></pre>
+<p>Any key in <code class="inline">on</code> will apply to the currently joined expression.</p>
+<p>It is also possible to interpolate an Ecto query on the right side
+of <code class="inline">in</code>. For example, the query above can also be written as:</p>
+<pre><code class="elixir">posts = Post
+from c in Comment,
+  join: p in ^posts, on: [id: c.post_id],
+  select: {p.title, c.text}</code></pre>
+<p>The above is specially useful to dynamically join on existing
+queries, for example, choosing between public posts or posts
+that have been recently published:</p>
+<pre><code class="elixir">posts =
+  if params[&quot;drafts&quot;] do
+    from p in Post, where: [drafts: true]
+  else
+    from p in Post, where: [public: true]
+  end
+
+from c in Comment,
+  join: p in ^posts, on: [id: c.post_id],
+  select: {p.title, c.text}</code></pre>
+<p>Only simple queries with <code class="inline">where</code> expressions can be interpolated
+in join.</p>
+<h2 id="join/5-expressions-examples" class="section-heading">
+  <a href="#join/5-expressions-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions examples
+</h2>
+
+<pre><code class="elixir">Comment
+|&gt; join(:inner, [c], p in Post, c.post_id == p.id)
+|&gt; select([c, p], {p.title, c.text})
+
+Post
+|&gt; join(:left, [p], c in assoc(p, :comments))
+|&gt; select([p, c], {p, c})
+
+Post
+|&gt; join(:left, [p], c in Comment, c.post_id == p.id and c.is_visible == true)
+|&gt; select([p, c], {p, c})</code></pre>
+<h2 id="join/5-joining-with-fragments" class="section-heading">
+  <a href="#join/5-joining-with-fragments" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Joining with fragments
+</h2>
+
+<p>When you need to join on a complex query, Ecto supports fragments in joins:</p>
+<pre><code class="elixir">Comment
+|&gt; join(:inner, [c], p in fragment(&quot;SOME COMPLEX QUERY&quot;, c.id, ^some_param))</code></pre>
+<p>Although using fragments in joins is discouraged in favor of Ecto
+Query syntax, they are necessary when writing lateral joins as
+lateral joins require a subquery that refer to previous bindings:</p>
+<pre><code class="elixir">Game
+|&gt; join(:inner_lateral, [g], gs in fragment(&quot;SELECT * FROM games_sold AS gs WHERE gs.game_id = ? ORDER BY gs.sold_on LIMIT 2&quot;, g.id))
+|&gt; select([g, gs], {g.name, gs.sold_on})</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="last/2">
+  
+  
+    <span id="last/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/last%2F2" class="dashAnchor"></a>
+  <a href="#last/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">last(queryable, order_by \\ nil)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L1352" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Restricts the query to return the last result ordered by primary key.</p>
+<p>The query ordering will be automatically reversed, with ASC
+columns becoming DESC columns (and vice-versa) and limit is set
+to 1. If there is no ordering, the query will be automatically
+ordered decreasingly by primary key.</p>
+<h2 id="last/2-examples" class="section-heading">
+  <a href="#last/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">Post |&gt; last |&gt; Repo.one
+query |&gt; last(:inserted_at) |&gt; Repo.one</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="limit/3">
+  
+  
+    <span id="limit/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/limit%2F3" class="dashAnchor"></a>
+  <a href="#limit/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">limit(query, binding \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L1018" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>A limit query expression.</p>
+<p>Limits the number of rows returned from the result. Can be any expression but
+has to evaluate to an integer value and it can’t include any field.</p>
+<p>If <code class="inline">limit</code> is given twice, it overrides the previous value.</p>
+<h2 id="limit/3-keywords-example" class="section-heading">
+  <a href="#limit/3-keywords-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords example
+</h2>
+
+<pre><code class="elixir">from(u in User, where: u.id == ^current_user, limit: 1)</code></pre>
+<h2 id="limit/3-expressions-example" class="section-heading">
+  <a href="#limit/3-expressions-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions example
+</h2>
+
+<pre><code class="elixir">User |&gt; where([u], u.id == ^current_user) |&gt; limit(1)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="lock/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/lock%2F2" class="dashAnchor"></a>
+  <a href="#lock/2" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">lock(query, expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L1068" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>A lock query expression.</p>
+<p>Provides support for row-level pessimistic locking using
+<code class="inline">SELECT ... FOR UPDATE</code> or other, database-specific, locking clauses.
+<code class="inline">expr</code> can be any expression but has to evaluate to a boolean value or to a
+string and it can’t include any fields.</p>
+<p>If <code class="inline">lock</code> is used more than once, the last one used takes precedence.</p>
+<p>Ecto also supports <a href="http://en.wikipedia.org/wiki/Optimistic_concurrency_control">optimistic
+locking</a> but not
+through queries. For more information on optimistic locking, have a look at
+the <a href="Ecto.Changeset.html#optimistic_lock/3"><code class="inline">Ecto.Changeset.optimistic_lock/3</code></a> function</p>
+<h2 id="lock/2-keywords-example" class="section-heading">
+  <a href="#lock/2-keywords-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords example
+</h2>
+
+<pre><code class="elixir">from(u in User, where: u.id == ^current_user, lock: &quot;FOR SHARE NOWAIT&quot;)</code></pre>
+<h2 id="lock/2-expressions-example" class="section-heading">
+  <a href="#lock/2-expressions-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions example
+</h2>
+
+<pre><code class="elixir">User |&gt; where(u.id == ^current_user) |&gt; lock(&quot;FOR SHARE NOWAIT&quot;)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="offset/3">
+  
+  
+    <span id="offset/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/offset%2F3" class="dashAnchor"></a>
+  <a href="#offset/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">offset(query, binding \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L1040" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>An offset query expression.</p>
+<p>Offsets the number of rows selected from the result. Can be any expression
+but it must evaluate to an integer value and it can’t include any field.</p>
+<p>If <code class="inline">offset</code> is given twice, it overrides the previous value.</p>
+<h2 id="offset/3-keywords-example" class="section-heading">
+  <a href="#offset/3-keywords-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords example
+</h2>
+
+<pre><code class="elixir"># Get all posts on page 4
+from(p in Post, limit: 10, offset: 30)</code></pre>
+<h2 id="offset/3-expressions-example" class="section-heading">
+  <a href="#offset/3-expressions-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions example
+</h2>
+
+<pre><code class="elixir">Post |&gt; limit(10) |&gt; offset(30)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="or_having/3">
+  
+  
+    <span id="or_having/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/or_having%2F3" class="dashAnchor"></a>
+  <a href="#or_having/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">or_having(query, binding \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L1197" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>An OR having query expression.</p>
+<p>Like <code class="inline">having</code> but combines with the previous expression by using
+<code class="inline">OR</code>. <code class="inline">or_having</code> behaves for <code class="inline">having</code> the same way <code class="inline">or_where</code>
+behaves for <code class="inline">where</code>.</p>
+<h2 id="or_having/3-keywords-example" class="section-heading">
+  <a href="#or_having/3-keywords-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords example
+</h2>
+
+<pre><code class="elixir"># Augment a previous group_by with a having condition.
+from(p in query, or_having: avg(p.num_comments) &gt; 10)</code></pre>
+<h2 id="or_having/3-expressions-example" class="section-heading">
+  <a href="#or_having/3-expressions-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions example
+</h2>
+
+<pre><code class="elixir"># Augment a previous group_by with a having condition.
+Post |&gt; or_having([p], avg(p.num_comments) &gt; 10)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="or_where/3">
+  
+  
+    <span id="or_where/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/or_where%2F3" class="dashAnchor"></a>
+  <a href="#or_where/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">or_where(query, binding \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L951" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>An OR where query expression.</p>
+<p>Behaves exactly the same as <code class="inline">where</code> except it combines with any previous
+expression by using an <code class="inline">OR</code>. All expressions have to evaluate to a boolean
+value.</p>
+<p><code class="inline">or_where</code> also accepts a keyword list where each key is a field to be
+compared with the given value. Each key-value pair will be combined
+using <code class="inline">AND</code>, exactly as in <code class="inline">where</code>.</p>
+<h2 id="or_where/3-keywords-example" class="section-heading">
+  <a href="#or_where/3-keywords-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords example
+</h2>
+
+<pre><code class="elixir">from(c in City, where: [country: &quot;Sweden&quot;], or_where: [country: &quot;Brazil&quot;])</code></pre>
+<p>If interpolating keyword lists, the keyword list entries are combined
+using ANDs and joined to any existing expression with an OR:</p>
+<pre><code class="elixir">filters = [country: &quot;USA&quot;, name: &quot;New York&quot;]
+from(c in City, where: [country: &quot;Sweden&quot;], or_where: ^filters)</code></pre>
+<p>is equivalent to:</p>
+<pre><code class="elixir">from c in City, where: (c.country == &quot;Sweden&quot;) or
+                       (c.country == &quot;USA&quot; and c.name == &quot;New York&quot;)</code></pre>
+<p>The behaviour above is by design to keep the changes between <code class="inline">where</code>
+and <code class="inline">or_where</code> minimal. Plus, if you have a keyword list and you
+would like each pair to be combined using <code class="inline">or</code>, it can be easily done
+with <a href="https://hexdocs.pm/elixir/Enum.html#reduce/3"><code class="inline">Enum.reduce/3</code></a>:</p>
+<pre><code class="elixir">filters = [country: &quot;USA&quot;, is_tax_exempt: true]
+Enum.reduce(filters, City, fn {key, value}, query -&gt;
+  from q in query, or_where: field(q, ^key) == ^value
+end)</code></pre>
+<p>which will be equivalent to:</p>
+<pre><code class="elixir">from c in City, or_where: (c.country == &quot;USA&quot;), or_where: c.is_tax_exempt == true</code></pre>
+<h2 id="or_where/3-expressions-example" class="section-heading">
+  <a href="#or_where/3-expressions-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions example
+</h2>
+
+<pre><code class="elixir">City |&gt; where([c], c.country == &quot;Sweden&quot;) |&gt; or_where([c], c.country == &quot;Brazil&quot;)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="order_by/3">
+  
+  
+    <span id="order_by/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/order_by%2F3" class="dashAnchor"></a>
+  <a href="#order_by/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">order_by(query, binding \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L997" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>An order by query expression.</p>
+<p>Orders the fields based on one or more fields. It accepts a single field
+or a list of fields. The default direction is ascending (<code class="inline">:asc</code>) and can be
+customized in a keyword list as shown in the examples.</p>
+<p>There can be several order by expressions in a query and new expressions
+are always appended to the previous ones.</p>
+<p><code class="inline">order_by</code> also accepts a list of atoms where each atom refers to a field in
+source or a keyword list where the direction is given as key and the field
+to order as value.</p>
+<h2 id="order_by/3-keywords-examples" class="section-heading">
+  <a href="#order_by/3-keywords-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords examples
+</h2>
+
+<pre><code class="elixir">from(c in City, order_by: c.name, order_by: c.population)
+from(c in City, order_by: [c.name, c.population])
+from(c in City, order_by: [asc: c.name, desc: c.population])
+
+from(c in City, order_by: [:name, :population])
+from(c in City, order_by: [asc: :name, desc: :population])</code></pre>
+<p>A keyword list can also be interpolated:</p>
+<pre><code class="elixir">values = [asc: :name, desc: :population]
+from(c in City, order_by: ^values)</code></pre>
+<p>A fragment can also be used:</p>
+<pre><code class="elixir">from c in City, order_by: [
+  # a deterministic shuffled order
+  fragment(&quot;? % ? DESC&quot;, c.id, ^modulus),
+  desc: c.id,
+]</code></pre>
+<h2 id="order_by/3-expressions-example" class="section-heading">
+  <a href="#order_by/3-expressions-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions example
+</h2>
+
+<pre><code class="elixir">City |&gt; order_by([c], asc: c.name, desc: c.population)
+City |&gt; order_by(asc: :name) # Sorts by the cities name</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="preload/3">
+  
+  
+    <span id="preload/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/preload%2F3" class="dashAnchor"></a>
+  <a href="#preload/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">preload(query, bindings \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L1291" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Preloads the associations into the given struct.</p>
+<p>Preloading allows developers to specify associations that are preloaded
+into the struct. Consider this example:</p>
+<pre><code class="elixir">Repo.all from p in Post, preload: [:comments]</code></pre>
+<p>The example above will fetch all posts from the database and then do
+a separate query returning all comments associated with the given posts.</p>
+<p>However, often times, you want posts and comments to be selected and
+filtered in the same query. For such cases, you can explicitly tell
+the association to be preloaded into the struct:</p>
+<pre><code class="elixir">Repo.all from p in Post,
+           join: c in assoc(p, :comments),
+           where: c.published_at &gt; p.updated_at,
+           preload: [comments: c]</code></pre>
+<p>In the example above, instead of issuing a separate query to fetch
+comments, Ecto will fetch posts and comments in a single query.</p>
+<p>Nested associations can also be preloaded in both formats:</p>
+<pre><code class="elixir">Repo.all from p in Post,
+           preload: [comments: :likes]
+
+Repo.all from p in Post,
+           join: c in assoc(p, :comments),
+           join: l in assoc(c, :likes),
+           where: l.inserted_at &gt; c.updated_at,
+           preload: [comments: {c, likes: l}]</code></pre>
+<p>Keep in mind neither format can be nested arbitrarily. For
+example, the query below is invalid because we cannot preload
+likes with the join association <code class="inline">c</code>.</p>
+<pre><code class="elixir">Repo.all from p in Post,
+           join: c in assoc(p, :comments),
+           preload: [comments: {c, :likes}]</code></pre>
+<h2 id="preload/3-preload-queries" class="section-heading">
+  <a href="#preload/3-preload-queries" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Preload queries
+</h2>
+
+<p>Preload also allows queries to be given, allowing you to filter or
+customize how the preloads are fetched:</p>
+<pre><code class="elixir">comments_query = from c in Comment, order_by: c.published_at
+Repo.all from p in Post, preload: [comments: ^comments_query]</code></pre>
+<p>The example above will issue two queries, one for loading posts and
+then another for loading the comments associated with the posts.
+Comments will be ordered by <code class="inline">published_at</code>.</p>
+<p>Note: keep in mind operations like limit and offset in the preload
+query will affect the whole result set and not each association. For
+example, the query below:</p>
+<pre><code class="elixir">comments_query = from c in Comment, order_by: c.popularity, limit: 5
+Repo.all from p in Post, preload: [comments: ^comments_query]</code></pre>
+<p>won’t bring the top of comments per post. Rather, it will only bring
+the 5 top comments across all posts.</p>
+<h2 id="preload/3-preload-functions" class="section-heading">
+  <a href="#preload/3-preload-functions" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Preload functions
+</h2>
+
+<p>Preload also allows functions to be given. In such cases, the function
+receives the IDs to be fetched and it must return the associated data.
+This data will then be mapped and sorted:</p>
+<pre><code class="elixir">comment_preloader = fn post_ids -&gt; fetch_comments_by_post_ids(post_ids) end
+Repo.all from p in Post, preload: [comments: ^comment_preloader]</code></pre>
+<p>This is useful when the whole dataset was already loaded or must be
+explicitly fetched from elsewhere.</p>
+<h2 id="preload/3-keywords-example" class="section-heading">
+  <a href="#preload/3-keywords-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords example
+</h2>
+
+<pre><code class="elixir"># Returns all posts, their associated comments, and the associated
+# likes for those comments.
+from(p in Post,
+  preload: [:comments, comments: :likes],
+  select: p)</code></pre>
+<h2 id="preload/3-expressions-examples" class="section-heading">
+  <a href="#preload/3-expressions-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions examples
+</h2>
+
+<pre><code class="elixir">Post |&gt; preload(:comments) |&gt; select([p], p)
+Post |&gt; join(:left, [p], c in assoc(p, :comments)) |&gt; preload([p, c], [:user, comments: c]) |&gt; select([p], p)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="select/3">
+  
+  
+    <span id="select/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/select%2F3" class="dashAnchor"></a>
+  <a href="#select/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">select(query, binding \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L788" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>A select query expression.</p>
+<p>Selects which fields will be selected from the schema and any transformations
+that should be performed on the fields. Any expression that is accepted in a
+query can be a select field.</p>
+<p>Select also allows each expression to be wrapped in lists, tuples or maps as
+shown in the examples below. A full schema can also be selected.</p>
+<p>There can only be one select expression in a query, if the select expression
+is omitted, the query will by default select the full schema. If select is
+given more than once, an error is raised. Use <a href="#exclude/2"><code class="inline">exclude/2</code></a> if you would like
+to remove a previous select for overriding or see <a href="#select_merge/3"><code class="inline">select_merge/3</code></a> for a
+limited version of <code class="inline">select</code> that is composable and can be called multiple
+times.</p>
+<p><code class="inline">select</code> also accepts a list of atoms where each atom refers to a field in
+the source to be selected.</p>
+<h2 id="select/3-keywords-examples" class="section-heading">
+  <a href="#select/3-keywords-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords examples
+</h2>
+
+<pre><code class="elixir">from(c in City, select: c) # returns the schema as a struct
+from(c in City, select: {c.name, c.population})
+from(c in City, select: [c.name, c.county])
+from(c in City, select: %{n: c.name, answer: 42})
+from(c in City, select: %{c | alternative_name: c.name})
+from(c in City, select: %Data{name: c.name})</code></pre>
+<p>It is also possible to select a struct and limit the returned
+fields at the same time:</p>
+<pre><code class="elixir">from(City, select: [:name])</code></pre>
+<p>The syntax above is equivalent to:</p>
+<pre><code class="elixir">from(city in City, select: struct(city, [:name]))</code></pre>
+<p>You can also write:</p>
+<pre><code class="elixir">from(city in City, select: map(city, [:name]))</code></pre>
+<p>If you want a map with only the selected fields to be returned.
+For more information, read the docs for <a href="Ecto.Query.API.html#struct/2"><code class="inline">Ecto.Query.API.struct/2</code></a>
+and <a href="Ecto.Query.API.html#map/2"><code class="inline">Ecto.Query.API.map/2</code></a>.</p>
+<h2 id="select/3-expressions-examples" class="section-heading">
+  <a href="#select/3-expressions-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions examples
+</h2>
+
+<pre><code class="elixir">City |&gt; select([c], c)
+City |&gt; select([c], {c.name, c.country})
+City |&gt; select([c], %{&quot;name&quot; =&gt; c.name})
+City |&gt; select([:name])
+City |&gt; select([c], struct(c, [:name]))
+City |&gt; select([c], map(c, [:name]))</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="select_merge/3">
+  
+  
+    <span id="select_merge/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/select_merge%2F3" class="dashAnchor"></a>
+  <a href="#select_merge/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">select_merge(query, binding \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L828" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Mergeable select query expression.</p>
+<p>This macro is similar to <a href="#select/3"><code class="inline">select/3</code></a> except it may be specified
+multiple times as long as every entry is a map. This is useful
+for merging and composing selects. For example:</p>
+<pre><code class="elixir">query = from p in Post, select: %{}
+
+query =
+  if include_title? do
+    from p in query, select_merge: %{title: p.title}
+  else
+    query
+  end
+
+query =
+  if include_visits? do
+    from p in query, select_merge: %{visits: p.visits}
+  else
+    query
+  end</code></pre>
+<p>In the example above, the query is built little by little by merging
+into a final map. If both conditions above are true, the final query
+would be equivalent to:</p>
+<pre><code class="elixir">from p in Post, select: %{title: p.title, visits: p.visits}</code></pre>
+<p>If <code class="inline">:select_merge</code> is called and there is no value selected previously,
+it will default to the source, <code class="inline">p</code> in the example above.</p>
+<p>The argument given to <code class="inline">:select_merge</code> must always be a map. The value
+being merged on must be a struct or a map. If it is a struct, the fields
+merged later on must be part of the struct, otherwise an error is raised.</p>
+
+  </section>
+</div>
+<div class="detail" id="subquery/2">
+  
+  
+    <span id="subquery/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/subquery%2F2" class="dashAnchor"></a>
+  <a href="#subquery/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">subquery(query, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L460" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Converts a query into a subquery.</p>
+<p>If a subquery is given, returns the subquery itself.
+If any other value is given, it is converted to a query via
+<a href="Ecto.Queryable.html"><code class="inline">Ecto.Queryable</code></a> and wrapped in the <a href="Ecto.SubQuery.html"><code class="inline">Ecto.SubQuery</code></a> struct.</p>
+<p>Subqueries are currently only supported in the <code class="inline">from</code>
+and <code class="inline">join</code> fields.</p>
+<h2 id="subquery/2-examples" class="section-heading">
+  <a href="#subquery/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir"># Get the average salary of the top 10 highest salaries
+query = from Employee, order_by: [desc: :salary], limit: 10
+from e in subquery(query), select: avg(e.salary)</code></pre>
+<p>A prefix can be specified for a subquery, similar to standard repo operations:</p>
+<pre><code class="elixir">query = from Employee, order_by: [desc: :salary], limit: 10
+from e in subquery(query, prefix: &quot;my_prefix&quot;), select: avg(e.salary)</code></pre>
+<p>Although subqueries are not allowed in WHERE expressions,
+most subqueries in WHERE expression can be rewritten as JOINs.
+Imagine you want to write this query:</p>
+<pre><code class="elixir">UPDATE posts
+  SET sync_started_at = $1
+  WHERE id IN (
+    SELECT id FROM posts
+      WHERE synced = false AND (sync_started_at IS NULL OR sync_started_at &lt; $1)
+      LIMIT $2
+  )</code></pre>
+<p>If you attempt to write it as <code class="inline">where: p.id in ^subquery(foo)</code>,
+Ecto won’t accept such query. However, the subquery above can be
+written as a JOIN, which is supported by Ecto. The final Ecto
+query will look like this:</p>
+<pre><code class="elixir">subset_query = from(p in Post,
+  where: p.synced == false and
+           (is_nil(p.sync_started_at) or p.sync_started_at &lt; ^min_sync_started_at),
+  limit: ^batch_size
+)
+
+Repo.update_all(
+  from(p in Post, join: s in subquery(subset_query), on: s.id == p.id),
+  set: [sync_started_at: NaiveDateTime.utc_now()]
+end)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="update/3">
+  
+  
+    <span id="update/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/update%2F3" class="dashAnchor"></a>
+  <a href="#update/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">update(query, binding \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L1116" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>An update query expression.</p>
+<p>Updates are used to update the filtered entries. In order for
+updates to be applied, <a href="Ecto.Repo.html#c:update_all/3"><code class="inline">Ecto.Repo.update_all/3</code></a> must be invoked.</p>
+<h2 id="update/3-keywords-example" class="section-heading">
+  <a href="#update/3-keywords-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords example
+</h2>
+
+<pre><code class="elixir">from(u in User, update: [set: [name: &quot;new name&quot;]])</code></pre>
+<h2 id="update/3-expressions-example" class="section-heading">
+  <a href="#update/3-expressions-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions example
+</h2>
+
+<pre><code class="elixir">User |&gt; update([u], set: [name: &quot;new name&quot;])
+User |&gt; update(set: [name: &quot;new name&quot;])</code></pre>
+<h2 id="update/3-interpolation" class="section-heading">
+  <a href="#update/3-interpolation" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Interpolation
+</h2>
+
+<pre><code class="elixir">new_name = &quot;new name&quot;
+from(u in User, update: [set: [name: ^new_name]])
+
+new_name = &quot;new name&quot;
+from(u in User, update: [set: [name: fragment(&quot;upper(?)&quot;, ^new_name)]])</code></pre>
+<h2 id="update/3-operators" class="section-heading">
+  <a href="#update/3-operators" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Operators
+</h2>
+
+<p>The update expression in Ecto supports the following operators:</p>
+<ul>
+<li><p><code class="inline">set</code> - sets the given field in the table to the given value</p>
+<p>from(u in User, update: [set: [name: “new name”]])</p>
+</li>
+<li><p><code class="inline">inc</code> - increments (or decrements if the value is negative) the given field in the table by the given value</p>
+<p>from(u in User, update: [inc: [accesses: 1]])</p>
+</li>
+<li><p><code class="inline">push</code> - pushes (appends) the given value to the end of the array field</p>
+<p>from(u in User, update: [push: [tags: “cool”]])</p>
+</li>
+<li><p><code class="inline">pull</code> - pulls (removes) the given value from the array field</p>
+<p>from(u in User, update: [pull: [tags: “not cool”]])</p>
+</li>
+</ul>
+
+  </section>
+</div>
+<div class="detail" id="where/3">
+  
+  
+    <span id="where/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/where%2F3" class="dashAnchor"></a>
+  <a href="#where/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">where(query, binding \\ [], expr)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query.ex#L902" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>An AND where query expression.</p>
+<p><code class="inline">where</code> expressions are used to filter the result set. If there is more
+than one where expression, they are combined with an <code class="inline">and</code> operator. All
+where expressions have to evaluate to a boolean value.</p>
+<p><code class="inline">where</code> also accepts a keyword list where the field given as key is going to
+be compared with the given value. The fields will always refer to the source
+given in <code class="inline">from</code>.</p>
+<h2 id="where/3-keywords-example" class="section-heading">
+  <a href="#where/3-keywords-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keywords example
+</h2>
+
+<pre><code class="elixir">from(c in City, where: c.country == &quot;Sweden&quot;)
+from(c in City, where: [country: &quot;Sweden&quot;])</code></pre>
+<p>It is also possible to interpolate the whole keyword list, allowing you to
+dynamically filter the source:</p>
+<pre><code class="elixir">filters = [country: &quot;Sweden&quot;]
+from(c in City, where: ^filters)</code></pre>
+<h2 id="where/3-expressions-example" class="section-heading">
+  <a href="#where/3-expressions-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Expressions example
+</h2>
+
+<pre><code class="elixir">City |&gt; where([c], c.country == &quot;Sweden&quot;)
+City |&gt; where(country: &quot;Sweden&quot;)</code></pre>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

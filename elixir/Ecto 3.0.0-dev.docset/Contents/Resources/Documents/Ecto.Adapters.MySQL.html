@@ -1,0 +1,258 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Ecto.Adapters.MySQL – Ecto v3.0.0-dev</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+      <link rel="canonical" href="http://hexdocs.pm/ecto/Ecto.Adapters.MySQL.html" />
+    
+    
+      
+        <link rel="icon" type="image/png" href="assets/logo.png" />
+      
+      
+    
+    <script src="dist/sidebar_items-d4f8a3d044.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Ecto.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.0.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Ecto" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Ecto v3.0.0-dev</small>
+        Ecto.Adapters.MySQL
+        
+          <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/adapters/mysql.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Adapter module for MySQL.</p>
+<p>It handles and pools the connections to the MySQL
+database using <code class="inline">mariaex</code> and a connection pool,
+such as <code class="inline">poolboy</code>.</p>
+<h2 id="module-options" class="section-heading">
+  <a href="#module-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>MySQL options split in different categories described
+below. All options should be given via the repository
+configuration. These options are also passed to the module
+specified in the <code class="inline">:pool</code> option, so check that module’s
+documentation for more options.</p>
+<h3 id="module-compile-time-options" class="section-heading">
+  <a href="#module-compile-time-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Compile time options
+</h3>
+
+<p>Those options should be set in the config file and require
+recompilation in order to make an effect.</p>
+<ul>
+<li><code class="inline">:adapter</code> - The adapter name, in this case, <a href="Ecto.Adapters.MySQL.html#content"><code class="inline">Ecto.Adapters.MySQL</code></a>
+</li>
+<li><code class="inline">:pool</code> - The connection pool module, defaults to <a href="https://hexdocs.pm/db_connection/1.1.2/DBConnection.Poolboy.html"><code class="inline">DBConnection.Poolboy</code></a>
+</li>
+<li><code class="inline">:pool_timeout</code> - The default timeout to use on pool calls, defaults to <code class="inline">5000</code>
+</li>
+<li><code class="inline">:timeout</code> - The default timeout to use on queries, defaults to <code class="inline">15000</code>
+</li>
+</ul>
+<h3 id="module-connection-options" class="section-heading">
+  <a href="#module-connection-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Connection options
+</h3>
+
+<ul>
+<li><code class="inline">:hostname</code> - Server hostname
+</li>
+<li><code class="inline">:port</code> - Server port (default: 3306)
+</li>
+<li><code class="inline">:username</code> - Username
+</li>
+<li><code class="inline">:password</code> - User password
+</li>
+<li><code class="inline">:ssl</code> - Set to true if ssl should be used (default: false)
+</li>
+<li><code class="inline">:ssl_opts</code> - A list of ssl options, see Erlang’s <code class="inline">ssl</code> docs
+</li>
+<li><code class="inline">:parameters</code> - Keyword list of connection parameters
+</li>
+<li><code class="inline">:connect_timeout</code> - The timeout for establishing new connections (default: 5000)
+</li>
+<li><code class="inline">:socket_options</code> - Specifies socket configuration
+</li>
+</ul>
+<p>The <code class="inline">:socket_options</code> are particularly useful when configuring the size
+of both send and receive buffers. For example, when Ecto starts with a
+pool of 20 connections, the memory usage may quickly grow from 20MB to
+50MB based on the operating system default values for TCP buffers. It is
+advised to stick with the operating system defaults but they can be
+tweaked if desired:</p>
+<pre><code class="elixir">socket_options: [recbuf: 8192, sndbuf: 8192]</code></pre>
+<p>We also recommend developers to consult the
+<a href="https://hexdocs.pm/mariaex/Mariaex.html#start_link/1">Mariaex documentation</a>
+for a complete listing of all supported options.</p>
+<h3 id="module-storage-options" class="section-heading">
+  <a href="#module-storage-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Storage options
+</h3>
+
+<ul>
+<li><code class="inline">:charset</code> - the database encoding (default: “utf8”)
+</li>
+<li><code class="inline">:collation</code> - the collation order
+</li>
+<li><code class="inline">:dump_path</code> - where to place dumped structures
+</li>
+</ul>
+<h2 id="module-limitations" class="section-heading">
+  <a href="#module-limitations" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Limitations
+</h2>
+
+<p>There are some limitations when using Ecto with MySQL that one
+needs to be aware of.</p>
+<h3 id="module-engine" class="section-heading">
+  <a href="#module-engine" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Engine
+</h3>
+
+<p>Since Ecto uses transactions, MySQL users running old versions
+(5.1 and before) must ensure their tables use the InnoDB engine
+as the default (MyISAM) does not support transactions.</p>
+<p>Tables created by Ecto are guaranteed to use InnoDB, regardless
+of the MySQL version.</p>
+<h3 id="module-uuids" class="section-heading">
+  <a href="#module-uuids" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  UUIDs
+</h3>
+
+<p>MySQL does not support UUID types. Ecto emulates them by using
+<code class="inline">binary(16)</code>.</p>
+<h3 id="module-read-after-writes" class="section-heading">
+  <a href="#module-read-after-writes" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Read after writes
+</h3>
+
+<p>Because MySQL does not support RETURNING clauses in INSERT and
+UPDATE, it does not support the <code class="inline">:read_after_writes</code> option of
+<a href="Ecto.Schema.html#field/3"><code class="inline">Ecto.Schema.field/3</code></a>.</p>
+<h3 id="module-ddl-transaction" class="section-heading">
+  <a href="#module-ddl-transaction" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  DDL Transaction
+</h3>
+
+<p>MySQL does not support migrations inside transactions as it
+automatically commits after some commands like CREATE TABLE.
+Therefore MySQL migrations does not run inside transactions.</p>
+<h3 id="module-usec-in-datetime" class="section-heading">
+  <a href="#module-usec-in-datetime" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  usec in datetime
+</h3>
+
+<p>Old MySQL versions did not support usec in datetime while
+more recent versions would round or truncate the usec value.</p>
+<p>Therefore, in case the user decides to use microseconds in
+datetimes and timestamps with MySQL, be aware of such
+differences and consult the documentation for your MySQL
+version.</p>
+<p>Assuming your version of MySQL supports microsecond precision,
+you will need to explicitly set it on the relevant columns
+in your migration. For explicitly declared columns you can
+add the <code class="inline">size: 6</code> option. If you’re using the <code class="inline">timestamps()</code>
+helper you can use <code class="inline">timestamps(size: 6)</code>.</p>
+
+        </section>
+      
+
+      
+
+      
+
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

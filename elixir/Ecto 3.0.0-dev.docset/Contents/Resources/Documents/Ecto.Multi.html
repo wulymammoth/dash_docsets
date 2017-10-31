@@ -1,0 +1,1122 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Ecto.Multi – Ecto v3.0.0-dev</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+      <link rel="canonical" href="http://hexdocs.pm/ecto/Ecto.Multi.html" />
+    
+    
+      
+        <link rel="icon" type="image/png" href="assets/logo.png" />
+      
+      
+    
+    <script src="dist/sidebar_items-d4f8a3d044.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Ecto.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.0.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Ecto" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Ecto v3.0.0-dev</small>
+        Ecto.Multi
+        
+          <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p><a href="Ecto.Multi.html#content"><code class="inline">Ecto.Multi</code></a> is a data structure for grouping multiple Repo operations.</p>
+<p><a href="Ecto.Multi.html#content"><code class="inline">Ecto.Multi</code></a> makes it possible to pack operations that should be
+performed in a single database transaction and gives a way to introspect
+the queued operations without actually performing them. Each operation
+is given a name that is unique and will identify its result in case of
+success or failure.</p>
+<p>All operations will be executed in the order they were added.</p>
+<p>The <a href="Ecto.Multi.html#content"><code class="inline">Ecto.Multi</code></a> structure should be considered opaque. You can use
+<code class="inline">%Ecto.Multi{}</code> to pattern match the type, but accessing fields or
+directly modifying them is not advised.</p>
+<p><a href="Ecto.Multi.html#to_list/1"><code class="inline">Ecto.Multi.to_list/1</code></a> returns a canonical representation of the
+structure that can be used for introspection.</p>
+<h2 id="module-changesets" class="section-heading">
+  <a href="#module-changesets" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Changesets
+</h2>
+
+<p>If multi contains operations that accept changesets (like <a href="#insert/4"><code class="inline">insert/4</code></a>,
+<a href="#update/4"><code class="inline">update/4</code></a> or <a href="#delete/4"><code class="inline">delete/4</code></a>) they will be checked before starting the
+transaction. If any changeset has errors, the transaction won’t even
+be started and the error will be immediately returned.</p>
+<h2 id="module-run" class="section-heading">
+  <a href="#module-run" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Run
+</h2>
+
+<p>Multi allows you to run arbitrary functions as part of your transaction
+via <a href="#run/3"><code class="inline">run/3</code></a> and <a href="#run/5"><code class="inline">run/5</code></a>. This is especially useful when an operation
+depends on the value of a previous operation. For this reason, the
+function given as a callback to <a href="#run/3"><code class="inline">run/3</code></a> and <a href="#run/5"><code class="inline">run/5</code></a> will receive the repo
+as the first argument, and all changes performed by the multi so far as a
+map for the second argument.</p>
+<p>The function given to <code class="inline">run</code> must return <code class="inline">{:ok, value}</code> or <code class="inline">{:error, value}</code>
+as its result. Returning an error will abort any further operations
+and make the whole multi fail.</p>
+<h2 id="module-example" class="section-heading">
+  <a href="#module-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<p>Let’s look at an example definition and usage. The use case we’ll be
+looking into is resetting a password. We need to update the account
+with proper information, log the request and remove all current sessions:</p>
+<pre><code class="elixir">defmodule PasswordManager do
+  alias Ecto.Multi
+
+  def reset(account, params) do
+    Multi.new
+    |&gt; Multi.update(:account, Account.password_reset_changeset(account, params))
+    |&gt; Multi.insert(:log, Log.password_reset_changeset(account, params))
+    |&gt; Multi.delete_all(:sessions, Ecto.assoc(account, :sessions))
+  end
+end</code></pre>
+<p>We can later execute it in the integration layer using Repo:</p>
+<pre><code class="elixir">Repo.transaction(PasswordManager.reset(account, params))</code></pre>
+<p>By pattern matching on the result we can differentiate different conditions:</p>
+<pre><code class="elixir">case result do
+  {:ok, %{account: account, log: log, sessions: sessions}} -&gt;
+    # Operation was successful, we can access results (exactly the same
+    # we would get from running corresponding Repo functions) under keys
+    # we used for naming the operations.
+  {:error, failed_operation, failed_value, changes_so_far} -&gt;
+    # One of the operations failed. We can access the operation&#39;s failure
+    # value (like changeset for operations on changesets) to prepare a
+    # proper response. We also get access to the results of any operations
+    # that succeeded before the indicated operation failed. However, any
+    # successful operations would have been rolled back.
+end</code></pre>
+<p>We can also easily unit test our transaction without actually running it.
+Since changesets can use in-memory-data, we can use an account that is
+constructed in memory as well (without persisting it to the database):</p>
+<pre><code class="elixir">test &quot;dry run password reset&quot; do
+  account = %Account{password: &quot;letmein&quot;}
+  multi = PasswordManager.reset(account, params)
+
+  assert [
+    {:account, {:update, account_changeset, []}},
+    {:log, {:insert, log_changeset, []}},
+    {:sessions, {:delete_all, query, []}}
+  ] = Ecto.Multi.to_list(multi)
+
+  # We can introspect changesets and query to see if everything
+  # is as expected, for example:
+  assert account_changeset.valid?
+  assert log_changeset.valid?
+  assert inspect(query) == &quot;#Ecto.Query&lt;from a in Session&gt;&quot;
+end</code></pre>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:merge/0">merge()</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:name/0">name()</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:run/0">run()</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:t/0">t()</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#append/2">append(lhs, rhs)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Appends the second multi to the first one</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#delete/4">delete(multi, name, changeset_or_struct, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds a delete operation to the multi</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#delete_all/4">delete_all(multi, name, queryable, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds a delete_all operation to the multi</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#error/3">error(multi, name, value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Causes the multi to fail with the given value</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#insert/4">insert(multi, name, changeset_or_struct, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds an insert operation to the multi</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#insert_all/5">insert_all(multi, name, schema_or_source, entries, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds an insert_all operation to the multi</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#insert_or_update/4">insert_or_update(multi, name, changeset, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Inserts or updates a changeset depending on whether the changeset was persisted or not</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#merge/2">merge(multi, merge)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Merges a multi returned dynamically by an anonymous function</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#merge/4">merge(multi, mod, fun, args)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Merges a multi returned dynamically by calling <code class="inline">module</code> and <code class="inline">function</code> with <code class="inline">args</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#new/0">new()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns an empty <a href="Ecto.Multi.html#content"><code class="inline">Ecto.Multi</code></a> struct</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#prepend/2">prepend(lhs, rhs)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Prepends the second multi to the first one</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#run/3">run(multi, name, run)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds a function to run as part of the multi</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#run/5">run(multi, name, mod, fun, args)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds a function to run as part of the multi</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#to_list/1">to_list(multi)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns the list of operations stored in <code class="inline">multi</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#update/4">update(multi, name, changeset, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds an update operation to the multi</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#update_all/5">update_all(multi, name, queryable, updates, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds an update_all operation to the multi</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:merge/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/merge" class="dashAnchor"></a>
+  <a href="#t:merge/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">merge()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L104" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>merge() :: (map -> <a href="#t:t/0">t</a>) | {module, atom, [any]}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="t:name/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/name" class="dashAnchor"></a>
+  <a href="#t:name/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">name()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L112" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>name() :: any</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="t:run/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/run" class="dashAnchor"></a>
+  <a href="#t:run/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">run()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L103" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre><a href="#t:run/0">run</a> ::
+  (<a href="Ecto.Repo.html#t:t/0">Ecto.Repo.t</a>, map -> {:ok | :error, any}) |
+  {module, atom, [any]}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="t:t/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/t" class="dashAnchor"></a>
+  <a href="#t:t/0" class="detail-link"
+ title="Link to this opaque">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this opaque</span>
+    </a>
+    <span class="signature">t()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L113" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre><a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="append/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/append%2F2" class="dashAnchor"></a>
+  <a href="#append/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">append(lhs, rhs)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L143" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>append(<a href="#t:t/0">t</a>, <a href="#t:t/0">t</a>) :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Appends the second multi to the first one.</p>
+<p>All names must be unique between both structures.</p>
+<h2 id="append/2-example" class="section-heading">
+  <a href="#append/2-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="iex elixir">iex&gt; lhs = Ecto.Multi.new |&gt; Ecto.Multi.run(:left, fn _, changes -&gt; {:ok, changes} end)
+iex&gt; rhs = Ecto.Multi.new |&gt; Ecto.Multi.run(:right, fn _, changes -&gt; {:error, changes} end)
+iex&gt; Ecto.Multi.append(lhs, rhs) |&gt; Ecto.Multi.to_list |&gt; Keyword.keys
+[:left, :right]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="delete/4">
+  
+  
+    <span id="delete/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/delete%2F4" class="dashAnchor"></a>
+  <a href="#delete/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">delete(multi, name, changeset_or_struct, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L270" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>delete(<a href="#t:t/0">t</a>, <a href="#t:name/0">name</a>, <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a> | <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Adds a delete operation to the multi.</p>
+<p>Accepts the same arguments and options as <a href="Ecto.Repo.html#c:delete/2"><code class="inline">Ecto.Repo.delete/2</code></a> does.</p>
+
+  </section>
+</div>
+<div class="detail" id="delete_all/4">
+  
+  
+    <span id="delete_all/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/delete_all%2F4" class="dashAnchor"></a>
+  <a href="#delete_all/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">delete_all(multi, name, queryable, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L363" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>delete_all(<a href="#t:t/0">t</a>, <a href="#t:name/0">name</a>, <a href="Ecto.Queryable.html#t:t/0">Ecto.Queryable.t</a>, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Adds a delete_all operation to the multi.</p>
+<p>Accepts the same arguments and options as <a href="Ecto.Repo.html#c:delete_all/2"><code class="inline">Ecto.Repo.delete_all/2</code></a> does.</p>
+
+  </section>
+</div>
+<div class="detail" id="error/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/error%2F3" class="dashAnchor"></a>
+  <a href="#error/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">error(multi, name, value)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L299" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>error(<a href="#t:t/0">t</a>, <a href="#t:name/0">name</a>, error :: term) :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Causes the multi to fail with the given value.</p>
+<p>Running the multi in a transaction will execute
+all previous steps until this operation which
+halt with the given <code class="inline">value</code>.</p>
+
+  </section>
+</div>
+<div class="detail" id="insert/4">
+  
+  
+    <span id="insert/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/insert%2F4" class="dashAnchor"></a>
+  <a href="#insert/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">insert(multi, name, changeset_or_struct, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L230" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>insert(<a href="#t:t/0">t</a>, <a href="#t:name/0">name</a>, <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a> | <a href="Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Adds an insert operation to the multi.</p>
+<p>Accepts the same arguments and options as <a href="Ecto.Repo.html#c:insert/2"><code class="inline">Ecto.Repo.insert/2</code></a> does.</p>
+
+  </section>
+</div>
+<div class="detail" id="insert_all/5">
+  
+  
+    <span id="insert_all/4"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/insert_all%2F5" class="dashAnchor"></a>
+  <a href="#insert_all/5" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">insert_all(multi, name, schema_or_source, entries, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L342" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>insert_all(<a href="#t:t/0">t</a>, <a href="#t:name/0">name</a>, schema_or_source, [entry], <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: <a href="#t:t/0">t</a> when entry: map | <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Adds an insert_all operation to the multi.</p>
+<p>Accepts the same arguments and options as <a href="Ecto.Repo.html#c:insert_all/3"><code class="inline">Ecto.Repo.insert_all/3</code></a> does.</p>
+
+  </section>
+</div>
+<div class="detail" id="insert_or_update/4">
+  
+  
+    <span id="insert_or_update/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/insert_or_update%2F4" class="dashAnchor"></a>
+  <a href="#insert_or_update/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">insert_or_update(multi, name, changeset, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L254" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>insert_or_update(<a href="#t:t/0">t</a>, <a href="#t:name/0">name</a>, <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Inserts or updates a changeset depending on whether the changeset was persisted or not.</p>
+<p>Accepts the same arguments and options as <a href="Ecto.Repo.html#c:insert_or_update/2"><code class="inline">Ecto.Repo.insert_or_update/2</code></a> does.</p>
+
+  </section>
+</div>
+<div class="detail" id="merge/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/merge%2F2" class="dashAnchor"></a>
+  <a href="#merge/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">merge(multi, merge)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L199" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>merge(<a href="#t:t/0">t</a>, (map -> <a href="#t:t/0">t</a>)) :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Merges a multi returned dynamically by an anonymous function.</p>
+<p>This function is useful when the multi to be merged requires information
+from the original multi. Hence the second argument is an anonymous function
+that receives the multi changes so far. The anonymous function must return
+another multi.</p>
+<p>If you would prefer to simply merge two multis together, see <a href="#append/2"><code class="inline">append/2</code></a> or
+<a href="#prepend/2"><code class="inline">prepend/2</code></a>.</p>
+<p>Duplicated operations are not allowed.</p>
+
+  </section>
+</div>
+<div class="detail" id="merge/4">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/merge%2F4" class="dashAnchor"></a>
+  <a href="#merge/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">merge(multi, mod, fun, args)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L213" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>merge(<a href="#t:t/0">t</a>, module, function, args) :: <a href="#t:t/0">t</a> when function: atom, args: [any]</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Merges a multi returned dynamically by calling <code class="inline">module</code> and <code class="inline">function</code> with <code class="inline">args</code>.</p>
+<p>Similar to <a href="#merge/2"><code class="inline">merge/2</code></a>, but allows to pass module name, function and arguments.
+The function should return an <a href="Ecto.Multi.html#content"><code class="inline">Ecto.Multi</code></a>, and receives changes so far
+as the first argument (prepended to those passed in the call to the function).</p>
+<p>Duplicated operations are not allowed.</p>
+
+  </section>
+</div>
+<div class="detail" id="new/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/new%2F0" class="dashAnchor"></a>
+  <a href="#new/0" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">new()</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L125" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>new() :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns an empty <a href="Ecto.Multi.html#content"><code class="inline">Ecto.Multi</code></a> struct.</p>
+<h2 id="new/0-example" class="section-heading">
+  <a href="#new/0-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="iex elixir">iex&gt; Ecto.Multi.new |&gt; Ecto.Multi.to_list
+[]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="prepend/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/prepend%2F2" class="dashAnchor"></a>
+  <a href="#prepend/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">prepend(lhs, rhs)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L161" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>prepend(<a href="#t:t/0">t</a>, <a href="#t:t/0">t</a>) :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Prepends the second multi to the first one.</p>
+<p>All names must be unique between both structures.</p>
+<h2 id="prepend/2-example" class="section-heading">
+  <a href="#prepend/2-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<pre><code class="iex elixir">iex&gt; lhs = Ecto.Multi.new |&gt; Ecto.Multi.run(:left, fn _, changes -&gt; {:ok, changes} end)
+iex&gt; rhs = Ecto.Multi.new |&gt; Ecto.Multi.run(:right, fn _, changes -&gt; {:error, changes} end)
+iex&gt; Ecto.Multi.prepend(lhs, rhs) |&gt; Ecto.Multi.to_list |&gt; Keyword.keys
+[:right, :left]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="run/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/run%2F3" class="dashAnchor"></a>
+  <a href="#run/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">run(multi, name, run)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L317" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>run(<a href="#t:t/0">t</a>, <a href="#t:name/0">name</a>, <a href="#t:run/0">run</a>) :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Adds a function to run as part of the multi.</p>
+<p>The function should return either <code class="inline">{:ok, value}</code> or <code class="inline">{:error, value}</code>,
+and receives the repo as the first argument, and the changes so far
+as the second argument.</p>
+
+  </section>
+</div>
+<div class="detail" id="run/5">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/run%2F5" class="dashAnchor"></a>
+  <a href="#run/5" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">run(multi, name, mod, fun, args)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L330" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>run(<a href="#t:t/0">t</a>, <a href="#t:name/0">name</a>, module, function, args) :: <a href="#t:t/0">t</a> when function: atom, args: [any]</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Adds a function to run as part of the multi.</p>
+<p>Similar to <a href="#run/3"><code class="inline">run/3</code></a>, but allows to pass module name, function and arguments.
+The function should return either <code class="inline">{:ok, value}</code> or <code class="inline">{:error, value}</code>, and
+receives the repo as the first argument, and the changes so far as the
+second argument (prepended to those passed in the call to the function).</p>
+
+  </section>
+</div>
+<div class="detail" id="to_list/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/to_list%2F1" class="dashAnchor"></a>
+  <a href="#to_list/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">to_list(multi)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L386" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>to_list(<a href="#t:t/0">t</a>) :: [{<a href="#t:name/0">name</a>, term}]</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns the list of operations stored in <code class="inline">multi</code>.</p>
+<p>Always use this function when you need to access the operations you
+have defined in <a href="Ecto.Multi.html#content"><code class="inline">Ecto.Multi</code></a>. Inspecting the <a href="Ecto.Multi.html#content"><code class="inline">Ecto.Multi</code></a> struct internals
+directly is discouraged.</p>
+
+  </section>
+</div>
+<div class="detail" id="update/4">
+  
+  
+    <span id="update/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/update%2F4" class="dashAnchor"></a>
+  <a href="#update/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">update(multi, name, changeset, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L240" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>update(<a href="#t:t/0">t</a>, <a href="#t:name/0">name</a>, <a href="Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Adds an update operation to the multi.</p>
+<p>Accepts the same arguments and options as <a href="Ecto.Repo.html#c:update/2"><code class="inline">Ecto.Repo.update/2</code></a> does.</p>
+
+  </section>
+</div>
+<div class="detail" id="update_all/5">
+  
+  
+    <span id="update_all/4"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/update_all%2F5" class="dashAnchor"></a>
+  <a href="#update_all/5" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">update_all(multi, name, queryable, updates, opts \\ [])</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/multi.ex#L352" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>update_all(<a href="#t:t/0">t</a>, <a href="#t:name/0">name</a>, <a href="Ecto.Queryable.html#t:t/0">Ecto.Queryable.t</a>, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>, <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>) :: <a href="#t:t/0">t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Adds an update_all operation to the multi.</p>
+<p>Accepts the same arguments and options as <a href="Ecto.Repo.html#c:update_all/3"><code class="inline">Ecto.Repo.update_all/3</code></a> does.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

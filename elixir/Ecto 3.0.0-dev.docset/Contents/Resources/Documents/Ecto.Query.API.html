@@ -1,0 +1,1418 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Ecto.Query.API – Ecto v3.0.0-dev</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+      <link rel="canonical" href="http://hexdocs.pm/ecto/Ecto.Query.API.html" />
+    
+    
+      
+        <link rel="icon" type="image/png" href="assets/logo.png" />
+      
+      
+    
+    <script src="dist/sidebar_items-d4f8a3d044.js"></script>
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Ecto.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.0.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Ecto" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Ecto v3.0.0-dev</small>
+        Ecto.Query.API
+        
+          <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>This module lists all functions allowed in the query API.</p>
+<ul>
+<li>Comparison operators: <code class="inline">==</code>, <code class="inline">!=</code>, <code class="inline">&lt;=</code>, <code class="inline">&gt;=</code>, <code class="inline">&lt;</code>, <code class="inline">&gt;</code>
+</li>
+<li>Boolean operators: <code class="inline">and</code>, <code class="inline">or</code>, <code class="inline">not</code>
+</li>
+<li>Inclusion operator: <a href="#in/2"><code class="inline">in/2</code></a>
+</li>
+<li>Search functions: <a href="#like/2"><code class="inline">like/2</code></a> and <a href="#ilike/2"><code class="inline">ilike/2</code></a>
+</li>
+<li>Null check functions: <a href="#is_nil/1"><code class="inline">is_nil/1</code></a>
+</li>
+<li>Aggregates: <a href="#count/1"><code class="inline">count/1</code></a>, <a href="#avg/1"><code class="inline">avg/1</code></a>, <a href="#sum/1"><code class="inline">sum/1</code></a>, <a href="#min/1"><code class="inline">min/1</code></a>, <a href="#max/1"><code class="inline">max/1</code></a>
+</li>
+<li>Date/time intervals: <a href="#datetime_add/3"><code class="inline">datetime_add/3</code></a>, <a href="#date_add/3"><code class="inline">date_add/3</code></a>, <a href="#from_now/2"><code class="inline">from_now/2</code></a>, <a href="#ago/2"><code class="inline">ago/2</code></a>
+</li>
+<li>Inside select: <a href="#struct/2"><code class="inline">struct/2</code></a>, <a href="#map/2"><code class="inline">map/2</code></a>, <a href="#merge/2"><code class="inline">merge/2</code></a> and literals (map, tuples, lists, etc)
+</li>
+<li>General: <a href="#fragment/1"><code class="inline">fragment/1</code></a>, <a href="#field/2"><code class="inline">field/2</code></a> and <a href="#type/2"><code class="inline">type/2</code></a>
+</li>
+</ul>
+<p>Note the functions in this module exist for documentation
+purposes and one should never need to invoke them directly.
+Furthermore, it is possible to define your own macros and
+use them in Ecto queries (see docs for <a href="#fragment/1"><code class="inline">fragment/1</code></a>).</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#!=/2">left != right</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Binary <code class="inline">!=</code> operation</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#%3C/2">left &lt; right</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Binary <code class="inline">&lt;</code> operation</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#%3C=/2">left &lt;= right</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Binary <code class="inline">&lt;=</code> operation</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#==/2">left == right</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Binary <code class="inline">==</code> operation</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#%3E/2">left &gt; right</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Binary <code class="inline">&gt;</code> operation</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#%3E=/2">left &gt;= right</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Binary <code class="inline">&gt;=</code> operation</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#ago/2">ago(count, interval)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Subtracts the given interval from the current time in UTC</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#and/2">left and right</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Binary <code class="inline">and</code> operation</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#avg/1">avg(value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Calculates the average for the given entry</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#count/1">count(value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Counts the given entry</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#count/2">count(value, atom)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Counts the distinct values in given entry</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#date_add/3">date_add(date, count, interval)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds a given interval to a date</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#datetime_add/3">datetime_add(datetime, count, interval)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds a given interval to a datetime</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#field/2">field(source, field)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Allows a field to be dynamically accessed</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#fragment/1">fragment(fragments)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Send fragments directly to the database</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#from_now/2">from_now(count, interval)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds the given interval to the current time in UTC</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#ilike/2">ilike(string, search)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Searches for <code class="inline">search</code> in <code class="inline">string</code> in a case insensitive fashion</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#in/2">left in right</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Checks if the left-value is included in the right one</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#is_nil/1">is_nil(value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Checks if the given value is nil</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#like/2">like(string, search)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Searches for <code class="inline">search</code> in <code class="inline">string</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#map/2">map(source, fields)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Used in <code class="inline">select</code> to specify which fields should be returned as a map</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#max/1">max(value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Calculates the maximum for the given entry</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#merge/2">merge(left_map, right_map)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Merges the map on the right over the map on the left</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#min/1">min(value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Calculates the minimum for the given entry</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#not/1">not value</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Unary <code class="inline">not</code> operation</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#or/2">left or right</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Binary <code class="inline">or</code> operation</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#struct/2">struct(source, fields)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Used in <code class="inline">select</code> to specify which struct fields should be returned</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#sum/1">sum(value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Calculates the sum for the given entry</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#type/2">type(interpolated_value, type)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Casts the given value to the given type at the database level</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#unsafe_fragment/1">unsafe_fragment(fragment)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Send an unsafe fragment directly to the database</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="!=/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/%21%3D%2F2" class="dashAnchor"></a>
+  <a href="#!=/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">left != right</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L31" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Binary <code class="inline">!=</code> operation.</p>
+
+  </section>
+</div>
+<div class="detail" id="%3C/2">
+  
+    <span id="&lt;/2"></span>
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/%253C%2F2" class="dashAnchor"></a>
+  <a href="#%3C/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">left &lt; right</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L46" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Binary <code class="inline">&lt;</code> operation.</p>
+
+  </section>
+</div>
+<div class="detail" id="%3C=/2">
+  
+    <span id="&lt;=/2"></span>
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/%253C%3D%2F2" class="dashAnchor"></a>
+  <a href="#%3C=/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">left &lt;= right</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L36" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Binary <code class="inline">&lt;=</code> operation.</p>
+
+  </section>
+</div>
+<div class="detail" id="==/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/%3D%3D%2F2" class="dashAnchor"></a>
+  <a href="#==/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">left == right</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L26" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Binary <code class="inline">==</code> operation.</p>
+
+  </section>
+</div>
+<div class="detail" id="%3E/2">
+  
+    <span id="&gt;/2"></span>
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/%253E%2F2" class="dashAnchor"></a>
+  <a href="#%3E/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">left &gt; right</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L51" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Binary <code class="inline">&gt;</code> operation.</p>
+
+  </section>
+</div>
+<div class="detail" id="%3E=/2">
+  
+    <span id="&gt;=/2"></span>
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/%253E%3D%2F2" class="dashAnchor"></a>
+  <a href="#%3E=/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">left &gt;= right</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L41" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Binary <code class="inline">&gt;=</code> operation.</p>
+
+  </section>
+</div>
+<div class="detail" id="ago/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/ago%2F2" class="dashAnchor"></a>
+  <a href="#ago/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">ago(count, interval)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L210" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Subtracts the given interval from the current time in UTC.</p>
+<p>The current time in UTC is retrieved from Elixir and
+not from the database.</p>
+<h2 id="ago/2-examples" class="section-heading">
+  <a href="#ago/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">from p in Post, where: p.published_at &gt; ago(3, &quot;month&quot;)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="and/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/and%2F2" class="dashAnchor"></a>
+  <a href="#and/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">left and right</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L56" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Binary <code class="inline">and</code> operation.</p>
+
+  </section>
+</div>
+<div class="detail" id="avg/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/avg%2F1" class="dashAnchor"></a>
+  <a href="#avg/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">avg(value)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L137" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Calculates the average for the given entry.</p>
+<pre><code class="elixir">from p in Payment, select: avg(p.value)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="count/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/count%2F1" class="dashAnchor"></a>
+  <a href="#count/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">count(value)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L123" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Counts the given entry.</p>
+<pre><code class="elixir">from p in Post, select: count(p.id)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="count/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/count%2F2" class="dashAnchor"></a>
+  <a href="#count/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">count(value, atom)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L130" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Counts the distinct values in given entry.</p>
+<pre><code class="elixir">from p in Post, select: count(p.id, :distinct)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="date_add/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/date_add%2F3" class="dashAnchor"></a>
+  <a href="#date_add/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">date_add(date, count, interval)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L185" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Adds a given interval to a date.</p>
+<p>See <a href="#datetime_add/3"><code class="inline">datetime_add/3</code></a> for more information.</p>
+
+  </section>
+</div>
+<div class="detail" id="datetime_add/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/datetime_add%2F3" class="dashAnchor"></a>
+  <a href="#datetime_add/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">datetime_add(datetime, count, interval)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L178" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Adds a given interval to a datetime.</p>
+<p>The first argument is a <code class="inline">datetime</code>, the second one is the count
+for the interval, which may be either positive or negative and
+the interval value:</p>
+<pre><code class="elixir"># Get all items published since the last month
+from p in Post, where: p.published_at &gt;
+                       datetime_add(^NaiveDateTime.utc_now, -1, &quot;month&quot;)</code></pre>
+<p>In the example above, we used <a href="#datetime_add/3"><code class="inline">datetime_add/3</code></a> to subtract one month
+from the current datetime and compared it with the <code class="inline">p.published_at</code>.
+If you want to perform operations on date, <a href="#date_add/3"><code class="inline">date_add/3</code></a> could be used.</p>
+<p>The following intervals are supported: year, month, week, day, hour,
+minute, second, millisecond and microsecond.</p>
+
+  </section>
+</div>
+<div class="detail" id="field/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/field%2F2" class="dashAnchor"></a>
+  <a href="#field/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">field(source, field)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L328" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Allows a field to be dynamically accessed.</p>
+<pre><code class="elixir">def at_least_four(doors_or_tires) do
+    from c in Car,
+  where: field(c, ^doors_or_tires) &gt;= 4
+end</code></pre>
+<p>In the example above, both <code class="inline">at_least_four(:doors)</code> and <code class="inline">at_least_four(:tires)</code>
+would be valid calls as the field is dynamically generated.</p>
+
+  </section>
+</div>
+<div class="detail" id="fragment/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/fragment%2F1" class="dashAnchor"></a>
+  <a href="#fragment/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">fragment(fragments)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L272" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Send fragments directly to the database.</p>
+<p>It is not possible to represent all possible database queries using
+Ecto’s query syntax. When such is required, it is possible to use
+fragments to send any expression to the database:</p>
+<pre><code class="elixir">def unpublished_by_title(title) do
+  from p in Post,
+    where: is_nil(p.published_at) and
+           fragment(&quot;lower(?)&quot;, p.title) == ^title
+end</code></pre>
+<p>In the example above, we are using the lower procedure in the
+database to downcase the title column.</p>
+<p>It is very important to keep in mind that Ecto is unable to do any
+type casting described above when fragments are used. You can
+however use the <a href="#type/2"><code class="inline">type/2</code></a> function to give Ecto some hints:</p>
+<pre><code class="elixir">fragment(&quot;lower(?)&quot;, p.title) == type(^title, :string)</code></pre>
+<p>Or even say the right side is of the same type as <code class="inline">p.title</code>:</p>
+<pre><code class="elixir">fragment(&quot;lower(?)&quot;, p.title) == type(^title, p.title)</code></pre>
+<p>It is possible to make use of PostgreSQL’s JSON/JSONB data type
+with fragments, as well:</p>
+<pre><code class="elixir">fragment(&quot;?-&gt;&gt;? ILIKE ?&quot;, p.map, &quot;key_name&quot;, ^some_value)</code></pre>
+<h2 id="fragment/1-keyword-fragments" class="section-heading">
+  <a href="#fragment/1-keyword-fragments" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Keyword fragments
+</h2>
+
+<p>In order to support databases that do not have string-based
+queries, like MongoDB, fragments also allow keywords to be given:</p>
+<pre><code class="elixir">from p in Post,
+    where: fragment(title: [&quot;$eq&quot;: ^some_value])</code></pre>
+<h2 id="fragment/1-defining-custom-functions-using-macros-and-fragment" class="section-heading">
+  <a href="#fragment/1-defining-custom-functions-using-macros-and-fragment" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Defining custom functions using macros and fragment
+</h2>
+
+<p>You can add a custom Ecto query function using macros.  For example
+to expose SQL’s coalesce function you can define this macro:</p>
+<pre><code class="elixir">defmodule CustomFunctions do
+  defmacro coalesce(left, right) do
+    quote do
+      fragment(&quot;coalesce(?, ?)&quot;, unquote(left), unquote(right))
+    end
+  end
+end</code></pre>
+<p>To have coalesce/2 available, just import the module that defines it.</p>
+<pre><code class="elixir">import CustomFunctions</code></pre>
+<p>The only downside is that it will show up as a fragment when
+inspecting the Elixir query.  Other than that, it should be
+equivalent to a built-in Ecto query function.</p>
+
+  </section>
+</div>
+<div class="detail" id="from_now/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/from_now%2F2" class="dashAnchor"></a>
+  <a href="#from_now/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">from_now(count, interval)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L198" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Adds the given interval to the current time in UTC.</p>
+<p>The current time in UTC is retrieved from Elixir and
+not from the database.</p>
+<h2 id="from_now/2-examples" class="section-heading">
+  <a href="#from_now/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">from a in Account, where: a.expires_at &lt; from_now(3, &quot;month&quot;)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="ilike/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/ilike%2F2" class="dashAnchor"></a>
+  <a href="#ilike/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">ilike(string, search)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L105" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Searches for <code class="inline">search</code> in <code class="inline">string</code> in a case insensitive fashion.</p>
+<pre><code class="elixir">from p in Post, where: ilike(p.body, &quot;Chapter%&quot;)</code></pre>
+<p>Translates to the underlying SQL ILIKE query. This operation is
+only available on PostgreSQL.</p>
+
+  </section>
+</div>
+<div class="detail" id="in/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/in%2F2" class="dashAnchor"></a>
+  <a href="#in/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">left in right</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L78" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Checks if the left-value is included in the right one.</p>
+<pre><code class="elixir">from p in Post, where: p.id in [1, 2, 3]</code></pre>
+<p>The right side may either be a list, a literal list
+or even a column in the database with array type:</p>
+<pre><code class="elixir">from p in Post, where: &quot;elixir&quot; in p.tags</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="is_nil/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/is_nil%2F1" class="dashAnchor"></a>
+  <a href="#is_nil/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">is_nil(value)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L116" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Checks if the given value is nil.</p>
+<pre><code class="elixir">from p in Post, where: is_nil(p.published_at)</code></pre>
+<p>To check if a given value is not nil use:</p>
+<pre><code class="elixir">from p in Post, where: not is_nil(p.published_at)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="like/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/like%2F2" class="dashAnchor"></a>
+  <a href="#like/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">like(string, search)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L95" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Searches for <code class="inline">search</code> in <code class="inline">string</code>.</p>
+<pre><code class="elixir">from p in Post, where: like(p.body, &quot;Chapter%&quot;)</code></pre>
+<p>Translates to the underlying SQL LIKE query, therefore
+its behaviour is dependent on the database. In particular,
+PostgreSQL will do a case-sensitive operation, while the
+majority of other databases will be case-insensitive. For
+performing a case-insensitive <code class="inline">like</code> in PostgreSQL, see <a href="#ilike/2"><code class="inline">ilike/2</code></a>.</p>
+<p>You should be very careful when allowing user sent data to be used
+as part of LIKE query, since they allow to perform
+<a href="https://githubengineering.com/like-injection/">LIKE-injections</a>.</p>
+
+  </section>
+</div>
+<div class="detail" id="map/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/map%2F2" class="dashAnchor"></a>
+  <a href="#map/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">map(source, fields)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L413" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Used in <code class="inline">select</code> to specify which fields should be returned as a map.</p>
+<p>For example, if you don’t need all fields to be returned or
+neither need a struct, you can use <a href="#map/2"><code class="inline">map/2</code></a> to achieve both:</p>
+<pre><code class="elixir">from p in Post,
+  select: map(p, [:title, :body])</code></pre>
+<p><a href="#map/2"><code class="inline">map/2</code></a> can also be used to dynamically select fields:</p>
+<pre><code class="elixir">fields = [:title, :body]
+from p in Post, select: map(p, ^fields)</code></pre>
+<p>If the same source is selected multiple times with a <code class="inline">map</code>,
+the fields are merged in order to avoid fetching multiple copies
+from the database. In other words, the expression below:</p>
+<pre><code class="elixir">from(city in City, preload: :country,
+     select: {map(city, [:country_id]), map(city, [:name])}</code></pre>
+<p>is expanded to:</p>
+<pre><code class="elixir">from(city in City, preload: :country,
+     select: {map(city, [:country_id, :name]), map(city, [:country_id, :name])}</code></pre>
+<p>For preloads, the selected fields may be specified from the parent:</p>
+<pre><code class="elixir">from(city in City, preload: :country,
+     select: map(city, [:country_id, :name, country: [:id, :population]]))</code></pre>
+<p><strong>IMPORTANT</strong>: When filtering fields for associations, you
+MUST include the foreign keys used in the relationship,
+otherwise Ecto will be unable to find associated records.</p>
+
+  </section>
+</div>
+<div class="detail" id="max/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/max%2F1" class="dashAnchor"></a>
+  <a href="#max/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">max(value)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L158" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Calculates the maximum for the given entry.</p>
+<pre><code class="elixir">from p in Payment, select: max(p.value)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="merge/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/merge%2F2" class="dashAnchor"></a>
+  <a href="#merge/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">merge(left_map, right_map)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L427" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Merges the map on the right over the map on the left.</p>
+<p>If the map on the left side is a struct, Ecto will check
+all of the field on the right previously exist on the left
+before merging.</p>
+<pre><code class="elixir">from(city in City, select: merge(city, %{virtual_field: &quot;some_value&quot;}))</code></pre>
+<p>This function is primarily used by <a href="Ecto.Query.html#select_merge/3"><code class="inline">Ecto.Query.select_merge/3</code></a>
+to merge different select clauses.</p>
+
+  </section>
+</div>
+<div class="detail" id="min/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/min%2F1" class="dashAnchor"></a>
+  <a href="#min/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">min(value)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L151" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Calculates the minimum for the given entry.</p>
+<pre><code class="elixir">from p in Payment, select: min(p.value)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="not/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/not%2F1" class="dashAnchor"></a>
+  <a href="#not/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">not value</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L66" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Unary <code class="inline">not</code> operation.</p>
+
+  </section>
+</div>
+<div class="detail" id="or/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/or%2F2" class="dashAnchor"></a>
+  <a href="#or/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">left or right</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L61" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Binary <code class="inline">or</code> operation.</p>
+
+  </section>
+</div>
+<div class="detail" id="struct/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/struct%2F2" class="dashAnchor"></a>
+  <a href="#struct/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">struct(source, fields)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L376" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Used in <code class="inline">select</code> to specify which struct fields should be returned.</p>
+<p>For example, if you don’t need all fields to be returned
+as part of a struct, you can filter it to include only certain
+fields by using <a href="#struct/2"><code class="inline">struct/2</code></a>:</p>
+<pre><code class="elixir">from p in Post,
+  select: struct(p, [:title, :body])</code></pre>
+<p><a href="#struct/2"><code class="inline">struct/2</code></a> can also be used to dynamically select fields:</p>
+<pre><code class="elixir">fields = [:title, :body]
+from p in Post, select: struct(p, ^fields)</code></pre>
+<p>As a convenience, <code class="inline">select</code> allows developers to take fields
+without an explicit call to <a href="#struct/2"><code class="inline">struct/2</code></a>:</p>
+<pre><code class="elixir">from p in Post, select: [:title, :body]</code></pre>
+<p>Or even dynamically:</p>
+<pre><code class="elixir">fields = [:title, :body]
+from p in Post, select: ^fields</code></pre>
+<p>For preloads, the selected fields may be specified from the parent:</p>
+<pre><code class="elixir">from(city in City, preload: :country,
+     select: struct(city, [:country_id, :name, country: [:id, :population]]))</code></pre>
+<p>If the same source is selected multiple times with a <code class="inline">struct</code>,
+the fields are merged in order to avoid fetching multiple copies
+from the database. In other words, the expression below:</p>
+<pre><code class="elixir">from(city in City, preload: :country,
+     select: {struct(city, [:country_id]), struct(city, [:name])}</code></pre>
+<p>is expanded to:</p>
+<pre><code class="elixir">from(city in City, preload: :country,
+     select: {struct(city, [:country_id, :name]), struct(city, [:country_id, :name])}</code></pre>
+<p><strong>IMPORTANT</strong>: When filtering fields for associations, you
+MUST include the foreign keys used in the relationship,
+otherwise Ecto will be unable to find associated records.</p>
+
+  </section>
+</div>
+<div class="detail" id="sum/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/sum%2F1" class="dashAnchor"></a>
+  <a href="#sum/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">sum(value)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L144" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Calculates the sum for the given entry.</p>
+<pre><code class="elixir">from p in Payment, select: sum(p.value)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="type/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/type%2F2" class="dashAnchor"></a>
+  <a href="#type/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">type(interpolated_value, type)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L460" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Casts the given value to the given type at the database level.</p>
+<p>Most of the times, Ecto is able to proper cast interpolated
+values due to its type checking mechanism. In some situations
+though, you may want to tell Ecto that a parameter has some
+particular type:</p>
+<pre><code class="elixir">type(^title, :string)</code></pre>
+<p>It is also possible to say the type must match the same of a column:</p>
+<pre><code class="elixir">type(^title, p.title)</code></pre>
+<p>Ecto will ensure <code class="inline">^title</code> is cast to the given type and enforce such
+type at the database level. If the value is returned in a <code class="inline">select</code>,
+Ecto will also enforce the proper type throughout.</p>
+<p>Inside <code class="inline">select</code>, <a href="#type/2"><code class="inline">type/2</code></a> can also be used to cast fragments:</p>
+<pre><code class="elixir">type(fragment(&quot;NOW&quot;), :naive_datetime)</code></pre>
+<p>Or to type fields from schemaless queries:</p>
+<pre><code class="elixir">from p in &quot;posts&quot;, select: type(p.cost, :decimal)</code></pre>
+<p>Or to type aggregation results:</p>
+<pre><code class="elixir">from p in Post, select: type(avg(p.cost), :integer)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="unsafe_fragment/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/unsafe_fragment%2F1" class="dashAnchor"></a>
+  <a href="#unsafe_fragment/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">unsafe_fragment(fragment)</span>
+    
+      <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/ecto/query/api.ex#L315" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Send an unsafe fragment directly to the database.</p>
+<p>WARNING: sending an unsafe fragment may expose your application to sql
+injection attacks. Think twice before using it and try to reach the same
+result using the safe fragment/1 API.</p>
+<p>Sometimes it is not possible to represent all possible databases queries
+using Ecto’s syntax or fragment/1, expecially when dealing with specific
+database construct and dynamic fields.</p>
+<p>To overcome this, it is possible to build the expression as a binary
+outside the query expression and send it to the database by interpolating
+the value in the query.</p>
+<pre><code class="elixir">def window_sorting(sorters) do
+  sort = sorters |&gt; Enum.map(fn %{sort: key, direction: dir} -&gt;
+    dir = case dir do
+      :asc -&gt; &quot;ASC&quot;
+      :desc -&gt; &quot;DESC&quot;
+    end
+    &quot;#{key} #{dir}&quot;
+  end
+  |&gt; Enum.join(&quot;,&quot;)
+
+  expr = &quot;ROW_NUMBER() OVER(ORDER BY #{sort})&quot;
+  from p in Post,
+    select: %{p | id: unsafe_fragment(^expr)}
+end</code></pre>
+<p>In the example above, we are using the row_number() sql window function to
+do a particular type of ordering, using a list of sorters which are not
+known at compile time.</p>
+<p>It is very important to keep in mind that no input sanitization is done
+by Ecto, so the application may be open to SQL injection attacks if the
+expression is not built properly.</p>
+<p>Only an interpolated string (binary) is supported, any other value will
+result into a compilation error or ArgumentError during runtime.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

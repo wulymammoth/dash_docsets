@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>API Reference – Ecto v3.0.0-dev</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+      <link rel="canonical" href="http://hexdocs.pm/ecto/api-reference.html" />
+    
+    
+      
+        <link rel="icon" type="image/png" href="assets/logo.png" />
+      
+      
+    
+    <script src="dist/sidebar_items-d4f8a3d044.js"></script>
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Ecto.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.0.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Ecto" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>
+  <small class="visible-xs">Ecto v3.0.0-dev</small>
+  API Reference
+</h1>
+
+
+  <section class="details-list">
+    <h2 id="modules" class="section-heading">
+  <a href="#modules" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Modules
+</h2>
+
+    <div class="summary">
+      <div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.html">Ecto</a></div>
+  
+    <div class="summary-synopsis"><p>Ecto is split into 4 main components</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Adapter.html">Ecto.Adapter</a></div>
+  
+    <div class="summary-synopsis"><p>This module specifies the adapter API that an adapter is required to
+implement</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Adapter.Migration.html">Ecto.Adapter.Migration</a></div>
+  
+    <div class="summary-synopsis"><p>Specifies the adapter migrations API</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Adapter.Storage.html">Ecto.Adapter.Storage</a></div>
+  
+    <div class="summary-synopsis"><p>Specifies the adapter storage API</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Adapter.Structure.html">Ecto.Adapter.Structure</a></div>
+  
+    <div class="summary-synopsis"><p>Specifies the adapter structure API</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Adapter.Transaction.html">Ecto.Adapter.Transaction</a></div>
+  
+    <div class="summary-synopsis"><p>Specifies the adapter transactions API</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Adapters.MySQL.html">Ecto.Adapters.MySQL</a></div>
+  
+    <div class="summary-synopsis"><p>Adapter module for MySQL</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Adapters.Postgres.html">Ecto.Adapters.Postgres</a></div>
+  
+    <div class="summary-synopsis"><p>Adapter module for PostgreSQL</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Adapters.SQL.html">Ecto.Adapters.SQL</a></div>
+  
+    <div class="summary-synopsis"><p>Behaviour and implementation for SQL adapters</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Adapters.SQL.Connection.html">Ecto.Adapters.SQL.Connection</a></div>
+  
+    <div class="summary-synopsis"><p>Specifies the behaviour to be implemented by all SQL connections</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Adapters.SQL.Sandbox.html">Ecto.Adapters.SQL.Sandbox</a></div>
+  
+    <div class="summary-synopsis"><p>A pool for concurrent transactional tests</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Association.BelongsTo.html">Ecto.Association.BelongsTo</a></div>
+  
+    <div class="summary-synopsis"><p>The association struct for a <code class="inline">belongs_to</code> association</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Association.Has.html">Ecto.Association.Has</a></div>
+  
+    <div class="summary-synopsis"><p>The association struct for <code class="inline">has_one</code> and <code class="inline">has_many</code> associations</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Association.HasThrough.html">Ecto.Association.HasThrough</a></div>
+  
+    <div class="summary-synopsis"><p>The association struct for <code class="inline">has_one</code> and <code class="inline">has_many</code> through associations</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Association.ManyToMany.html">Ecto.Association.ManyToMany</a></div>
+  
+    <div class="summary-synopsis"><p>The association struct for <code class="inline">many_to_many</code> associations</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Association.NotLoaded.html">Ecto.Association.NotLoaded</a></div>
+  
+    <div class="summary-synopsis"><p>Struct returned by one to one associations when they are not loaded</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Changeset.html">Ecto.Changeset</a></div>
+  
+    <div class="summary-synopsis"><p>Changesets allow filtering, casting, validation and
+definition of constraints when manipulating structs</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.LogEntry.html">Ecto.LogEntry</a></div>
+  
+    <div class="summary-synopsis"><p>Struct used for logging entries</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Migration.html">Ecto.Migration</a></div>
+  
+    <div class="summary-synopsis"><p>Migrations are used to modify your database schema over time</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Migration.Command.html">Ecto.Migration.Command</a></div>
+  
+    <div class="summary-synopsis"><p>Used internally by adapters</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Migration.Constraint.html">Ecto.Migration.Constraint</a></div>
+  
+    <div class="summary-synopsis"><p>Used internally by adapters</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Migration.Index.html">Ecto.Migration.Index</a></div>
+  
+    <div class="summary-synopsis"><p>Used internally by adapters</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Migration.Reference.html">Ecto.Migration.Reference</a></div>
+  
+    <div class="summary-synopsis"><p>Used internally by adapters</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Migration.Table.html">Ecto.Migration.Table</a></div>
+  
+    <div class="summary-synopsis"><p>Used internally by adapters</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Migrator.html">Ecto.Migrator</a></div>
+  
+    <div class="summary-synopsis"><p>This module provides the migration API</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Multi.html">Ecto.Multi</a></div>
+  
+    <div class="summary-synopsis"><p><a href="Ecto.Multi.html#content"><code class="inline">Ecto.Multi</code></a> is a data structure for grouping multiple Repo operations</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Query.html">Ecto.Query</a></div>
+  
+    <div class="summary-synopsis"><p>Provides the Query DSL</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Query.API.html">Ecto.Query.API</a></div>
+  
+    <div class="summary-synopsis"><p>This module lists all functions allowed in the query API</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Queryable.html">Ecto.Queryable</a></div>
+  
+    <div class="summary-synopsis"><p>Converts a data structure into an <a href="Ecto.Query.html"><code class="inline">Ecto.Query</code></a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Repo.html">Ecto.Repo</a></div>
+  
+    <div class="summary-synopsis"><p>Defines a repository</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Schema.html">Ecto.Schema</a></div>
+  
+    <div class="summary-synopsis"><p>Defines a schema</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Schema.Metadata.html">Ecto.Schema.Metadata</a></div>
+  
+    <div class="summary-synopsis"><p>Stores metadata of a struct</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.SubQuery.html">Ecto.SubQuery</a></div>
+  
+    <div class="summary-synopsis"><p>Stores subquery information</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Type.html">Ecto.Type</a></div>
+  
+    <div class="summary-synopsis"><p>Defines functions and the <a href="Ecto.Type.html#content"><code class="inline">Ecto.Type</code></a> behaviour for implementing
+custom types</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.UUID.html">Ecto.UUID</a></div>
+  
+    <div class="summary-synopsis"><p>An Ecto type for UUIDs strings</p>
+</div>
+  
+</div>
+
+    </div>
+  </section>
+
+
+
+  <section class="details-list">
+    <h2 id="exceptions" class="section-heading">
+  <a href="#exceptions" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Exceptions
+</h2>
+
+    <div class="summary">
+      <div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.CastError.html">Ecto.CastError</a></div>
+  
+    <div class="summary-synopsis"><p>Raised when a changeset can’t cast a value</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.ChangeError.html">Ecto.ChangeError</a></div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.ConstraintError.html">Ecto.ConstraintError</a></div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.InvalidChangesetError.html">Ecto.InvalidChangesetError</a></div>
+  
+    <div class="summary-synopsis"><p>Raised when we cannot perform an action because the
+changeset is invalid</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.InvalidURLError.html">Ecto.InvalidURLError</a></div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.MigrationError.html">Ecto.MigrationError</a></div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.MultiplePrimaryKeyError.html">Ecto.MultiplePrimaryKeyError</a></div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.MultipleResultsError.html">Ecto.MultipleResultsError</a></div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.NoPrimaryKeyFieldError.html">Ecto.NoPrimaryKeyFieldError</a></div>
+  
+    <div class="summary-synopsis"><p>Raised at runtime when an operation that requires a primary key is invoked
+with a schema that does not define a primary key by using <code class="inline">@primary_key false</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.NoPrimaryKeyValueError.html">Ecto.NoPrimaryKeyValueError</a></div>
+  
+    <div class="summary-synopsis"><p>Raised at runtime when an operation that requires a primary key is invoked
+with a schema missing value for its primary key</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.NoResultsError.html">Ecto.NoResultsError</a></div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Query.CastError.html">Ecto.Query.CastError</a></div>
+  
+    <div class="summary-synopsis"><p>Raised at runtime when a value cannot be cast</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.Query.CompileError.html">Ecto.Query.CompileError</a></div>
+  
+    <div class="summary-synopsis"><p>Raised at compilation time when the query cannot be compiled</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.QueryError.html">Ecto.QueryError</a></div>
+  
+    <div class="summary-synopsis"><p>Raised at runtime when the query is invalid</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.StaleEntryError.html">Ecto.StaleEntryError</a></div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Ecto.SubQueryError.html">Ecto.SubQueryError</a></div>
+  
+    <div class="summary-synopsis"><p>Raised at runtime when a subquery is invalid</p>
+</div>
+  
+</div>
+
+    </div>
+  </section>
+
+
+
+  <section class="details-list">
+    <h2 id="mix-tasks" class="section-heading">
+  <a href="#mix-tasks" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Mix Tasks
+</h2>
+
+    <div class="summary">
+      <div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Ecto.html">ecto</a></div>
+  
+    <div class="summary-synopsis"><p>Prints Ecto tasks and their information</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Ecto.Create.html">ecto.create</a></div>
+  
+    <div class="summary-synopsis"><p>Create the storage for the given repository</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Ecto.Drop.html">ecto.drop</a></div>
+  
+    <div class="summary-synopsis"><p>Drop the storage for the given repository</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Ecto.Dump.html">ecto.dump</a></div>
+  
+    <div class="summary-synopsis"><p>Dumps the current environment’s database structure for the
+given repository into a structure file</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Ecto.Gen.Migration.html">ecto.gen.migration</a></div>
+  
+    <div class="summary-synopsis"><p>Generates a migration</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Ecto.Gen.Repo.html">ecto.gen.repo</a></div>
+  
+    <div class="summary-synopsis"><p>Generates a new repository</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Ecto.Load.html">ecto.load</a></div>
+  
+    <div class="summary-synopsis"><p>Loads the current environment’s database structure for the
+given repository from a previously dumped structure file</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Ecto.Migrate.html">ecto.migrate</a></div>
+  
+    <div class="summary-synopsis"><p>Runs the pending migrations for the given repository</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Ecto.Migrations.html">ecto.migrations</a></div>
+  
+    <div class="summary-synopsis"><p>Displays the up / down migration status for the given repository</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Ecto.Rollback.html">ecto.rollback</a></div>
+  
+    <div class="summary-synopsis"><p>Reverts applied migrations in the given repository</p>
+</div>
+  
+</div>
+
+    </div>
+  </section>
+
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

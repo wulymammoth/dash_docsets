@@ -1,0 +1,175 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>ecto.migrate – Ecto v3.0.0-dev</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+      <link rel="canonical" href="http://hexdocs.pm/ecto/Mix.Tasks.Ecto.Migrate.html" />
+    
+    
+      
+        <link rel="icon" type="image/png" href="assets/logo.png" />
+      
+      
+    
+    <script src="dist/sidebar_items-d4f8a3d044.js"></script>
+    
+  </head>
+  <body data-type="tasks">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Ecto.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.0.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Ecto" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Ecto v3.0.0-dev</small>
+        mix ecto.migrate
+        
+          <a href="https://github.com/elixir-ecto/ecto/blob/v3.0.0-dev/lib/mix/tasks/ecto.migrate.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Runs the pending migrations for the given repository.</p>
+<p>Migrations are expected at “priv/YOUR_REPO/migrations” directory
+of the current application but it can be configured to be any
+subdirectory of <code class="inline">priv</code> by specifying the <code class="inline">:priv</code> key under the
+repository configuration.</p>
+<p>Runs all pending migrations by default. To migrate up to a specific
+version number, supply <code class="inline">--to version_number</code>. To migrate a specific
+number of times, use <code class="inline">--step n</code>.</p>
+<p>The repositories to migrate are the ones specified under the
+<code class="inline">:ecto_repos</code> option in the current app configuration. However,
+if the <code class="inline">-r</code> option is given, it replaces the <code class="inline">:ecto_repos</code> config.</p>
+<p>Since Ecto tasks can only be executed once, if you need to migrate
+multiple repositories, set <code class="inline">:ecto_repos</code> accordingly or pass the <code class="inline">-r</code>
+flag multiple times.</p>
+<p>If a repository has not yet been started, one will be started outside
+your application supervision tree and shutdown afterwards.</p>
+<h2 id="module-examples" class="section-heading">
+  <a href="#module-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">mix ecto.migrate
+mix ecto.migrate -r Custom.Repo
+
+mix ecto.migrate -n 3
+mix ecto.migrate --step 3
+
+mix ecto.migrate -v 20080906120000
+mix ecto.migrate --to 20080906120000</code></pre>
+<h2 id="module-command-line-options" class="section-heading">
+  <a href="#module-command-line-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Command line options
+</h2>
+
+<ul>
+<li><code class="inline">-r</code>, <code class="inline">--repo</code> - the repo to migrate
+</li>
+<li><code class="inline">--all</code> - run all pending migrations
+</li>
+<li><code class="inline">--step</code> / <code class="inline">-n</code> - run n number of pending migrations
+</li>
+<li><code class="inline">--to</code> / <code class="inline">-v</code> - run all migrations up to and including version
+</li>
+<li><code class="inline">--quiet</code> - do not log migration commands
+</li>
+<li><code class="inline">--prefix</code> - the prefix to run migrations on
+</li>
+<li><code class="inline">--pool-size</code> - the pool size if the repository is started only for the task (defaults to 1)
+</li>
+<li><code class="inline">--log-sql</code> - log the raw sql migrations are running
+</li>
+</ul>
+
+        </section>
+      
+
+      
+
+      
+
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+

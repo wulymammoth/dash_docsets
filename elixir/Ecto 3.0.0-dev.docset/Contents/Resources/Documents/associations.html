@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.17.1">
+    <title>Ecto Association Guide – Ecto v3.0.0-dev</title>
+    <link rel="stylesheet" href="dist/app-110d9134a6.css" />
+    
+      <link rel="canonical" href="http://hexdocs.pm/ecto/associations.html" />
+    
+    
+      
+        <link rel="icon" type="image/png" href="assets/logo.png" />
+      
+      
+    
+    <script src="dist/sidebar_items-d4f8a3d044.js"></script>
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Ecto.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.0.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Ecto" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Ecto Association Guide</h1>
+<p>This guide assumes you worked through the <a href="Getting%2520Started.md">Getting Started guide</a> and want to learn more about associations.</p>
+<p>There are three kinds of associations:</p>
+<ul>
+<li>one-to-one
+</li>
+<li>one-to-many
+</li>
+<li>many-to-many
+</li>
+</ul>
+<p>In this tutorial we’re going to create a minimal Ecto project then we’re going to create basic schemas and migrations, and finally associate the schemas.</p>
+<h2 id="ecto-setup" class="section-heading">
+  <a href="#ecto-setup" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Ecto Setup
+</h2>
+
+<p>First, we’re going to create a fresh Ecto project which is going to be used for the rest of the tutorial:</p>
+<pre><code class="elixir">$ mix new ecto_assoc --sup</code></pre>
+<p>Add <code class="inline">ecto</code> and <code class="inline">postgrex</code> as dependencies to <code class="inline">mix.exs</code></p>
+<pre><code class="elixir"># mix.exs
+defp deps do
+  [{:ecto, &quot;~&gt; 2.0&quot;},
+   {:postgrex, &quot;~&gt; 0.11&quot;}]
+end</code></pre>
+<p>Let’s generate a repo and create the corresponding DB.</p>
+<pre><code class="elixir">$ mix ecto.gen.repo -r EctoAssoc.Repo</code></pre>
+<p>Make sure the config for the repo is set properly:</p>
+<pre><code class="elixir"># config/config.exs
+config :ecto_assoc, EctoAssoc.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  database: &quot;ecto_assoc_repo&quot;,
+  username: &quot;postgres&quot;,
+  password: &quot;postgres&quot;,
+  hostname: &quot;localhost&quot;
+
+config :ecto_assoc, ecto_repos: [EctoAssoc.Repo]</code></pre>
+<p>Add the repo to the supervision tree:</p>
+<pre><code class="elixir">  def start(_type, _args) do
+    import Supervisor.Spec
+    children = [
+      supervisor(EctoAssoc.Repo, [])
+    ]
+    ...</code></pre>
+<p>Finally let’s create the DB:</p>
+<pre><code class="elixir">$ mix ecto.create</code></pre>
+<h2 id="one-to-one" class="section-heading">
+  <a href="#one-to-one" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  One-to-one
+</h2>
+
+<h3 id="prep" class="section-heading">
+  <a href="#prep" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Prep
+</h3>
+
+<p>Let’s start with two schemas that are not yet associated: <code class="inline">User</code> and <code class="inline">Avatar</code>.</p>
+<p>We will generate the migration for <code class="inline">User</code>:</p>
+<pre><code class="elixir">mix ecto.gen.migration create_user</code></pre>
+<p>And add some columns:</p>
+<pre><code class="elixir"># priv/repo/migrations/*_create_user.exs
+defmodule EctoAssoc.Repo.Migrations.CreateUser do
+  use Ecto.Migration
+
+  def change do
+    create table(:users) do
+      add :name, :string
+      add :email, :string
+    end
+  end
+end</code></pre>
+<p>And the following schema:</p>
+<pre><code class="elixir"># lib/ecto_assoc/user.ex
+defmodule EctoAssoc.User do
+  use Ecto.Schema
+
+  schema &quot;users&quot; do
+    field :name, :string
+    field :email, :string
+  end
+end</code></pre>
+<p><code class="inline">Avatar</code> also has its own migration as well:</p>
+<pre><code class="elixir">mix ecto.gen.migration create_avatar</code></pre>
+<p>with the following columns:</p>
+<pre><code class="elixir"># priv/repo/migrations/*_create_avatar.exs
+defmodule EctoAssoc.Repo.Migrations.CreateAvatar do
+  use Ecto.Migration
+
+  def change do
+    create table(:avatars) do
+      add :nick_name, :string
+      add :pic_url, :string
+    end
+  end
+end</code></pre>
+<p>and the following schema:</p>
+<pre><code class="elixir"># lib/ecto_assoc/avatar.ex
+defmodule EctoAssoc.Avatar do
+  use Ecto.Schema
+
+  schema &quot;avatars&quot; do
+    field :nick_name, :string
+    field :pic_url, :string
+  end
+end</code></pre>
+<h3 id="adding-associations" class="section-heading">
+  <a href="#adding-associations" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Adding Associations
+</h3>
+
+<p>Now we want to associate the user with the avatar and vice-versa:</p>
+<ul>
+<li>one user has one avatar
+</li>
+<li>one avatar belongs to one user
+</li>
+</ul>
+<p>The difference between <a href="Ecto.Schema.html#has_one/3"><code class="inline">has_one</code></a> and <a href="Ecto.Schema.html#belongs_to/3"><code class="inline">belongs_to</code></a> is where the primary key belongs. In this case, we want the “avatars” table to have a “user_id” column, therefore the avatar belongs to the user.</p>
+<p>For the <code class="inline">Avatar</code> we create a migration that adds a <code class="inline">user_id</code> reference:</p>
+<pre><code class="elixir">mix ecto.gen.migration avatar_belongs_to_user</code></pre>
+<p>with the following steps:</p>
+<pre><code class="elixir"># priv/repo/migrations/20161117101812_avatar_belongs_to_user.exs
+defmodule EctoAssoc.Repo.Migrations.AvatarBelongsToUser do
+  use Ecto.Migration
+
+  def change do
+    alter table(:avatars) do
+      add :user_id, references(:users)
+    end
+  end
+end</code></pre>
+<p>This adds a <code class="inline">user_id</code> column to the DB which references an entry in the users table.</p>
+<p>For the <code class="inline">Avatar</code> we add a <code class="inline">belongs_to</code> field to the schema:</p>
+<pre><code class="elixir">defmodule EctoAssoc.Avatar do
+  schema &quot;avatars&quot; do
+    field :nick_name, :string
+    field :pic_url, :string
+    belongs_to :user, EctoAssoc.User  # this was added
+  end
+end</code></pre>
+<p><code class="inline">belongs_to</code> is a macro which uses a foreign key (in this case <code class="inline">user_id</code>) to make the associated schema accessible through the avatar. In this case, you can access the user via <code class="inline">avatar.user</code>.</p>
+<p>For the <code class="inline">User</code> we add a <code class="inline">has_one</code> field to the schema:</p>
+<pre><code class="elixir"># lib/ecto_assoc/user.ex
+defmodule EctoAssoc.User do
+  schema &quot;users&quot; do
+    field :name, :string
+    field :email, :string
+    has_one :avatar, EctoAssoc.Avatar  # this was added
+  end
+end</code></pre>
+<p><code class="inline">has_one</code> does not add anything to the DB. The foreign key of the associated schema, <code class="inline">Avatar</code>, is used to make the avatar available from the user, allowing you to access the avatar via <code class="inline">user.avatar</code>.</p>
+<h3 id="persistence" class="section-heading">
+  <a href="#persistence" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Persistence
+</h3>
+
+<p>Now let’s add data to the DB. Start iex:</p>
+<pre><code class="elixir">$ iex -S mix</code></pre>
+<p>For convenience we alias some modules:</p>
+<pre><code class="elixir">iex&gt; alias EctoAssoc.{Repo, User, Avatar}</code></pre>
+<p>Create a user struct and insert it into the repo:</p>
+<pre><code class="elixir">iex&gt; user = %User{name: &quot;John Doe&quot;, email: &quot;john.doe@example.com&quot;}
+iex&gt; user = Repo.insert!(user)
+%EctoAssoc.User{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;users&quot;&gt;,
+ avatar: #Ecto.Association.NotLoaded&lt;association :avatar is not loaded&gt;,
+ email: &quot;john.doe@example.com&quot;, id: 3, name: &quot;John Doe&quot;}</code></pre>
+<p>This time let’s add another user with an avatar association. We can define it directly in the <code class="inline">User</code> struct in the <code class="inline">:avatar</code> field:</p>
+<pre><code class="elixir">iex&gt; avatar = %Avatar{nick_name: &quot;Elixir&quot;, pic_url: &quot;http://elixir-lang.org/images/logo.png&quot;}
+iex&gt; user = %User{name: &quot;Jane Doe&quot;, email: &quot;jane@example.com&quot;, avatar: avatar}
+iex&gt; user = Repo.insert!(user)
+%EctoAssoc.User{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;users&quot;&gt;,
+ avatar: %{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;avatars&quot;&gt;,
+   __struct__: EctoAssoc.Avatar, id: 2, nick_name: &quot;Elixir&quot;,
+   pic_url: &quot;http://elixir-lang.org/images/logo.png&quot;,
+   user: #Ecto.Association.NotLoaded&lt;association :user is not loaded&gt;,
+   user_id: 4}, email: &quot;jane@example.com&quot;, id: 4, name: &quot;Jane Doe&quot;}</code></pre>
+<p>Let’s verify that it works by retrieving all users and their associated avatars:</p>
+<pre><code class="elixir">iex&gt; Repo.all(User) |&gt; Repo.preload(:avatar)
+[%EctoAssoc.User{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;users&quot;&gt;, avatar: nil,
+  email: &quot;john.doe@example.com&quot;, id: 3, name: &quot;John Doe&quot;},
+ %EctoAssoc.User{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;users&quot;&gt;,
+  avatar: %EctoAssoc.Avatar{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;avatars&quot;&gt;,
+   id: 2, nick_name: &quot;Elixir&quot;, pic_url: &quot;http://elixir-lang.org/images/logo.png&quot;,
+   user: #Ecto.Association.NotLoaded&lt;association :user is not loaded&gt;,
+   user_id: 4}, email: &quot;jane@example.com&quot;, id: 4, name: &quot;Jane Doe&quot;}]</code></pre>
+<h2 id="one-to-many" class="section-heading">
+  <a href="#one-to-many" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  One-to-many
+</h2>
+
+<h3 id="prep" class="section-heading">
+  <a href="#prep" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Prep
+</h3>
+
+<p>Let’s assume we have two schemas: <code class="inline">User</code> and <code class="inline">Post</code>. The <code class="inline">User</code> schema was defined in the previous section and the <code class="inline">Post</code> schema will be defined now.</p>
+<p>Let’s start with the migration:</p>
+<pre><code class="elixir">mix ecto.gen.migration create_post</code></pre>
+<p>with the following columns:</p>
+<pre><code class="elixir"># priv/repo/migrations/*_create_post.exs
+defmodule EctoAssoc.Repo.Migrations.CreatePost do
+  use Ecto.Migration
+
+  def change do
+    create table(:posts) do
+      add :header, :string
+      add :body, :string
+    end
+  end
+end</code></pre>
+<p>and the following schema:</p>
+<pre><code class="elixir"># lib/ecto_assoc/post.ex
+defmodule EctoAssoc.Post do
+  use Ecto.Schema
+
+  schema &quot;posts&quot; do
+    field :header, :string
+    field :body, :string
+  end
+end</code></pre>
+<h3 id="adding-associations" class="section-heading">
+  <a href="#adding-associations" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Adding Associations
+</h3>
+
+<p>Now we want to associate the user with the post and vice-versa:</p>
+<ul>
+<li>one user has many posts
+</li>
+<li>one post belongs to one user
+</li>
+</ul>
+<p>As in <code class="inline">one-to-one</code> associations, the <code class="inline">belongs_to</code> reveals on which table the foreign key should be added. For the <code class="inline">Post</code> we create a migration that adds a <code class="inline">user_id</code> reference:</p>
+<pre><code class="elixir">mix ecto.gen.migration post_belongs_to_user</code></pre>
+<p>with the following contents:</p>
+<pre><code class="elixir"># priv/repo/migrations/*_post_belongs_to_user.exs
+defmodule EctoAssoc.Repo.Migrations.PostBelongsToUser do
+  use Ecto.Migration
+
+  def change do
+    alter table(:posts) do
+      add :user_id, references(:users)
+    end
+  end
+end</code></pre>
+<p>For the <code class="inline">Post</code> we add a <code class="inline">belongs_to</code> field to the schema:</p>
+<pre><code class="elixir">defmodule EctoAssoc.Post do
+  use Ecto.Schema
+
+  schema &quot;posts&quot; do
+    field :header, :string
+    field :body, :string
+    belongs_to :user, EctoAssoc.User  # this was added
+  end
+end</code></pre>
+<p><code class="inline">belongs_to</code> is a macro which uses a foreign key (in this case <code class="inline">user_id</code>) to make the associated schema accessible through the <code class="inline">Post</code>. The user can be accessed via <code class="inline">post.user</code>.</p>
+<p>For the <code class="inline">User</code> we add a <code class="inline">has_many</code> field to the schema:</p>
+<pre><code class="elixir">defmodule EctoAssoc.User do
+  use Ecto.Schema
+
+  schema &quot;users&quot; do
+    field :name, :string
+    field :email, :string
+    has_many :posts, EctoAssoc.Post  # this was added
+  end
+end</code></pre>
+<p><a href="Ecto.Schema.html#has_many/3"><code class="inline">has_many</code></a> does not add anything to the DB. The foreign key of the associated schema, <code class="inline">Post</code>, is used to make the posts available from the user, allowing all posts for a given to user to be accessed via <code class="inline">user.posts</code>.</p>
+<h3 id="persistence" class="section-heading">
+  <a href="#persistence" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Persistence
+</h3>
+
+<p>Start iex:</p>
+<pre><code class="elixir">$ iex -S mix</code></pre>
+<p>For convenience we alias some modules:</p>
+<pre><code class="elixir">iex&gt; alias EctoAssoc.{Repo, User, Post}</code></pre>
+<p>Let’s create a <code class="inline">User</code> and store it in the DB:</p>
+<pre><code class="elixir">iex&gt; user = %User{name: &quot;John Doe&quot;, email: &quot;john.doe@example.com&quot;}
+iex&gt; user = Repo.insert!(user)
+%EctoAssoc.User{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;users&quot;&gt;,
+ email: &quot;john.doe@example.com&quot;, id: 1, name: &quot;John Doe&quot;,
+ posts: #Ecto.Association.NotLoaded&lt;association :posts is not loaded&gt;}</code></pre>
+<p>Let’s build an associated post and store it in the DB. We can take a similar approach as we did in <code class="inline">one_to_one</code> and directly pass a list of posts in the <code class="inline">posts</code> field when inserting the user, effectively inserting the user and multiple posts at once.</p>
+<p>However, let’s try a different approach and use <a href="Ecto.html#build_assoc/3"><code class="inline">Ecto.build_assoc/3</code></a> to build a post that is associated to the existing user we have just defined:</p>
+<pre><code class="elixir">iex&gt; post = Ecto.build_assoc(user, :posts, %{header: &quot;Clickbait header&quot;, body: &quot;No real content&quot;})
+%EctoAssoc.Post{__meta__: #Ecto.Schema.Metadata&lt;:built, &quot;posts&quot;&gt;,
+ body: &quot;No real content&quot;, header: &quot;Clickbait header&quot;, id: nil,
+ user: #Ecto.Association.NotLoaded&lt;association :user is not loaded&gt;, user_id: 1}
+
+iex&gt; Repo.insert!(post)
+%EctoAssoc.Post{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;posts&quot;&gt;,
+ body: &quot;No real content&quot;, header: &quot;Clickbait header&quot;, id: 1,
+ user: #Ecto.Association.NotLoaded&lt;association :user is not loaded&gt;, user_id: 1}</code></pre>
+<p>Let’s add another post to the user:</p>
+<pre><code class="elixir">iex&gt; post = Ecto.build_assoc(user, :posts, %{header: &quot;5 ways to improve your Ecto&quot;, body: &quot;Add url of this tutorial&quot;})
+iex&gt; Repo.insert!(post)
+%EctoAssoc.Post{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;posts&quot;&gt;,
+ body: &quot;Add url of this tutorial&quot;, header: &quot;5 ways to improve your Ecto&quot;,
+ id: 2, user: #Ecto.Association.NotLoaded&lt;association :user is not loaded&gt;,
+ user_id: 1}</code></pre>
+<p>Let’s see if it worked:</p>
+<pre><code class="iex elixir">iex&gt; Repo.get(User, user.id) |&gt; Repo.preload(:posts)
+%EctoAssoc.User{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;users&quot;&gt;,
+ email: &quot;john.doe@example.com&quot;, id: 1, name: &quot;John Doe&quot;,
+ posts: [%EctoAssoc.Post{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;posts&quot;&gt;,
+   body: &quot;No real content&quot;, header: &quot;Clickbait header&quot;, id: 1,
+   user: #Ecto.Association.NotLoaded&lt;association :user is not loaded&gt;,
+   user_id: 1},
+  %EctoAssoc.Post{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;posts&quot;&gt;,
+   body: &quot;Add url of this tutorial&quot;, header: &quot;5 ways to improve your Ecto&quot;,
+   id: 2, user: #Ecto.Association.NotLoaded&lt;association :user is not loaded&gt;,
+   user_id: 1}]}</code></pre>
+<p>In the example above, <code class="inline">Ecto.build_assoc</code> received an existing <code class="inline">User</code> struct, that was already persisted to the database, and built a <code class="inline">Post</code> struct, based on its <code class="inline">:posts</code> association, with the <code class="inline">user_id</code> foreign key field properly set to the ID in the <code class="inline">User</code> struct.</p>
+<h2 id="many-to-many" class="section-heading">
+  <a href="#many-to-many" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Many-to-many
+</h2>
+
+<h3 id="prep" class="section-heading">
+  <a href="#prep" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Prep
+</h3>
+
+<p>Let’s assume we have two schemas: <code class="inline">Post</code> and <code class="inline">Tag</code>. The <code class="inline">Post</code> schema was defined in the previous section and the <code class="inline">Tag</code> schema will be defined now.</p>
+<p>Let’s start with the tag migration:</p>
+<pre><code class="elixir">mix ecto.gen.migration create_tag</code></pre>
+<p>with the following columns:</p>
+<pre><code class="elixir"># priv/repo/migrations/*create_tag.exs
+defmodule EctoAssoc.Repo.Migrations.CreateTag do
+  use Ecto.Migration
+
+  def change do
+    create table(:tags) do
+      add :name, :string
+    end
+  end
+end</code></pre>
+<p>and the following schema:</p>
+<pre><code class="elixir">defmodule EctoAssoc.Tag do
+  use Ecto.Schema
+
+  schema &quot;tags&quot; do
+    field :name, :string
+  end
+end</code></pre>
+<h3 id="adding-associations" class="section-heading">
+  <a href="#adding-associations" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Adding Associations
+</h3>
+
+<p>Now we want to associate the post with the tags and vice-versa:</p>
+<ul>
+<li>one post can have many tags
+</li>
+<li>one tag can have many posts
+</li>
+</ul>
+<p>This is a <code class="inline">many-to-many</code> relationship. Notice both sides can have many entries. In the previous sections we put the foreign key on the side that “belongs to” the other, which is not available here.</p>
+<p>One way to handle <code class="inline">many-to-many</code> relationships is to introduce an additional table which explicitly tracks the tag-post relationship by pointing to both tags and posts entries.</p>
+<p>So let’s do that:</p>
+<pre><code class="elixir">mix ecto.gen.migration create_posts_tags</code></pre>
+<p>with the following contents:</p>
+<pre><code class="elixir"># priv/repo/migrations/*_create_posts_tags
+defmodule EctoAssoc.Repo.Migrations.CreatePostsTags do
+  use Ecto.Migration
+
+  def change do
+    create table(:posts_tags) do
+      add :tag_id, references(:tags)
+      add :post_id, references(:posts)
+    end
+
+    create unique_index(:posts_tags, [:tag_id, :post_id])
+  end
+end</code></pre>
+<p>On the DB level, this creates a new table <code class="inline">posts_tags</code> with two columns that point at the <code class="inline">tag_id</code> and <code class="inline">post_id</code>. We also create a unique index, such that the association is always unique.</p>
+<p>For the <code class="inline">Post</code> we use the <a href="Ecto.Schema.html#many_to_many/3"><code class="inline">many_to_many</code></a> macro to associate the <code class="inline">Tag</code> through the
+new <code class="inline">posts_tags</code> table.</p>
+<pre><code class="elixir"># lib/ecto_assoc/post.ex
+defmodule EctoAssoc.Post do
+  use Ecto.Schema
+
+  schema &quot;posts&quot; do
+    field :header, :string
+    field :body, :string
+    # the following line was added
+    many_to_many :tags, EctoAssoc.Tag, join_through: &quot;posts_tags&quot;
+  end
+end</code></pre>
+<p>For the <code class="inline">Tag</code> we do the same. We use the <code class="inline">many_to_many</code> macro to associate the <code class="inline">Post</code> through the
+new <code class="inline">posts_tags</code> schema:</p>
+<pre><code class="elixir"># lib/ecto_assoc/tag.ex
+defmodule EctoAssoc.Tag do
+  use Ecto.Schema
+
+  schema &quot;tags&quot; do
+    field :name, :string
+    # the following line was added
+    many_to_many :posts, EctoAssoc.Post, join_through: &quot;posts_tags&quot;
+  end
+end</code></pre>
+<h3 id="persistence" class="section-heading">
+  <a href="#persistence" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Persistence
+</h3>
+
+<p>Let’s create some tags:</p>
+<pre><code class="elixir">iex&gt; clickbait_tag = Repo.insert! %Tag{name: &quot;clickbait&quot;}
+%EctoAssoc.Tag{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;tags&quot;&gt;, id: 1,
+ name: &quot;clickbait&quot;,
+ posts: #Ecto.Association.NotLoaded&lt;association :posts is not loaded&gt;}
+
+iex&gt; misc_tag = Repo.insert! %Tag{name: &quot;misc&quot;}
+%EctoAssoc.Tag{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;tags&quot;&gt;, id: 2,
+ name: &quot;misc&quot;,
+ posts: #Ecto.Association.NotLoaded&lt;association :posts is not loaded&gt;}
+
+iex&gt; ecto_tag = Repo.insert! %Tag{name: &quot;ecto&quot;}
+%EctoAssoc.Tag{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;tags&quot;&gt;, id: 3,
+ name: &quot;ecto&quot;,
+ posts: #Ecto.Association.NotLoaded&lt;association :posts is not loaded&gt;}</code></pre>
+<p>And let’s create a post:</p>
+<pre><code class="elixir">iex&gt; post = %Post{header: &quot;Clickbait header&quot;, body: &quot;No real content&quot;}
+...&gt; post = Repo.insert!(post)
+%EctoAssoc.Post{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;posts&quot;&gt;,
+ body: &quot;No real content&quot;, header: &quot;Clickbait header&quot;, id: 1,
+ tags: #Ecto.Association.NotLoaded&lt;association :tags is not loaded&gt;}</code></pre>
+<p>Ok, but tag and post are not associated, yet. We might expect, as done in <code class="inline">one-to-one</code>, to create either a post or a tag with the associated entries and insert them all at once. However, notice we cannot use <a href="Ecto.html#build_assoc/3"><code class="inline">Ecto.build_assoc/3</code></a>, since the foreign key does not belong to the <code class="inline">Post</code> nor the <code class="inline">Tag</code> struct.</p>
+<p>Another option is to use Ecto changesets, which provides many conveniences for dealing with <em>changes</em>. For example:</p>
+<pre><code class="elixir">iex&gt; post_changeset = Ecto.Changeset.change(post)
+iex&gt; post_with_tags = Ecto.Changeset.put_assoc(post_changeset, :tags, [clickbait_tag, misc_tag])
+iex&gt; post = Repo.update!(post_with_tags)
+%EctoAssoc.Post{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;posts&quot;&gt;,
+ body: &quot;No real content&quot;, header: &quot;Clickbait header&quot;, id: 1,
+ tags: [%EctoAssoc.Tag{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;tags&quot;&gt;, id: 1,
+   name: &quot;clickbait&quot;,
+   posts: #Ecto.Association.NotLoaded&lt;association :posts is not loaded&gt;},
+  %EctoAssoc.Tag{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;tags&quot;&gt;, id: 2,
+   name: &quot;misc&quot;,
+   posts: #Ecto.Association.NotLoaded&lt;association :posts is not loaded&gt;}]}</code></pre>
+<p>Let’s examine the post:</p>
+<pre><code class="elixir">iex&gt; post = Repo.get(Post, post.id) |&gt; Repo.preload(:tags)
+%EctoAssoc.Post{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;posts&quot;&gt;,
+ body: &quot;No real content&quot;, header: &quot;Clickbait header&quot;, id: 1,
+ tags: [%EctoAssoc.Tag{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;tags&quot;&gt;, id: 1,
+   name: &quot;clickbait&quot;,
+   posts: #Ecto.Association.NotLoaded&lt;association :posts is not loaded&gt;},
+  %EctoAssoc.Tag{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;tags&quot;&gt;, id: 2,
+   name: &quot;misc&quot;,
+   posts: #Ecto.Association.NotLoaded&lt;association :posts is not loaded&gt;}]}
+
+iex&gt; post.header
+&quot;Clickbait header&quot;
+
+iex&gt; post.body
+&quot;No real content&quot;
+
+iex&gt; post.tags
+[%EctoAssoc.Tag{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;tags&quot;&gt;, id: 1,
+  name: &quot;clickbait&quot;,
+  posts: #Ecto.Association.NotLoaded&lt;association :posts is not loaded&gt;},
+ %EctoAssoc.Tag{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;tags&quot;&gt;, id: 2,
+  name: &quot;misc&quot;,
+  posts: #Ecto.Association.NotLoaded&lt;association :posts is not loaded&gt;}]
+
+iex&gt; Enum.map(post.tags, &amp; &amp;1.name)
+[&quot;clickbait&quot;, &quot;misc&quot;]</code></pre>
+<p>The association also works in the other direction:</p>
+<pre><code class="elixir">iex&gt; tag = Repo.get(Tag, 1) |&gt; Repo.preload(:posts)
+%EctoAssoc.Tag{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;tags&quot;&gt;, id: 1,
+ name: &quot;clickbait&quot;,
+ posts: [%EctoAssoc.Post{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;posts&quot;&gt;,
+   body: &quot;No real content&quot;, header: &quot;Clickbait header&quot;, id: 1,
+   tags: #Ecto.Association.NotLoaded&lt;association :tags is not loaded&gt;}]}</code></pre>
+<p>The advantage of using Ecto.Changeset is that it is responsible for tracking the changes between your data structures and the associated data. For example, if you want to remove the clickbait tag from from the post, one way to do so is by calling <a href="Ecto.Changeset.html#put_assoc/4"><code class="inline">Ecto.Changeset.put_assoc/3</code></a> once more but without the clickbait tag.  This will not work right now, because the <code class="inline">:on_replace</code> option for the <code class="inline">many_to_many</code> relationship defaults to <code class="inline">:raise</code>.  Go ahead and try it.  When you try to call <code class="inline">put_assoc</code>, a runtime error will be raised:</p>
+<pre><code class="elixir">iex&gt; post_changeset = Ecto.Changeset.change(post)
+iex&gt; post_with_tags = Ecto.Changeset.put_assoc(post_changeset, :tags, [misc_tag])
+** (RuntimeError) you are attempting to change relation :tags of
+Website.CMS.Page but the `:on_replace` option of
+this relation is set to `:raise`.
+
+By default it is not possible to replace or delete embeds and
+associations during `cast`. Therefore Ecto requires all existing
+data to be given on update. Failing to do so results in this
+error message.
+
+If you want to replace data or automatically delete any data
+not sent to `cast`, please set the appropriate `:on_replace`
+option when defining the relation. The docs for [`Ecto.Changeset`](Ecto.Changeset.html)
+covers the supported options in the &quot;Related data&quot; section.
+
+However, if you don&#39;t want to allow data to be replaced or
+deleted, only updated, make sure that:
+
+  * If you are attempting to update an existing entry, you
+    are including the entry primary key (ID) in the data.
+
+  * If you have a relationship with many children, at least
+    the same N children must be given on update.
+...</code></pre>
+<p>You should carefully read the documentation for <a href="Ecto.Schema.html#many_to_many/3"><code class="inline">Ecto.Schema.many_to_many/3</code></a>. It makes sense in this case that we want to delete relationships in the join table <code class="inline">posts_tags</code> when updating a post with new tags.  Here we want to drop the tag “clickbait” and just keep the tag “misc”, so we really do want the relationship in the joining table to be removed.  To do that, change the definition of the <code class="inline">many_to_many/3</code> in the <code class="inline">Post</code> schema:</p>
+<pre><code class="elixir"># lib/ecto_assoc/post.ex
+defmodule EctoAssoc.Post do
+  use Ecto.Schema
+
+  schema &quot;posts&quot; do
+    field :header, :string
+    field :body, :string
+    # the following line was edited to change the on_replace option from its default value of :raise
+    many_to_many :tags, EctoAssoc.Tag, join_through: &quot;posts_tags&quot;, on_replace: :delete
+  end
+end</code></pre>
+<p>On the other hand, it probably <em>doesn’t</em> make much sense to be able to remove relationships from the other end.  That is, with just a tag, it is hard to decide if a post should be related to the tag or not.  So it makes sense that we should still raise an error if we try to change posts that are related to tags from the tag side of things.</p>
+<p>With the <code class="inline">:on_replace</code> option changed, Ecto will compare the data you gave with the tags currently in the post and conclude the association between the post and the clickbait tag must be removed, as follows:</p>
+<pre><code class="elixir">iex&gt; post_changeset = Ecto.Changeset.change(post)
+iex&gt; post_with_tags = Ecto.Changeset.put_assoc(post_changeset, :tags, [misc_tag])
+iex&gt; post = Repo.update!(post_with_tags)</code></pre>
+<h2 id="references" class="section-heading">
+  <a href="#references" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  References
+</h2>
+
+<ul>
+<li><a href="https://hexdocs.pm/ecto/Ecto.Schema.html#belongs_to/3">Ecto.Schema.belongs_to</a>
+</li>
+<li><a href="https://hexdocs.pm/ecto/Ecto.Schema.html#has_one/3">Ecto.Schema.has_one</a>
+</li>
+<li><a href="https://hexdocs.pm/ecto/Ecto.Schema.html#has_many/3">Ecto.Schema.has_many</a>
+</li>
+<li><a href="https://hexdocs.pm/ecto/Ecto.Schema.html#many_to_many/3">Ecto.Schema.many_to_many</a>
+</li>
+<li><a href="https://hexdocs.pm/ecto/Ecto.html#build_assoc/3">Ecto.build_assoc</a>
+</li>
+<li><a href="https://hexdocs.pm/ecto/Ecto.Changeset.html#put_assoc/4">Ecto.Changeset.put_assoc</a>
+</li>
+</ul>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.17.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-4cfb39be16.js"></script>
+  
+  </body>
+</html>
+
