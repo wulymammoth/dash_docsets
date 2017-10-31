@@ -1,0 +1,243 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Phoenix.Transports.WebSocket – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix v1.4.0-dev</small>
+        Phoenix.Transports.WebSocket
+        
+          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/transports/websocket.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Socket transport for websocket clients.</p>
+<h2 id="module-configuration" class="section-heading">
+  <a href="#module-configuration" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Configuration
+</h2>
+
+<p>The websocket is configurable in your socket:</p>
+<pre><code class="elixir">transport :websocket, Phoenix.Transports.WebSocket,
+  timeout: :infinity,
+  serializer: [{Phoenix.Transports.WebSocketSerializer, &quot;~&gt; 2.0.0&quot;}],
+  transport_log: false</code></pre>
+<ul>
+<li><p><code class="inline">:timeout</code> - the timeout for keeping websocket connections
+open after it last received data, defaults to 60_000ms</p>
+</li>
+<li><p><code class="inline">:transport_log</code> - if the transport layer itself should log and, if so, the level</p>
+</li>
+<li><p><code class="inline">:serializer</code> - the serializer for websocket messages</p>
+</li>
+<li><p><code class="inline">:check_origin</code> - if we should check the origin of requests when the
+origin header is present. It defaults to true and, in such cases,
+it will check against the host value in <code class="inline">YourApp.Endpoint.config(:url)[:host]</code>.
+It may be set to <code class="inline">false</code> (not recommended) or to a list of explicitly
+allowed origins.</p>
+<p>check_origin: [“https://example.com”,</p>
+<pre><code class="elixir">           &quot;//another.com:888&quot;, &quot;//other.com&quot;]</code></pre>
+<p>Note: To connect from a native app be sure to either have the native app
+set an origin or allow any origin via <code class="inline">check_origin: false</code></p>
+</li>
+<li><p><code class="inline">:code_reloader</code> - optionally override the default <code class="inline">:code_reloader</code> value
+from the socket’s endpoint</p>
+</li>
+</ul>
+<h2 id="module-serializer" class="section-heading">
+  <a href="#module-serializer" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Serializer
+</h2>
+
+<p>By default, JSON encoding is used to broker messages to and from clients.
+A custom serializer may be given as a module which implements the <code class="inline">encode!/1</code>
+and <code class="inline">decode!/2</code> functions defined by the <a href="Phoenix.Transports.Serializer.html"><code class="inline">Phoenix.Transports.Serializer</code></a>
+behaviour.</p>
+<p>The <code class="inline">encode!/1</code> function must return a tuple in the format
+<code class="inline">{:socket_push, :text | :binary, String.t | binary}</code>.</p>
+<h2 id="module-garbage-collection" class="section-heading">
+  <a href="#module-garbage-collection" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Garbage collection
+</h2>
+
+<p>It’s possible to force garbage collection in the transport process after
+processing large messages.</p>
+<p>Send <code class="inline">:garbage_collect</code> clause to the transport process:</p>
+<pre><code class="elixir">send socket.transport_pid, :garbage_collect</code></pre>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#default_config/0">default_config()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Provides a keyword list of default configuration for socket transports</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="default_config/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/default_config%2F0" class="dashAnchor"></a>
+  <a href="#default_config/0" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">default_config()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/transports/websocket.ex#L58" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Provides a keyword list of default configuration for socket transports.</p>
+<p>Callback implementation for <a href="Phoenix.Socket.Transport.html#c:default_config/0"><code class="inline">Phoenix.Socket.Transport.default_config/0</code></a>.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

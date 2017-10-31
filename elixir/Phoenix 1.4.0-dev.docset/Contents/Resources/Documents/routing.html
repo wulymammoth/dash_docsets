@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Routing – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Routing</h1>
+<p>Routers are the main hubs of Phoenix applications. They match HTTP requests to controller actions, wire up real-time channel handlers, and define a series of pipeline transformations for scoping middleware to sets of routes.</p>
+<p>The router file that Phoenix generates, <code class="inline">lib/hello_web/router.ex</code>, will look something like this one:</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use HelloWeb, :router
+
+  pipeline :browser do
+    plug :accepts, [&quot;html&quot;]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+
+  pipeline :api do
+    plug :accepts, [&quot;json&quot;]
+  end
+
+  scope &quot;/&quot;, HelloWeb do
+    pipe_through :browser # Use the default browser stack
+
+    get &quot;/&quot;, PageController, :index
+  end
+
+  # Other scopes may use custom stacks.
+  # scope &quot;/api&quot;, HelloWeb do
+  #   pipe_through :api
+  # end
+end</code></pre>
+<p>The name you gave your application will appear instead of <code class="inline">Hello</code> for both the router module and controller name.</p>
+<p>The first line of this module, <code class="inline">use HelloWeb, :router</code>, simply makes Phoenix router functions available in our particular router.</p>
+<p>Scopes have their own section in this guide, so we won’t spend time on the <code class="inline">scope &quot;/&quot;, HelloWeb do</code> block here. The <code class="inline">pipe_through :browser</code> line will get a full treatment in the Pipeline section of this guide. For now, you only need to know that pipelines allow a set of middleware transformations to be applied to different sets of routes.</p>
+<p>Inside the scope block, however, we have our first actual route:</p>
+<pre><code class="elixir">  get &quot;/&quot;, PageController, :index</code></pre>
+<p><code class="inline">get</code> is a Phoenix macro which expands out to define one clause of the <code class="inline">match/5</code> function. It corresponds to the HTTP verb GET. Similar macros exist for other HTTP verbs including POST, PUT, PATCH, DELETE, OPTIONS, CONNECT, TRACE and HEAD.</p>
+<p>The first argument to these macros is the path. Here, it is the root of the application, <code class="inline">/</code>. The next two arguments are the controller and action we want to have handle this request. These macros may also take other options, which we will see throughout the rest of this guide.</p>
+<p>If this were the only route in our router module, the clause of the <code class="inline">match/5</code> function would look like this after the macro is expanded:</p>
+<pre><code class="elixir">  def match(:get, &quot;/&quot;, PageController, :index, [])</code></pre>
+<p>The body of the <code class="inline">match/5</code> function sets up the connection and invokes the matched controller action.</p>
+<p>As we add more routes, more clauses of the match function will be added to our router module. These will behave like any other multi-clause function in Elixir. They will be tried in order from the top, and the first clause to match the parameters given (verb and path) will be executed. After a match is found, the search will stop and no other clauses will be tried.</p>
+<p>This means that it is possible to create a route which will never match, based on the HTTP verb and the path, regardless of the controller and action.</p>
+<p>If we do create an ambiguous route, the router will still compile, but we will get a warning. Let’s see this in action.</p>
+<p>Define this route at the bottom of the <code class="inline">scope &quot;/&quot;, HelloWeb do</code> block in the router.</p>
+<pre><code class="elixir">get &quot;/&quot;, RootController, :index</code></pre>
+<p>Then run <code class="inline">$ mix compile</code> at the root of your project.</p>
+<h2 id="examining-routes" class="section-heading">
+  <a href="#examining-routes" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examining Routes
+</h2>
+
+<p>Phoenix provides a great tool for investigating routes in an application, the mix task <code class="inline">phx.routes</code>.</p>
+<p>Let’s see how this works. Go to the root of a newly-generated Phoenix application and run <code class="inline">$ mix phx.routes</code>. (If you haven’t already done so, you’ll need to run <code class="inline">$ mix do deps.get, compile</code> before running the <code class="inline">routes</code> task.) You should see something like the following, generated from the only route we currently have:</p>
+<pre><code class="console">$ mix phx.routes
+page_path  GET  /  HelloWeb.PageController :index</code></pre>
+<p>The output tells us that any HTTP GET request for the root of the application will be handled by the <code class="inline">index</code> action of the <code class="inline">HelloWeb.PageController</code>.</p>
+<p><code class="inline">page_path</code> is an example of what Phoenix calls a path helper, and we’ll talk about those very soon.</p>
+<h2 id="resources" class="section-heading">
+  <a href="#resources" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Resources
+</h2>
+
+<p>The router supports other macros besides those for HTTP verbs like <code class="inline">get</code>, <code class="inline">post</code>, and <code class="inline">put</code>. The most important among them is <code class="inline">resources</code>, which expands out to eight clauses of the <code class="inline">match/5</code> function.</p>
+<p>Let’s add a resource to our <code class="inline">lib/hello_web/router.ex</code> file like this:</p>
+<pre><code class="elixir">scope &quot;/&quot;, HelloWeb do
+  pipe_through :browser # Use the default browser stack
+
+  get &quot;/&quot;, PageController, :index
+  resources &quot;/users&quot;, UserController
+end</code></pre>
+<p>For this purpose, it doesn’t matter that we don’t actually have a <code class="inline">HelloWeb.UserController</code>.</p>
+<p>Then go to the root of your project, and run <code class="inline">$ mix phx.routes</code></p>
+<p>You should see something like the following:</p>
+<pre><code class="elixir">user_path  GET     /users           HelloWeb.UserController :index
+user_path  GET     /users/:id/edit  HelloWeb.UserController :edit
+user_path  GET     /users/new       HelloWeb.UserController :new
+user_path  GET     /users/:id       HelloWeb.UserController :show
+user_path  POST    /users           HelloWeb.UserController :create
+user_path  PATCH   /users/:id       HelloWeb.UserController :update
+           PUT     /users/:id       HelloWeb.UserController :update
+user_path  DELETE  /users/:id       HelloWeb.UserController :delete</code></pre>
+<p>Of course, the name of your project will replace <code class="inline">Hello</code>.</p>
+<p>This is the standard matrix of HTTP verbs, paths, and controller actions. Let’s look at them individually, in a slightly different order.</p>
+<ul>
+<li>A GET request to <code class="inline">/users</code> will invoke the <code class="inline">index</code> action to show all the users.
+</li>
+<li>A GET request to <code class="inline">/users/:id</code> will invoke the <code class="inline">show</code> action with an id to show an individual user identified by that ID.
+</li>
+<li>A GET request to <code class="inline">/users/new</code> will invoke the <code class="inline">new</code> action to present a form for creating a new user.
+</li>
+<li>A POST request to <code class="inline">/users</code> will invoke the <code class="inline">create</code> action to save a new user to the data store.
+</li>
+<li>A GET request to <code class="inline">/users/:id/edit</code> will invoke the <code class="inline">edit</code> action with an ID to retrieve an individual user from the data store and present the information in a form for editing.
+</li>
+<li>A PATCH request to <code class="inline">/users/:id</code> will invoke the <code class="inline">update</code> action with an ID to save the updated user to the data store.
+</li>
+<li>A PUT request to <code class="inline">/users/:id</code> will also invoke the <code class="inline">update</code> action with an ID to save the updated user to the data store.
+</li>
+<li>A DELETE request to <code class="inline">/users/:id</code> will invoke the <code class="inline">delete</code> action with an ID to remove the individual user from the data store.
+</li>
+</ul>
+<p>If we don’t feel that we need all of these routes, we can be selective using the <code class="inline">:only</code> and <code class="inline">:except</code> options.</p>
+<p>Let’s say we have a read-only posts resource. We could define it like this:</p>
+<pre><code class="elixir">resources &quot;/posts&quot;, PostController, only: [:index, :show]</code></pre>
+<p>Running <code class="inline">$ mix phx.routes</code> shows that we now only have the routes to the index and show actions defined.</p>
+<pre><code class="elixir">post_path  GET     /posts      HelloWeb.PostController :index
+post_path  GET     /posts/:id  HelloWeb.PostController :show</code></pre>
+<p>Similarly, if we have a comments resource, and we don’t want to provide a route to delete one, we could define a route like this.</p>
+<pre><code class="elixir">resources &quot;/comments&quot;, CommentController, except: [:delete]</code></pre>
+<p>Running <code class="inline">$ mix phx.routes</code> now shows that we have all the routes except the DELETE request to the delete action.</p>
+<pre><code class="elixir">comment_path  GET    /comments           HelloWeb.CommentController :index
+comment_path  GET    /comments/:id/edit  HelloWeb.CommentController :edit
+comment_path  GET    /comments/new       HelloWeb.CommentController :new
+comment_path  GET    /comments/:id       HelloWeb.CommentController :show
+comment_path  POST   /comments           HelloWeb.CommentController :create
+comment_path  PATCH  /comments/:id       HelloWeb.CommentController :update
+              PUT    /comments/:id       HelloWeb.CommentController :update</code></pre>
+<p>The <a href="Phoenix.Router.html#resources/4"><code class="inline">Phoenix.Router.resources/4</code></a> function describes additional options for customizing resource routes.</p>
+<h2 id="forward" class="section-heading">
+  <a href="#forward" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Forward
+</h2>
+
+<p>The <a href="Phoenix.Router.html#forward/4"><code class="inline">Phoenix.Router.forward/4</code></a> macro can be used to send all requests that start with a particular path to a particular plug. Let’s say we have a part of our system that is responsible (it could even be a separate application or library) for running jobs in the background, it could have its own web interface for checking the status of the jobs. We can forward to this admin interface using:</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use HelloWeb, :router
+
+  #...
+
+  scope &quot;/&quot;, HelloWeb do
+    #...
+  end
+
+  forward &quot;/jobs&quot;, BackgroundJob.Plug
+end</code></pre>
+<p>This means that all routes starting with <code class="inline">/jobs</code> will be sent to the <code class="inline">BackgroundJob.Plug</code> module.</p>
+<p>We can even use the <code class="inline">forward/4</code> macro in a pipeline. If we wanted to ensure that the user was authenticated and an administrator in order to see the jobs page, we could use the following in our router.</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use HelloWeb, :router
+
+  #...
+
+  scope &quot;/&quot; do
+    pipe_through [:authenticate_user, :ensure_admin]
+    forward &quot;/jobs&quot;, BackgroundJob.Plug
+  end
+end</code></pre>
+<p>This means that the plugs in the <code class="inline">authenticate_user</code> and <code class="inline">ensure_admin</code> pipelines will be called before the <code class="inline">BackgroundJob.Plug</code> allowing them to send an appropriate response and call <code class="inline">halt()</code> .</p>
+<p>The <code class="inline">opts</code> that are passed to the <code class="inline">init/1</code> callback of a Plug can be passed as a 3rd argument. For example, maybe the background job page lets you set the name of your application to be displayed on the page. This could be passed with:</p>
+<pre><code class="elixir">  forward &quot;/jobs&quot;, BackgroundJob.Plug, name: &quot;Hello Phoenix&quot;</code></pre>
+<p>There is a fourth <code class="inline">router_opts</code> argument that can be passed. These options are outlined in the <a href="Phoenix.Router.html#scope/2"><code class="inline">Phoenix.Router.scope/2</code></a> documentation.</p>
+<p>Although it is possible to forward to any module plug, it is not advised to forward to another endpoint. This is because plugs defined by your app and the forwarded endpoint would be invoked twice, which may lead to errors.</p>
+<p>Writing an actual background job worker is beyond the scope of this guide. However for convenience and to allow you to test the code above, here is the implementation of <code class="inline">BackgroundJob.Plug</code> that you can copy into your application:</p>
+<pre><code class="elixir">defmodule BackgroundJob.Plug do
+  def init(opts), do: opts
+  def call(conn, opts) do
+    conn
+    |&gt; Plug.Conn.assign(:name, Keyword.get(opts, :name, &quot;Background Job&quot;))
+    |&gt; BackgroundJob.Router.call(opts)
+  end
+end
+
+defmodule BackgroundJob.Router do
+  use Plug.Router
+
+  plug :match
+  plug :dispatch
+
+  get &quot;/&quot;, do: send_resp(conn, 200, &quot;Welcome to #{conn.assigns.name}&quot;)
+  get &quot;/active&quot;, do: send_resp(conn, 200, &quot;5 Active Jobs&quot;)
+  get &quot;/pending&quot;, do: send_resp(conn, 200, &quot;3 Pending Jobs&quot;)
+  match _, do: send_resp(conn, 404, &quot;Not found&quot;)
+end</code></pre>
+<h2 id="path-helpers" class="section-heading">
+  <a href="#path-helpers" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Path Helpers
+</h2>
+
+<p>Path helpers are functions which are dynamically defined on the <code class="inline">Router.Helpers</code> module for an individual application. For us, that is <code class="inline">HelloWeb.Router.Helpers</code>. Their names are derived from the name of the controller used in the route definition. Our controller is <code class="inline">HelloWeb.PageController</code>, and <code class="inline">page_path</code> is the function which will return the path to the root of our application.</p>
+<p>That’s a mouthful. Let’s see it in action. Run <code class="inline">$ iex -S mix</code> at the root of the project. When we call the <code class="inline">page_path</code> function on our router helpers with the <code class="inline">Endpoint</code> or connection and action as arguments, it returns the path to us.</p>
+<pre><code class="elixir">iex&gt; HelloWeb.Router.Helpers.page_path(HelloWeb.Endpoint, :index)
+&quot;/&quot;</code></pre>
+<p>This is significant because we can use the <code class="inline">page_path</code> function in a template to link to the root of our application. We can then use this helper in our templates:</p>
+<pre><code class="html">&lt;a href=&quot;&lt;%= page_path(@conn, :index) %&gt;&quot;&gt;To the Welcome Page!&lt;/a&gt;</code></pre>
+<p>The <code class="inline">page_path</code> function is imported into our template with <code class="inline">use HelloWeb, :view</code>. Please see the <a href="views.html">View Guide</a> for more information.</p>
+<p>This pays off tremendously if we should ever have to change the path of our route in the router. Since the path helpers are built dynamically from the routes, any calls to <code class="inline">page_path</code> in our templates will still work.</p>
+<h3 id="more-on-path-helpers" class="section-heading">
+  <a href="#more-on-path-helpers" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  More on Path Helpers
+</h3>
+
+<p>When we ran the <code class="inline">phx.routes</code> task for our user resource, it listed the <code class="inline">user_path</code> as the path helper function for each line of output. Here is what that translates to for each action:</p>
+<pre><code class="elixir">iex&gt; import HelloWeb.Router.Helpers
+iex&gt; alias HelloWeb.Endpoint
+iex&gt; user_path(Endpoint, :index)
+&quot;/users&quot;
+
+iex&gt; user_path(Endpoint, :show, 17)
+&quot;/users/17&quot;
+
+iex&gt; user_path(Endpoint, :new)
+&quot;/users/new&quot;
+
+iex&gt; user_path(Endpoint, :create)
+&quot;/users&quot;
+
+iex&gt; user_path(Endpoint, :edit, 37)
+&quot;/users/37/edit&quot;
+
+iex&gt; user_path(Endpoint, :update, 37)
+&quot;/users/37&quot;
+
+iex&gt; user_path(Endpoint, :delete, 17)
+&quot;/users/17&quot;</code></pre>
+<p>What about paths with query strings? By adding an optional fourth argument of key value pairs, the path helpers will return those pairs in the query string.</p>
+<pre><code class="elixir">iex&gt; user_path(Endpoint, :show, 17, admin: true, active: false)
+&quot;/users/17?admin=true&amp;active=false&quot;</code></pre>
+<p>What if we need a full url instead of a path? Just replace <code class="inline">_path</code> with <code class="inline">_url</code>:</p>
+<pre><code class="elixir">iex(3)&gt; user_url(Endpoint, :index)
+&quot;http://localhost:4000/users&quot;</code></pre>
+<p>The <code class="inline">_url</code> functions will get the host, port, proxy port, and SSL information needed to construct the full URL from the configuration parameters set for each environment. We’ll talk about configuration in more detail in its own guide. For now, you can take a look at <code class="inline">config/dev.exs</code> file in your own project to see those values.</p>
+<p>Whenever possible prefer to pass a <code class="inline">conn</code> in place of an <code class="inline">Endpoint</code>.</p>
+<h2 id="nested-resources" class="section-heading">
+  <a href="#nested-resources" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Nested Resources
+</h2>
+
+<p>It is also possible to nest resources in a Phoenix router. Let’s say we also have a <code class="inline">posts</code> resource which has a many-to-one relationship with <code class="inline">users</code>. That is to say, a user can create many posts, and an individual post belongs to only one user. We can represent that by adding a nested route in <code class="inline">lib/hello_web/router.ex</code> like this:</p>
+<pre><code class="elixir">resources &quot;/users&quot;, UserController do
+  resources &quot;/posts&quot;, PostController
+end</code></pre>
+<p>When we run <code class="inline">$ mix phx.routes</code> now, in addition to the routes we saw for <code class="inline">users</code> above, we get the following set of routes:</p>
+<pre><code class="elixir">. . .
+user_post_path  GET     /users/:user_id/posts           HelloWeb.PostController :index
+user_post_path  GET     /users/:user_id/posts/:id/edit  HelloWeb.PostController :edit
+user_post_path  GET     /users/:user_id/posts/new       HelloWeb.PostController :new
+user_post_path  GET     /users/:user_id/posts/:id       HelloWeb.PostController :show
+user_post_path  POST    /users/:user_id/posts           HelloWeb.PostController :create
+user_post_path  PATCH   /users/:user_id/posts/:id       HelloWeb.PostController :update
+                PUT     /users/:user_id/posts/:id       HelloWeb.PostController :update
+user_post_path  DELETE  /users/:user_id/posts/:id       HelloWeb.PostController :delete</code></pre>
+<p>We see that each of these routes scopes the posts to a user ID. For the first one, we will invoke the <code class="inline">PostController</code> <code class="inline">index</code> action, but we will pass in a <code class="inline">user_id</code>. This implies that we would display all the posts for that individual user only. The same scoping applies for all these routes.</p>
+<p>When calling path helper functions for nested routes, we will need to pass the IDs in the order they came in the route definition. For the following <code class="inline">show</code> route, <code class="inline">42</code> is the <code class="inline">user_id</code>, and <code class="inline">17</code> is the <code class="inline">post_id</code>. Let’s remember to alias our <code class="inline">HelloWeb.Endpoint</code> before we begin.</p>
+<pre><code class="elixir">iex&gt; alias HelloWeb.Endpoint
+iex&gt; HelloWeb.Router.Helpers.user_post_path(Endpoint, :show, 42, 17)
+&quot;/users/42/posts/17&quot;</code></pre>
+<p>Again, if we add a key/value pair to the end of the function call, it is added to the query string.</p>
+<pre><code class="elixir">iex&gt; HelloWeb.Router.Helpers.user_post_path(Endpoint, :index, 42, active: true)
+&quot;/users/42/posts?active=true&quot;</code></pre>
+<h2 id="scoped-routes" class="section-heading">
+  <a href="#scoped-routes" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Scoped Routes
+</h2>
+
+<p>Scopes are a way to group routes under a common path prefix and scoped set of plug middleware. We might want to do this for admin functionality, APIs, and especially for versioned APIs. Let’s say we have user generated reviews on a site, and that those reviews first need to be approved by an admin. The semantics of these resources are quite different, and they might not share the same controller. Scopes enable us to segregate these routes.</p>
+<p>The paths to the user facing reviews would look like a standard resource.</p>
+<pre><code class="console">/reviews
+/reviews/1234
+/reviews/1234/edit
+. . .</code></pre>
+<p>The admin review paths could be prefixed with <code class="inline">/admin</code>.</p>
+<pre><code class="console">/admin/reviews
+/admin/reviews/1234
+/admin/reviews/1234/edit
+. . .</code></pre>
+<p>We accomplish this with a scoped route that sets a path option to <code class="inline">/admin</code> like this one. For now, let’s not nest this scope inside of any other scopes (like the <code class="inline">scope &quot;/&quot;, HelloWeb do</code> one provided for us in a new app).</p>
+<pre><code class="elixir">scope &quot;/admin&quot; do
+  pipe_through :browser
+
+  resources &quot;/reviews&quot;, HelloWeb.Admin.ReviewController
+end</code></pre>
+<p>Note also, that the way this scope is currently defined, we need to fully qualify our controller name, <code class="inline">HelloWeb.Admin.ReviewController</code>. We’ll fix that in a minute.</p>
+<p>Running <code class="inline">$ mix phx.routes</code> again, in addition to the previous set of routes we get the following:</p>
+<pre><code class="elixir">. . .
+review_path  GET     /admin/reviews           HelloWeb.Admin.ReviewController :index
+review_path  GET     /admin/reviews/:id/edit  HelloWeb.Admin.ReviewController :edit
+review_path  GET     /admin/reviews/new       HelloWeb.Admin.ReviewController :new
+review_path  GET     /admin/reviews/:id       HelloWeb.Admin.ReviewController :show
+review_path  POST    /admin/reviews           HelloWeb.Admin.ReviewController :create
+review_path  PATCH   /admin/reviews/:id       HelloWeb.Admin.ReviewController :update
+             PUT     /admin/reviews/:id       HelloWeb.Admin.ReviewController :update
+review_path  DELETE  /admin/reviews/:id       HelloWeb.Admin.ReviewController :delete</code></pre>
+<p>This looks good, but there is a problem here. Remember that we wanted both user facing reviews routes <code class="inline">/reviews</code> as well as the admin ones <code class="inline">/admin/reviews</code>. If we now include the user facing reviews in our router like this:</p>
+<pre><code class="elixir">scope &quot;/&quot;, HelloWeb do
+  pipe_through :browser
+  . . .
+  resources &quot;/reviews&quot;, ReviewController
+  . . .
+end
+
+scope &quot;/admin&quot; do
+  resources &quot;/reviews&quot;, HelloWeb.Admin.ReviewController
+end</code></pre>
+<p>and we run <code class="inline">$ mix phx.routes</code>, we get this output:</p>
+<pre><code class="elixir">. . .
+review_path  GET     /reviews                 HelloWeb.ReviewController :index
+review_path  GET     /reviews/:id/edit        HelloWeb.ReviewController :edit
+review_path  GET     /reviews/new             HelloWeb.ReviewController :new
+review_path  GET     /reviews/:id             HelloWeb.ReviewController :show
+review_path  POST    /reviews                 HelloWeb.ReviewController :create
+review_path  PATCH   /reviews/:id             HelloWeb.ReviewController :update
+             PUT     /reviews/:id             HelloWeb.ReviewController :update
+review_path  DELETE  /reviews/:id             HelloWeb.ReviewController :delete
+. . .
+review_path  GET     /admin/reviews           HelloWeb.Admin.ReviewController :index
+review_path  GET     /admin/reviews/:id/edit  HelloWeb.Admin.ReviewController :edit
+review_path  GET     /admin/reviews/new       HelloWeb.Admin.ReviewController :new
+review_path  GET     /admin/reviews/:id       HelloWeb.Admin.ReviewController :show
+review_path  POST    /admin/reviews           HelloWeb.Admin.ReviewController :create
+review_path  PATCH   /admin/reviews/:id       HelloWeb.Admin.ReviewController :update
+             PUT     /admin/reviews/:id       HelloWeb.Admin.ReviewController :update
+review_path  DELETE  /admin/reviews/:id       HelloWeb.Admin.ReviewController :delete</code></pre>
+<p>The actual routes we get all look right, except for the path helper <code class="inline">review_path</code> at the beginning of each line. We are getting the same helper for both the user facing review routes and the admin ones, which is not correct. We can fix this problem by adding an <code class="inline">as: :admin</code> option to our admin scope.</p>
+<pre><code class="elixir">scope &quot;/&quot;, HelloWeb do
+  pipe_through :browser
+  . . .
+  resources &quot;/reviews&quot;, ReviewController
+  . . .
+end
+
+scope &quot;/admin&quot;, as: :admin do
+  resources &quot;/reviews&quot;, HelloWeb.Admin.ReviewController
+end</code></pre>
+<p><code class="inline">$ mix phx.routes</code> now shows us we have what we are looking for.</p>
+<pre><code class="elixir">. . .
+      review_path  GET     /reviews                        HelloWeb.ReviewController :index
+      review_path  GET     /reviews/:id/edit               HelloWeb.ReviewController :edit
+      review_path  GET     /reviews/new                    HelloWeb.ReviewController :new
+      review_path  GET     /reviews/:id                    HelloWeb.ReviewController :show
+      review_path  POST    /reviews                        HelloWeb.ReviewController :create
+      review_path  PATCH   /reviews/:id                    HelloWeb.ReviewController :update
+                   PUT     /reviews/:id                    HelloWeb.ReviewController :update
+      review_path  DELETE  /reviews/:id                    HelloWeb.ReviewController :delete
+. . .
+admin_review_path  GET     /admin/reviews                  HelloWeb.Admin.ReviewController :index
+admin_review_path  GET     /admin/reviews/:id/edit         HelloWeb.Admin.ReviewController :edit
+admin_review_path  GET     /admin/reviews/new              HelloWeb.Admin.ReviewController :new
+admin_review_path  GET     /admin/reviews/:id              HelloWeb.Admin.ReviewController :show
+admin_review_path  POST    /admin/reviews                  HelloWeb.Admin.ReviewController :create
+admin_review_path  PATCH   /admin/reviews/:id              HelloWeb.Admin.ReviewController :update
+                   PUT     /admin/reviews/:id              HelloWeb.Admin.ReviewController :update
+admin_review_path  DELETE  /admin/reviews/:id              HelloWeb.Admin.ReviewController :delete</code></pre>
+<p>The path helpers now return what we want them to as well. Run <code class="inline">$ iex -S mix</code> and give it a try yourself.</p>
+<pre><code class="elixir">iex(1)&gt; HelloWeb.Router.Helpers.review_path(HelloWeb.Endpoint, :index)
+&quot;/reviews&quot;
+
+iex(2)&gt; HelloWeb.Router.Helpers.admin_review_path(HelloWeb.Endpoint, :show, 1234)
+&quot;/admin/reviews/1234&quot;</code></pre>
+<p>What if we had a number of resources that were all handled by admins? We could put all of them inside the same scope like this:</p>
+<pre><code class="elixir">scope &quot;/admin&quot;, as: :admin do
+  pipe_through :browser
+
+  resources &quot;/images&quot;,  HelloWeb.Admin.ImageController
+  resources &quot;/reviews&quot;, HelloWeb.Admin.ReviewController
+  resources &quot;/users&quot;,   HelloWeb.Admin.UserController
+end</code></pre>
+<p>Here’s what <code class="inline">$ mix phx.routes</code> tells us:</p>
+<pre><code class="elixir">. . .
+ admin_image_path  GET     /admin/images            HelloWeb.Admin.ImageController :index
+ admin_image_path  GET     /admin/images/:id/edit   HelloWeb.Admin.ImageController :edit
+ admin_image_path  GET     /admin/images/new        HelloWeb.Admin.ImageController :new
+ admin_image_path  GET     /admin/images/:id        HelloWeb.Admin.ImageController :show
+ admin_image_path  POST    /admin/images            HelloWeb.Admin.ImageController :create
+ admin_image_path  PATCH   /admin/images/:id        HelloWeb.Admin.ImageController :update
+                   PUT     /admin/images/:id        HelloWeb.Admin.ImageController :update
+ admin_image_path  DELETE  /admin/images/:id        HelloWeb.Admin.ImageController :delete
+admin_review_path  GET     /admin/reviews           HelloWeb.Admin.ReviewController :index
+admin_review_path  GET     /admin/reviews/:id/edit  HelloWeb.Admin.ReviewController :edit
+admin_review_path  GET     /admin/reviews/new       HelloWeb.Admin.ReviewController :new
+admin_review_path  GET     /admin/reviews/:id       HelloWeb.Admin.ReviewController :show
+admin_review_path  POST    /admin/reviews           HelloWeb.Admin.ReviewController :create
+admin_review_path  PATCH   /admin/reviews/:id       HelloWeb.Admin.ReviewController :update
+                   PUT     /admin/reviews/:id       HelloWeb.Admin.ReviewController :update
+admin_review_path  DELETE  /admin/reviews/:id       HelloWeb.Admin.ReviewController :delete
+  admin_user_path  GET     /admin/users             HelloWeb.Admin.UserController :index
+  admin_user_path  GET     /admin/users/:id/edit    HelloWeb.Admin.UserController :edit
+  admin_user_path  GET     /admin/users/new         HelloWeb.Admin.UserController :new
+  admin_user_path  GET     /admin/users/:id         HelloWeb.Admin.UserController :show
+  admin_user_path  POST    /admin/users             HelloWeb.Admin.UserController :create
+  admin_user_path  PATCH   /admin/users/:id         HelloWeb.Admin.UserController :update
+                   PUT     /admin/users/:id         HelloWeb.Admin.UserController :update
+  admin_user_path  DELETE  /admin/users/:id         HelloWeb.Admin.UserController :delete</code></pre>
+<p>This is great, exactly what we want, but we can make it even better. Notice that for each resource, we needed to fully qualify the controller name by prefixing it with <code class="inline">HelloWeb.Admin</code>. That’s tedious and error prone. Assuming that the name of each controller begins with <code class="inline">HelloWeb.Admin</code>, then we can add a <code class="inline">HelloWeb.Admin</code> option to our scope declaration just after the scope path, and all of our routes will have the correct, fully qualified controller name.</p>
+<pre><code class="elixir">scope &quot;/admin&quot;, HelloWeb.Admin, as: :admin do
+  pipe_through :browser
+
+  resources &quot;/images&quot;,  ImageController
+  resources &quot;/reviews&quot;, ReviewController
+  resources &quot;/users&quot;,   UserController
+end</code></pre>
+<p>Now run <code class="inline">$ mix phx.routes</code> again and you can see that we get the same result as above when we qualified each controller name individually.</p>
+<p>This doesn’t just apply to nested routes, we can even nest all of the routes for our application inside a scope that simply has an alias for the name of our Phoenix app, and eliminate the duplication of our application name in our controller names.</p>
+<p>Phoenix already does this for us in the generated router for a new application (see beginning of this section). Notice here the use of <code class="inline">HelloWeb.Router</code> in the <code class="inline">defmodule</code> declaration:</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use HelloWeb, :router
+
+  scope &quot;/&quot;, HelloWeb do
+    pipe_through :browser
+
+    get &quot;/images&quot;, ImageController, :index
+    resources &quot;/reviews&quot;, ReviewController
+    resources &quot;/users&quot;,   UserController
+  end
+end</code></pre>
+<p>Again <code class="inline">$ mix phx.routes</code> tells us that all of our controllers now have the correct, fully-qualified names.</p>
+<pre><code class="elixir"> image_path  GET     /images            HelloWeb.ImageController :index
+review_path  GET     /reviews           HelloWeb.ReviewController :index
+review_path  GET     /reviews/:id/edit  HelloWeb.ReviewController :edit
+review_path  GET     /reviews/new       HelloWeb.ReviewController :new
+review_path  GET     /reviews/:id       HelloWeb.ReviewController :show
+review_path  POST    /reviews           HelloWeb.ReviewController :create
+review_path  PATCH   /reviews/:id       HelloWeb.ReviewController :update
+             PUT     /reviews/:id       HelloWeb.ReviewController :update
+review_path  DELETE  /reviews/:id       HelloWeb.ReviewController :delete
+  user_path  GET     /users             HelloWeb.UserController :index
+  user_path  GET     /users/:id/edit    HelloWeb.UserController :edit
+  user_path  GET     /users/new         HelloWeb.UserController :new
+  user_path  GET     /users/:id         HelloWeb.UserController :show
+  user_path  POST    /users             HelloWeb.UserController :create
+  user_path  PATCH   /users/:id         HelloWeb.UserController :update
+             PUT     /users/:id         HelloWeb.UserController :update
+  user_path  DELETE  /users/:id         HelloWeb.UserController :delete</code></pre>
+<p>Although technically scopes can also be nested (just like resources), the use of nested scopes is generally discouraged because it can sometimes make our code confusing and less clear. With that said, suppose that we had a versioned API with resources defined for images, reviews and users. Then technically we could  setup routes for the versioned API like this:</p>
+<pre><code class="elixir">scope &quot;/api&quot;, HelloWeb.Api, as: :api do
+  pipe_through :api
+
+  scope &quot;/v1&quot;, V1, as: :v1 do
+    resources &quot;/images&quot;,  ImageController
+    resources &quot;/reviews&quot;, ReviewController
+    resources &quot;/users&quot;,   UserController
+  end
+end</code></pre>
+<p><code class="inline">$ mix phx.routes</code> tells us that we have the routes we’re looking for.</p>
+<pre><code class="elixir"> api_v1_image_path  GET     /api/v1/images            HelloWeb.Api.V1.ImageController :index
+ api_v1_image_path  GET     /api/v1/images/:id/edit   HelloWeb.Api.V1.ImageController :edit
+ api_v1_image_path  GET     /api/v1/images/new        HelloWeb.Api.V1.ImageController :new
+ api_v1_image_path  GET     /api/v1/images/:id        HelloWeb.Api.V1.ImageController :show
+ api_v1_image_path  POST    /api/v1/images            HelloWeb.Api.V1.ImageController :create
+ api_v1_image_path  PATCH   /api/v1/images/:id        HelloWeb.Api.V1.ImageController :update
+                    PUT     /api/v1/images/:id        HelloWeb.Api.V1.ImageController :update
+ api_v1_image_path  DELETE  /api/v1/images/:id        HelloWeb.Api.V1.ImageController :delete
+api_v1_review_path  GET     /api/v1/reviews           HelloWeb.Api.V1.ReviewController :index
+api_v1_review_path  GET     /api/v1/reviews/:id/edit  HelloWeb.Api.V1.ReviewController :edit
+api_v1_review_path  GET     /api/v1/reviews/new       HelloWeb.Api.V1.ReviewController :new
+api_v1_review_path  GET     /api/v1/reviews/:id       HelloWeb.Api.V1.ReviewController :show
+api_v1_review_path  POST    /api/v1/reviews           HelloWeb.Api.V1.ReviewController :create
+api_v1_review_path  PATCH   /api/v1/reviews/:id       HelloWeb.Api.V1.ReviewController :update
+                    PUT     /api/v1/reviews/:id       HelloWeb.Api.V1.ReviewController :update
+api_v1_review_path  DELETE  /api/v1/reviews/:id       HelloWeb.Api.V1.ReviewController :delete
+  api_v1_user_path  GET     /api/v1/users             HelloWeb.Api.V1.UserController :index
+  api_v1_user_path  GET     /api/v1/users/:id/edit    HelloWeb.Api.V1.UserController :edit
+  api_v1_user_path  GET     /api/v1/users/new         HelloWeb.Api.V1.UserController :new
+  api_v1_user_path  GET     /api/v1/users/:id         HelloWeb.Api.V1.UserController :show
+  api_v1_user_path  POST    /api/v1/users             HelloWeb.Api.V1.UserController :create
+  api_v1_user_path  PATCH   /api/v1/users/:id         HelloWeb.Api.V1.UserController :update
+                    PUT     /api/v1/users/:id         HelloWeb.Api.V1.UserController :update
+  api_v1_user_path  DELETE  /api/v1/users/:id         HelloWeb.Api.V1.UserController :delete</code></pre>
+<p>Interestingly, we can use multiple scopes with the same path as long as we are careful not to duplicate routes. If we do duplicate a route, we’ll get this familiar warning.</p>
+<pre><code class="console">warning: this clause cannot match because a previous clause at line 16 always matches</code></pre>
+<p>This router is perfectly fine with two scopes defined for the same path.</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use Phoenix.Router
+  . . .
+  scope &quot;/&quot;, HelloWeb do
+    pipe_through :browser
+
+    resources &quot;/users&quot;, UserController
+  end
+
+  scope &quot;/&quot;, AnotherAppWeb do
+    pipe_through :browser
+
+    resources &quot;/posts&quot;, PostController
+  end
+  . . .
+end</code></pre>
+<p>And when we run <code class="inline">$ mix phx.routes</code>, we see the following output.</p>
+<pre><code class="elixir">user_path  GET     /users           HelloWeb.UserController :index
+user_path  GET     /users/:id/edit  HelloWeb.UserController :edit
+user_path  GET     /users/new       HelloWeb.UserController :new
+user_path  GET     /users/:id       HelloWeb.UserController :show
+user_path  POST    /users           HelloWeb.UserController :create
+user_path  PATCH   /users/:id       HelloWeb.UserController :update
+           PUT     /users/:id       HelloWeb.UserController :update
+user_path  DELETE  /users/:id       HelloWeb.UserController :delete
+post_path  GET     /posts           AnotherAppWeb.PostController :index
+post_path  GET     /posts/:id/edit  AnotherAppWeb.PostController :edit
+post_path  GET     /posts/new       AnotherAppWeb.PostController :new
+post_path  GET     /posts/:id       AnotherAppWeb.PostController :show
+post_path  POST    /posts           AnotherAppWeb.PostController :create
+post_path  PATCH   /posts/:id       AnotherAppWeb.PostController :update
+           PUT     /posts/:id       AnotherAppWeb.PostController :update
+post_path  DELETE  /posts/:id       AnotherAppWeb.PostController :delete</code></pre>
+<h2 id="pipelines" class="section-heading">
+  <a href="#pipelines" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Pipelines
+</h2>
+
+<p>We have come quite a long way in this guide without talking about one of the first lines we saw in the router - <code class="inline">pipe_through :browser</code>. It’s time to fix that.</p>
+<p>Remember in the <a href="overview.html">Overview Guide</a> when we described plugs as being stacked and executable in a pre-determined order, like a pipeline? Now we’re going to take a closer look at how these plug stacks work in the router.</p>
+<p>Pipelines are simply plugs stacked up together in a specific order and given a name. They allow us to customize behaviors and transformations related to the handling of requests. Phoenix provides us with some default pipelines for a number of common tasks. In turn we can customize them as well as create new pipelines to meet our needs.</p>
+<p>A newly generated Phoenix application defines two pipelines called <code class="inline">:browser</code> and <code class="inline">:api</code>. We’ll get to those in a minute, but first we need to talk about the plug stack in the Endpoint plugs.</p>
+<h4>The Endpoint Plugs</h4>
+<p>Endpoints organize all the plugs common to every request, and apply them before dispatching into the router(s) with their underlying <code class="inline">:browser</code>, <code class="inline">:api</code>, and custom pipelines. The default Endpoint plugs do quite a lot of work. Here they are in order.</p>
+<ul>
+<li><p><a href="https://hexdocs.pm/plug/Plug.Static.html">Plug.Static</a> - serves static assets. Since this plug comes before the logger, serving of static assets is not logged</p>
+</li>
+<li><p><a href="https://hexdocs.pm/plug/Plug.RequestId.html">Plug.RequestId</a> - generates a unique request id for each request.</p>
+</li>
+<li><p><a href="https://hexdocs.pm/plug/Plug.Logger.html">Plug.Logger</a> - logs incoming requests</p>
+</li>
+<li><p><a href="https://hexdocs.pm/phoenix/Phoenix.CodeReloader.html">Phoenix.CodeReloader</a> - a plug that enables code reloading for all entries in the web directory. It is configured directly in the Phoenix application</p>
+</li>
+<li><p><a href="https://hexdocs.pm/plug/Plug.Parsers.html">Plug.Parsers</a> - parses the request body when a known parser is available. By default parsers parse urlencoded, multipart and json (with poison). The request body is left untouched when the request content-type cannot be parsed</p>
+</li>
+<li><p><a href="https://hexdocs.pm/plug/Plug.MethodOverride.html">Plug.MethodOverride</a> - converts the request method to
+  PUT, PATCH or DELETE for POST requests with a valid <code class="inline">_method</code> parameter</p>
+</li>
+<li><p><a href="https://hexdocs.pm/plug/Plug.Head.html">Plug.Head</a> - converts HEAD requests to GET requests and strips the response body</p>
+</li>
+<li><p><a href="https://hexdocs.pm/plug/Plug.Session.html">Plug.Session</a> - a plug that sets up session management.
+  Note that <code class="inline">fetch_session/2</code> must still be explicitly called before using the session as this plug just sets up how the session is fetched</p>
+</li>
+<li><p><a href="https://hexdocs.pm/plug/Plug.Router.html">Plug.Router</a> - plugs a router into the request cycle</p>
+</li>
+</ul>
+<h4>The <code class="inline">:browser</code> and <code class="inline">:api</code> Pipelines</h4>
+<p>Phoenix defines two other pipelines by default, <code class="inline">:browser</code> and <code class="inline">:api</code>. The router will invoke these after it matches a route, assuming we have called <code class="inline">pipe_through/1</code> with them in the enclosing scope.</p>
+<p>As their names suggest, the <code class="inline">:browser</code> pipeline prepares for routes which render requests for a browser. The <code class="inline">:api</code> pipeline prepares for routes which produce data for an api.</p>
+<p>The <code class="inline">:browser</code> pipeline has five plugs: <code class="inline">plug :accepts, [&quot;html&quot;]</code> which defines the request format or formats which will be accepted, <code class="inline">:fetch_session</code>, which, naturally, fetches the session data and makes it available in the connection, <code class="inline">:fetch_flash</code> which retrieves any flash messages which may have been set, as well as <code class="inline">:protect_from_forgery</code> and <code class="inline">:put_secure_browser_headers</code>, which protects form posts from cross site forgery.</p>
+<p>Currently, the <code class="inline">:api</code> pipeline only defines <code class="inline">plug :accepts, [&quot;json&quot;]</code>.</p>
+<p>The router invokes a pipeline on a route defined within a scope. If no scope is defined, the router will invoke the pipeline on all the routes in the router. Although the use of nested scopes is discouraged (see above), if we call <code class="inline">pipe_through</code> within a nested scope, the router will invoke all <code class="inline">pipe_through</code>’s from parent scopes, followed by the nested one.</p>
+<p>Those are a lot of words bunched up together. Let’s take a look at some examples to untangle their meaning.</p>
+<p>Here’s another look at the router from a newly generated Phoenix application, this time with the api scope uncommented back in and a route added.</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use HelloWeb, :router
+
+  pipeline :browser do
+    plug :accepts, [&quot;html&quot;]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+
+  pipeline :api do
+    plug :accepts, [&quot;json&quot;]
+  end
+
+  scope &quot;/&quot;, HelloWeb do
+    pipe_through :browser
+
+    get &quot;/&quot;, PageController, :index
+  end
+
+  # Other scopes may use custom stacks.
+  scope &quot;/api&quot;, HelloWeb do
+    pipe_through :api
+
+    resources &quot;/reviews&quot;, ReviewController
+  end
+end</code></pre>
+<p>When the server accepts a request, the request will always first pass through the plugs in our Endpoint, after which it will attempt to match on the path and HTTP verb.</p>
+<p>Let’s say that the request matches our first route: a GET to <code class="inline">/</code>. The router will first pipe that request through the <code class="inline">:browser</code> pipeline - which will fetch the session data, fetch the flash, and execute forgery protection - before it dispatches the request to the <code class="inline">PageController</code> <code class="inline">index</code> action.</p>
+<p>Conversely, if the request matches any of the routes defined by the <code class="inline">resources/2</code> macro, the router will pipe it through the <code class="inline">:api</code> pipeline - which currently does nothing - before it dispatches further to the correct action of the <code class="inline">HelloWeb.ReviewController</code>.</p>
+<p>If we know that our application only renders views for the browser, we can simplify our router quite a bit by removing the <code class="inline">api</code> stuff as well as the scopes:</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use HelloWeb, :router
+
+  pipeline :browser do
+    plug :accepts, [&quot;html&quot;]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+
+  pipe_through :browser
+
+  get &quot;/&quot;, HelloWeb.PageController, :index
+
+  resources &quot;/reviews&quot;, HelloWeb.ReviewController
+end</code></pre>
+<p>Removing all scopes forces the router to invoke the <code class="inline">:browser</code> pipeline on all routes.</p>
+<p>Let’s stretch these ideas out a little bit more. What if we need to pipe requests through both <code class="inline">:browser</code> and one or more custom pipelines? We simply <code class="inline">pipe_through</code> a list of pipelines, and Phoenix will invoke them in order.</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use HelloWeb, :router
+
+  pipeline :browser do
+    plug :accepts, [&quot;html&quot;]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+  ...
+
+  scope &quot;/reviews&quot; do
+    # Use the default browser stack.
+    pipe_through [:browser, :review_checks, :other_great_stuff]
+
+    resources &quot;/&quot;, HelloWeb.ReviewController
+  end
+end</code></pre>
+<p>Here’s another example with two scopes that have different pipelines:</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use HelloWeb, :router
+
+  pipeline :browser do
+    plug :accepts, [&quot;html&quot;]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+  ...
+
+  scope &quot;/&quot;, HelloWeb do
+    pipe_through :browser
+
+    resources &quot;/posts&quot;, PostController
+  end
+
+  scope &quot;/reviews&quot;, HelloWeb do
+    pipe_through [:browser, :review_checks]
+
+    resources &quot;/&quot;, ReviewController
+  end
+end</code></pre>
+<p>In general, the scoping rules for pipelines behave as you might expect. In this example, all routes will pipe through the <code class="inline">:browser</code> pipeline. However, only the <code class="inline">reviews</code> resources routes will  pipe through the <code class="inline">:review_checks</code> pipeline. Since we declared both pipes <code class="inline">pipe_through [:browser, :review_checks]</code> in a list of pipelines, Phoenix will <code class="inline">pipe_through</code> each of them as it invokes them in order.</p>
+<h4>Creating New Pipelines</h4>
+<p>Phoenix allows us to create our own custom pipelines anywhere in the router. To do so, we call the <code class="inline">pipeline/2</code> macro with these arguments: an atom for the name of our new pipeline and a block with all the plugs we want in it.</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use HelloWeb, :router
+
+  pipeline :browser do
+    plug :accepts, [&quot;html&quot;]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+
+  pipeline :review_checks do
+    plug :ensure_authenticated_user
+    plug :ensure_user_owns_review
+  end
+
+  scope &quot;/reviews&quot;, HelloWeb do
+    pipe_through :review_checks
+
+    resources &quot;/&quot;, ReviewController
+  end
+end</code></pre>
+<h2 id="channel-routes" class="section-heading">
+  <a href="#channel-routes" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Channel Routes
+</h2>
+
+<p>Channels are a very exciting, real-time component of the Phoenix framework. Channels handle incoming and outgoing messages broadcast over a socket for a given topic. Channel routes, then, need to match requests by socket and topic in order to dispatch to the correct channel. (For a more detailed description of channels and their behavior, please see the <a href="channels.html">Channel Guide</a>.)</p>
+<p>We mount socket handlers in our endpoint at <code class="inline">lib/hello_web/endpoint.ex</code>. Socket handlers take care of authentication callbacks and channel routes.</p>
+<pre><code class="elixir">defmodule HelloWeb.Endpoint do
+  use Phoenix.Endpoint
+
+  socket &quot;/socket&quot;, HelloWeb.UserSocket
+  ...
+end</code></pre>
+<p>Next, we need to open our <code class="inline">lib/hello_web/channels/user_socket.ex</code> file and use the <code class="inline">channel/3</code> macro to define our channel routes. The routes will match a topic pattern to a channel to handle events. If we have a channel module called <code class="inline">RoomChannel</code> and a topic called <code class="inline">&quot;rooms:*&quot;</code>, the code to do this is straightforward.</p>
+<pre><code class="elixir">defmodule HelloWeb.UserSocket do
+  use Phoenix.Socket
+
+  channel &quot;rooms:*&quot;, HelloWeb.RoomChannel
+  ...
+end</code></pre>
+<p>Topics are just string identifiers. The form we are using here is a convention which allows us to define topics and subtopics in the same string - “topic:subtopic”. The <code class="inline">*</code> is a wildcard character which allows us to match on any subtopic, so <code class="inline">&quot;rooms:lobby&quot;</code> and <code class="inline">&quot;rooms:kitchen&quot;</code> would both match this route.</p>
+<p>Phoenix abstracts the socket transport layer and includes two transport mechanisms out of the box - WebSockets and Long-Polling. If we wanted to make sure that our channel is handled by only one type of transport, we could specify that using the <code class="inline">via</code> option, like this.</p>
+<pre><code class="elixir">channel &quot;rooms:*&quot;, HelloWeb.RoomChannel, via: [Phoenix.TransportsWebSocket]</code></pre>
+<p>Each socket can handle requests for multiple channels.</p>
+<pre><code class="elixir">channel &quot;rooms:*&quot;, HelloWeb.RoomChannel, via: [Phoenix.TransportsWebSocket]
+channel &quot;foods:*&quot;, HelloWeb.FoodChannel</code></pre>
+<p>We can mount multiple socket handlers in our endpoint:</p>
+<pre><code class="elixir">socket &quot;/socket&quot;, HelloWeb.UserSocket
+socket &quot;/admin-socket&quot;, HelloWeb.AdminSocket</code></pre>
+<h2 id="summary" class="section-heading">
+  <a href="#summary" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Summary
+</h2>
+
+<p>Routing is a big topic, and we have covered a lot of ground here. The important points to take away from this guide are:</p>
+<ul>
+<li>Routes which begin with an HTTP verb name expand to a single clause of the match function.
+</li>
+<li>Routes which begin with ‘resources’ expand to 8 clauses of the match function.
+</li>
+<li>Resources may restrict the number of match function clauses by using the <code class="inline">only:</code> or <code class="inline">except:</code> options.
+</li>
+<li>Any of these routes may be nested.
+</li>
+<li>Any of these routes may be scoped to a given path.
+</li>
+<li>Using the <code class="inline">as:</code> option in a scope can reduce duplication.
+</li>
+<li>Using the helper option for scoped routes eliminates unreachable paths.
+</li>
+</ul>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

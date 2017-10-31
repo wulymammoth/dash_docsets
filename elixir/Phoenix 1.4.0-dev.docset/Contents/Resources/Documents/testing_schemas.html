@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Testing Schemas – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Testing Schemas</h1>
+<p>In the <a href="ecto.html">Ecto Guide</a> we generated an HTML resource for users. This gave us a number of modules for free, including a user schema and a user schema test case. In this guide, we’ll use the schema and test case to work through the changes we made in the Ecto Guide in a test-driven way.</p>
+<p>For those of us who haven’t worked through the Ecto Guide, it’s easy to catch up. Please see the “Generating an HTML Resource” section below.</p>
+<p>Before we do anything else, let’s run <code class="inline">mix test</code> to make sure our test suite runs cleanly.</p>
+<pre><code class="console">$ mix test
+................
+
+Finished in 0.6 seconds
+20 tests, 0 failures
+
+Randomized with seed 638414</code></pre>
+<p>Great. We’ve got twenty tests and they are all passing!</p>
+<h2 id="test-driving-a-changeset" class="section-heading">
+  <a href="#test-driving-a-changeset" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Test Driving a Changeset
+</h2>
+
+<p>We’ll be adding additional validations to the schema module, so let’s create <code class="inline">test/hello/accounts/user_test.exs</code> with this content:</p>
+<pre><code class="elixir">defmodule Hello.Accounts.UserTest do
+  use Hello.DataCase
+
+  alias Hello.Accounts.User
+
+  @valid_attrs %{bio: &quot;my life&quot;, email: &quot;pat@example.com&quot;, name: &quot;Pat Example&quot;, number_of_pets: 4}
+  @invalid_attrs %{}
+
+  test &quot;changeset with valid attributes&quot; do
+    changeset = User.changeset(%User{}, @valid_attrs)
+    assert changeset.valid?
+  end
+
+  test &quot;changeset with invalid attributes&quot; do
+    changeset = User.changeset(%User{}, @invalid_attrs)
+    refute changeset.valid?
+  end
+end</code></pre>
+<p>In the first line, we <code class="inline">use Hello.DataCase</code>, which is defined in <code class="inline">test/support/data_case.ex</code>. <code class="inline">Hello.DataCase</code> is responsible for importing and aliasing all the necessary modules for all of our schema cases. <code class="inline">Hello.DataCase</code> will also run all of our schema tests within a database transaction unless we’ve tagged an individual test case with <code class="inline">:async</code>.</p>
+<blockquote><p>Note: We should not tag any schema case that interacts with a database as <code class="inline">:async</code>. This may cause  erratic test results and possibly even deadlocks.</p>
+</blockquote>
+<p><code class="inline">Hello.DataCase</code> is also a place to define any helper functions we might need to test our schemas. We get an example function <code class="inline">errors_on/1</code> for free, and we’ll see how that works shortly.</p>
+<p>We alias our <code class="inline">Hello.Accounts.User</code> module so that we can refer to its structs as <code class="inline">%User{}</code> instead of <code class="inline">%Hello.Accounts.User{}</code>.</p>
+<p>We also define module attributes for <code class="inline">@valid_attrs</code> and <code class="inline">@invalid_attrs</code> so they will be available to all our tests.</p>
+<p>If we run the tests again, we’ve got 22, and they should all pass.</p>
+<h4>Number of Pets</h4>
+<p>While Phoenix generated our model with all of the fields required, the number of pets a user has is optional in our domain.</p>
+<p>Let’s write a new test to verify that.</p>
+<p>To test this, we can delete the <code class="inline">:number_of_pets</code> key and value from the <code class="inline">@valid_attrs</code> map and make a <code class="inline">User</code> changeset from those new attributes. Then we can assert that the changeset is still valid.</p>
+<pre><code class="elixir">defmodule Hello.Accounts.UserTest do
+  ...
+
+  test &quot;number_of_pets is not required&quot; do
+    changeset = User.changeset(%User{}, Map.delete(@valid_attrs, :number_of_pets))
+    assert changeset.valid?
+  end
+end</code></pre>
+<p>Now, let’s run the tests again.</p>
+<pre><code class="console">$ mix test
+....................
+
+  1) test number_of_pets is not required (Hello.Accounts.UserTest)
+     test/hello/accounts/user_test.exs:19
+     Expected truthy, got false
+     code: assert changeset.valid?()
+     stacktrace:
+       test/hello/accounts/user_test.exs:21: (test)
+..
+
+Finished in 0.4 seconds
+23 tests, 1 failure
+
+Randomized with seed 780208</code></pre>
+<p>It fails - which is exactly what it should do! We haven’t written the code to make it pass yet. To do that, we need to remove the <code class="inline">:number_of_pets</code> attribute from our <code class="inline">validate_required/3</code> function in <code class="inline">lib/hello_web/models/user.ex</code>.</p>
+<pre><code class="elixir">defmodule Hello.Accounts.User do
+  ...
+
+  def changeset(struct, params \\ %{}) do
+    struct
+    |&gt; cast(params, [:name, :email, :bio, :number_of_pets])
+    |&gt; validate_required([:name, :email, :bio])
+  end
+end</code></pre>
+<p>Now our tests are all passing again.</p>
+<pre><code class="console">$ mix test
+.......................
+
+Finished in 0.3 seconds
+23 tests, 0 failures
+
+Randomized with seed 963040</code></pre>
+<h4>The Bio Attribute</h4>
+<p>In the Ecto Guide, we learned that the user’s <code class="inline">:bio</code> attribute has two business requirements. The first is that it must be at least two characters long. Let’s write a test for that using the same pattern we’ve just used.</p>
+<p>First, we change the <code class="inline">:bio</code> attribute to have a value of a single character. Then we create a changeset with the new attributes and test its validity.</p>
+<pre><code class="elixir">defmodule Hello.Accounts.UserTest do
+  ...
+
+  test &quot;bio must be at least two characters long&quot; do
+    attrs = %{@valid_attrs | bio: &quot;I&quot;}
+    changeset = User.changeset(%User{}, attrs)
+    refute changeset.valid?
+  end
+end</code></pre>
+<p>When we run the test, it fails, as we would expect.</p>
+<pre><code class="console">$ mix test
+...................
+
+  1) test bio must be at least two characters long (Hello.Accounts.UserTest)
+     test/hello/accounts/user_test.exs:24
+     Expected false or nil, got true
+     code: refute changeset.valid?()
+     stacktrace:
+       test/hello/accounts/user_test.exs:27: (test)
+
+....
+
+Finished in 0.3 seconds
+24 tests, 1 failure
+
+Randomized with seed 327779</code></pre>
+<p>Hmmm. Yes, this test behaved as we expected, but the error message doesn’t seem to reflect our test. We’re validating the length of the <code class="inline">:bio</code> attribute, and the message we get is “Expected false or nil, got true”. There’s no mention of our <code class="inline">:bio</code> attribute at all.</p>
+<p>We can do better.</p>
+<p>Let’s change our test to get a better message while still testing the same behavior. We can leave the code to set the new <code class="inline">:bio</code> value in place. In the <code class="inline">assert</code>, however, we’ll use the <code class="inline">errors_on/1</code> function we get from <code class="inline">DataCase</code> to generate a map of errors, and check that the <code class="inline">:bio</code> attribute error is in that map.</p>
+<pre><code class="elixir">defmodule Hello.Accounts.UserTest do
+  ...
+
+  test &quot;bio must be at least two characters long&quot; do
+    attrs = %{@valid_attrs | bio: &quot;I&quot;}
+    changeset = User.changeset(%User{}, attrs)
+    assert %{bio: [&quot;should be at least 2 character(s)&quot;]} = errors_on(changeset)
+  end
+end</code></pre>
+<p>When we run the tests again, we get a different message entirely.</p>
+<pre><code class="console">$ mix test
+...................
+
+  1) test bio must be at least two characters long (Hello.Accounts.UserTest)
+     test/hello/accounts/user_test.exs:24
+     match (=) failed
+     code:  assert %{bio: [&quot;should be at least 2 character(s)&quot;]} = errors_on(changeset)
+     right: %{}
+     stacktrace:
+       test/hello/accounts/user_test.exs:27: (test)
+
+....
+
+Finished in 0.4 seconds
+24 tests, 1 failure
+
+Randomized with seed 435902</code></pre>
+<p>This shows us the assertion we are testing - that our error is in the map of errors from the model’s changeset.</p>
+<pre><code class="console">code:  assert %{bio: [&quot;should be at least 2 character(s)&quot;]} = errors_on(changeset)</code></pre>
+<p>And we see that the right hand side of the expression evaluates to an empty map.</p>
+<pre><code class="console">rhs:  %{}</code></pre>
+<p>That map is empty because we don’t yet validate the minimum length of the <code class="inline">:bio</code> attribute.</p>
+<p>Our test has pointed the way. Now let’s make it pass by adding that validation.</p>
+<pre><code class="elixir">defmodule Hello.Accounts.User do
+  ...
+
+  def changeset(struct, params \\ %{}) do
+    struct
+    |&gt; cast(params, [:name, :email, :bio, :number_of_pets])
+    |&gt; validate_required([:name, :email, :bio])
+    |&gt; validate_length(:bio, min: 2)
+  end
+end</code></pre>
+<p>When we run the tests again, they all pass.</p>
+<pre><code class="console">$ mix test
+........................
+
+Finished in 0.2 seconds
+24 tests, 0 failures
+
+Randomized with seed 305958</code></pre>
+<p>The other business requirement for the <code class="inline">:bio</code> field is that it be a maximum of one hundred and forty characters. Let’s write a test for that using the <code class="inline">errors_on/1</code> function again.</p>
+<p>We’ll use String.duplicate/2 to produce n-long “a” string here.</p>
+<pre><code class="elixir">defmodule Hello.Accounts.UserTest do
+  ...
+
+  test &quot;bio must be at most 140 characters long&quot; do
+    attrs = %{@valid_attrs | bio: String.duplicate(&quot;a&quot;, 141)}
+    changeset = User.changeset(%User{}, attrs)
+    assert %{bio: [&quot;should be at most 140 character(s)&quot;]} = errors_on(changeset)
+  end
+end</code></pre>
+<p>When we run the test, it fails as we want it to.</p>
+<pre><code class="console">$ mix test
+.......................
+
+  1) test bio must be at most 140 characters long (Hello.Accounts.UserTest)
+     test/hello/accounts/user_test.exs:30
+     match (=) failed
+     code:  assert %{bio: [&quot;should be at most 140 character(s)&quot;]} = errors_on(changeset)
+     right: %{}
+     stacktrace:
+       test/hello/accounts/user_test.exs:33: (test)
+
+.
+
+Finished in 0.3 seconds
+25 tests, 1 failure
+
+Randomized with seed 593838</code></pre>
+<p>To make this test pass, we need to add a maximum to the length validation of the <code class="inline">:bio</code> attribute.</p>
+<pre><code class="elixir">defmodule Hello.Accounts.User do
+  ...
+
+  def changeset(struct, params \\ %{}) do
+    struct
+    |&gt; cast(params, [:name, :email, :bio, :number_of_pets])
+    |&gt; validate_required([:name, :email, :bio])
+    |&gt; validate_length(:bio, min: 2, max: 140)
+  end
+end</code></pre>
+<p>When we run the tests, they all pass.</p>
+<pre><code class="console">$ mix test
+.........................
+
+Finished in 0.4 seconds
+25 tests, 0 failures
+
+Randomized with seed 468975</code></pre>
+<h4>The Email Attribute</h4>
+<p>We have one last attribute to validate. Currently, <code class="inline">:email</code> is just a string like any other. We’d like to make sure that it at least matches an “@”. This is no substitute for an email confirmation, but it will weed out some invalid addresses before we even try.</p>
+<p>This process will feel familiar by now. First, we change the value of the <code class="inline">:email</code> attribute to omit the “@”. Then we write an assertion which uses <code class="inline">errors_on/1</code> to check for the correct validation error on the <code class="inline">:email</code> attribute.</p>
+<pre><code class="elixir">defmodule Hello.Accounts.UserTest do
+  ...
+
+  test &quot;email must contain at least an @&quot; do
+    attrs = %{@valid_attrs | email: &quot;fooexample.com&quot;}
+    changeset = User.changeset(%User{}, attrs)
+    assert %{email: [&quot;has invalid format&quot;]} = errors_on(changeset)
+  end
+end</code></pre>
+<p>When we run the tests, it fails. We see that we’re getting an empty map of errors back from <code class="inline">errors_on/1</code>.</p>
+<pre><code class="console">$ mix test
+.......................
+
+  1) test email must contain at least an @ (Hello.Accounts.UserTest)
+     test/hello/accounts/user_test.exs:36
+     match (=) failed
+     code:  assert %{email: [&quot;has invalid format&quot;]} = errors_on(changeset)
+     right: %{}
+     stacktrace:
+       test/hello/accounts/user_test.exs:39: (test)
+
+..
+
+Finished in 0.4 seconds
+26 tests, 1 failure
+
+Randomized with seed 962127</code></pre>
+<p>Then we add the new validation to generate the error our test is looking for.</p>
+<pre><code class="elixir">defmodule Hello.Accounts.User do
+  ...
+
+  def changeset(struct, params \\ %{}) do
+    struct
+    |&gt; cast(params, [:name, :email, :bio, :number_of_pets])
+    |&gt; validate_required([:name, :email, :bio])
+    |&gt; validate_length(:bio, min: 2, max: 140)
+    |&gt; validate_format(:email, ~r/@/)
+  end
+end</code></pre>
+<p>Now the schema tests are passing again, but other tests are now failing, if you haven’t touched the generated context &amp; controller tests. Here’s one failure (but because tests are run in random order, you might see a different failure first):</p>
+<pre><code class="console">$ mix test
+....
+
+  1) test update user renders errors when data is invalid (HelloWeb.UserControllerTest)
+     test/hello_web/controllers/user_controller_test.exs:66
+     ** (MatchError) no match of right hand side value: {:error, #Ecto.Changeset&lt;action: :insert, changes: %{bio: &quot;some bio&quot;, email: &quot;some email&quot;, name: &quot;some name&quot;, number_of_pets: 42}, errors: [email: {&quot;has invalid format&quot;, [validation: :format]}], data: #Hello.Accounts.User&lt;&gt;, valid?: false&gt;}
+     stacktrace:
+       test/hello_web/controllers/user_controller_test.exs:11: HelloWeb.UserControllerTest.fixture/1
+       test/hello_web/controllers/user_controller_test.exs:85: HelloWeb.UserControllerTest.create_user/1
+       test/hello_web/controllers/user_controller_test.exs:1: HelloWeb.UserControllerTest.__ex_unit__/2
+  ...
+
+Finished in 0.1 seconds
+26 tests, 12 failures
+
+Randomized with seed 825065</code></pre>
+<p>We can fix these tests by editing the module attributes in the failing test files - first, in <code class="inline">test/hello_web/controllers/user_controller_test.exs</code>, add an “@” to the <code class="inline">:email</code> values in <code class="inline">@valid_attrs</code> and <code class="inline">@update_attrs</code>:</p>
+<pre><code class="elixir">defmodule HelloWeb.UserControllerTest do
+  ...
+  @create_attrs %{bio: &quot;some bio&quot;, email: &quot;some@email&quot;, name: &quot;some name&quot;, number_of_pets: 42}
+  @update_attrs %{bio: &quot;some updated bio&quot;, email: &quot;some updated@email&quot;, name: &quot;some updated name&quot;, number_of_pets: 43}
+  @invalid_attrs %{bio: nil, email: nil, name: nil, number_of_pets: nil}
+  ...</code></pre>
+<p>This will fix all of the HelloWeb.UserControllerTest failures.</p>
+<p>Make the same changes to the module attributes in <code class="inline">test/hello/accounts/accounts_test.exs</code>:</p>
+<pre><code class="elixir">defmodule Hello.AccountsTest do
+    ...
+    @valid_attrs %{bio: &quot;some bio&quot;, email: &quot;some@email&quot;, name: &quot;some name&quot;, number_of_pets: 42}
+    @update_attrs %{bio: &quot;some updated bio&quot;, email: &quot;updated@email&quot;, name: &quot;some updated name&quot;, number_of_pets: 43}
+    @invalid_attrs %{bio: nil, email: nil, name: nil, number_of_pets: nil}
+    ...</code></pre>
+<p>This will fix all but two of the failures - to fix those last two, we’ll need to fix the values those tests are comparing:</p>
+<pre><code class="elixir">defmodule Hello.AccountsTest do
+  ...
+  test &quot;create_user/1 with valid data creates a user&quot; do
+    assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
+    assert user.bio == &quot;some bio&quot;
+    assert user.email == &quot;some@email&quot;
+    assert user.name == &quot;some name&quot;
+    assert user.number_of_pets == 42
+  end
+
+  ...
+
+  test &quot;update_user/2 with valid data updates the user&quot; do
+    user = user_fixture()
+    assert {:ok, user} = Accounts.update_user(user, @update_attrs)
+    assert %User{} = user
+    assert user.bio == &quot;some updated bio&quot;
+    assert user.email == &quot;some updated@email&quot;
+    assert user.name == &quot;some updated name&quot;
+    assert user.number_of_pets == 43
+  end
+
+end</code></pre>
+<p>Now all the tests pass again:</p>
+<pre><code class="console">$ mix test
+..........................
+
+Finished in 0.2 seconds
+26 tests, 0 failures
+
+Randomized with seed 330955</code></pre>
+<h3 id="generating-an-html-resource" class="section-heading">
+  <a href="#generating-an-html-resource" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Generating an HTML Resource
+</h3>
+
+<p>For this section, we’re going to assume that we all have a PostgreSQL database installed on our system, and that we generated a default application - one in which Ecto and Postgrex are installed and configured automatically.</p>
+<p>If this is not the case, please see the section on adding Ecto and Postgrex of the <a href="ecto.html">Ecto Guide</a> and join us when that’s done.</p>
+<p>Ok, once we’re all configured properly, we need to run the <code class="inline">phx.gen.html</code> task with the list of attributes we have here.</p>
+<pre><code class="console">$ mix phx.gen.html Accounts User users name:string email:string \
+bio:string number_of_pets:integer
+* creating lib/hello_web/controllers/user_controller.ex
+* creating lib/hello_web/templates/user/edit.html.eex
+* creating lib/hello_web/templates/user/form.html.eex
+* creating lib/hello_web/templates/user/index.html.eex
+* creating lib/hello_web/templates/user/new.html.eex
+* creating lib/hello_web/templates/user/show.html.eex
+* creating lib/hello_web/views/user_view.ex
+* creating test/hello_web/controllers/user_controller_test.exs
+* creating lib/hello/accounts/user.ex
+* creating priv/repo/migrations/20170906212909_create_users.exs
+* creating lib/hello/accounts/accounts.ex
+* injecting lib/hello/accounts/accounts.ex
+* creating test/hello/accounts/accounts_test.exs
+* injecting test/hello/accounts/accounts_test.exs
+
+Add the resource to your browser scope in web/router.ex:
+
+    resources &quot;/users&quot;, UserController
+
+Remember to update your repository by running migrations:
+
+    $ mix ecto.migrate</code></pre>
+<p>Then we need to follow the instructions the task gives us and insert the <code class="inline">resources &quot;/users&quot;, UserController</code> line in the router <code class="inline">lib/hello_web/router.ex</code>.</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  ...
+
+  scope &quot;/&quot;, HelloWeb do
+    pipe_through :browser # Use the default browser stack
+
+    get &quot;/&quot;, PageController, :index
+    resources &quot;/users&quot;, UserController
+  end
+
+  # Other scopes may use custom stacks.
+  # scope &quot;/api&quot;, HelloWeb do
+  #   pipe_through :api
+  # end
+end</code></pre>
+<p>With that done, we can create our database with <code class="inline">ecto.create</code>.</p>
+<pre><code class="console">$ mix ecto.create
+The database for Hello.Repo has been created.</code></pre>
+<p>Then we can migrate our database to create our <code class="inline">users</code> table with <code class="inline">ecto.migrate</code>.</p>
+<pre><code class="console">$ mix ecto.migrate
+
+[info]  == Running Hello.Repo.Migrations.CreateUser.change/0 forward
+
+[info]  create table users
+
+[info]  == Migrated in 0.0s</code></pre>
+<p>With that, we are ready to continue with the testing guide.</p>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

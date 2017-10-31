@@ -1,0 +1,376 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Phoenix.Token – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix v1.4.0-dev</small>
+        Phoenix.Token
+        
+          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/token.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Tokens provide a way to generate and verify bearer
+tokens for use in Channels or API authentication.</p>
+<p>The data stored in the token is signed to prevent tampering
+but not encrypted. This means it is safe to store identification
+information (such as user IDs) but should not be used to store
+confidential information (such as credit card numbers).</p>
+<h2 id="module-example" class="section-heading">
+  <a href="#module-example" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example
+</h2>
+
+<p>When generating a unique token for use in an API or Channel
+it is advised to use a unique identifier for the user, typically
+the id from a database. For example:</p>
+<pre><code class="iex elixir">iex&gt; user_id = 1
+iex&gt; token = Phoenix.Token.sign(MyApp.Endpoint, &quot;user salt&quot;, user_id)
+iex&gt; Phoenix.Token.verify(MyApp.Endpoint, &quot;user salt&quot;, token, max_age: 86400)
+{:ok, 1}</code></pre>
+<p>In that example we have a user’s id, we generate a token and
+verify it using the secret key base configured in the given
+<code class="inline">endpoint</code>. We guarantee the token will only be valid for one day
+by setting a max age (recommended).</p>
+<p>The first argument to both <a href="#sign/4"><code class="inline">sign/4</code></a> and <a href="#verify/4"><code class="inline">verify/4</code></a> can be one of:</p>
+<ul>
+<li>the module name of a Phoenix endpoint (shown above) - where
+the secret key base is extracted from the endpoint
+</li>
+<li><a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html"><code class="inline">Plug.Conn</code></a> - where the secret key base is extracted from the
+endpoint stored in the connection
+</li>
+<li><a href="Phoenix.Socket.html"><code class="inline">Phoenix.Socket</code></a> - where the secret key base is extracted from
+the endpoint stored in the socket
+</li>
+<li>a string, representing the secret key base itself. A key base
+with at least 20 randomly generated characters should be used
+to provide adequate entropy.
+</li>
+</ul>
+<p>The second argument is a <a href="https://en.wikipedia.org/wiki/Salt_(cryptography)">cryptographic salt</a>
+which must be the same in both calls to <a href="#sign/4"><code class="inline">sign/4</code></a> and <a href="#verify/4"><code class="inline">verify/4</code></a>.
+For instance, it may be called “user auth” when generating a token
+that will be used to authenticate users on channels or on your APIs.</p>
+<p>The third argument can be any term (string, int, list, etc.)
+that you wish to codify into the token. Upon valid verification,
+this same term will be extracted from the token.</p>
+<h2 id="module-usage" class="section-heading">
+  <a href="#module-usage" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Usage
+</h2>
+
+<p>Once a token is signed, we can send it to the client in multiple ways.</p>
+<p>One is via the meta tag:</p>
+<pre><code class="elixir">&lt;%= tag :meta, name: &quot;channel_token&quot;,
+               content: Phoenix.Token.sign(@conn, &quot;user salt&quot;, @current_user.id) %&gt;</code></pre>
+<p>Or an endpoint that returns it:</p>
+<pre><code class="elixir">def create(conn, params) do
+  user = User.create(params)
+  render conn, &quot;user.json&quot;,
+         %{token: Phoenix.Token.sign(conn, &quot;user salt&quot;, user.id), user: user}
+end</code></pre>
+<p>Once the token is sent, the client may now send it back to the server
+as an authentication mechanism. For example, we can use it to authenticate
+a user on a Phoenix channel:</p>
+<pre><code class="elixir">defmodule MyApp.UserSocket do
+  use Phoenix.Socket
+
+  def connect(%{&quot;token&quot; =&gt; token}, socket) do
+    case Phoenix.Token.verify(socket, &quot;user salt&quot;, token, max_age: 86400) do
+      {:ok, user_id} -&gt;
+        socket = assign(socket, :user, Repo.get!(User, user_id))
+        {:ok, socket}
+      {:error, _} -&gt;
+        :error
+    end
+  end
+end</code></pre>
+<p>In this example, the phoenix.js client will send the token in the
+<code class="inline">connect</code> command which is then validated by the server.</p>
+<p><a href="Phoenix.Token.html#content"><code class="inline">Phoenix.Token</code></a> can also be used for validating APIs, handling
+password resets, e-mail confirmation and more.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#sign/4">sign(context, salt, data, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Encodes data and signs it resulting in a token you can send to clients</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#verify/4">verify(context, salt, token, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Decodes the original data from the token and verifies its integrity</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="sign/4">
+  
+  
+    <span id="sign/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/sign%2F4" class="dashAnchor"></a>
+  <a href="#sign/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">sign(context, salt, data, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/token.ex#L108" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Encodes data and signs it resulting in a token you can send to clients.</p>
+<h2 id="sign/4-options" class="section-heading">
+  <a href="#sign/4-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:key_iterations</code> - option passed to <a href="https://hexdocs.pm/plug/1.4.3/Plug.Crypto.KeyGenerator.html"><code class="inline">Plug.Crypto.KeyGenerator</code></a>
+when generating the encryption and signing keys. Defaults to 1000
+</li>
+<li><code class="inline">:key_length</code> - option passed to <a href="https://hexdocs.pm/plug/1.4.3/Plug.Crypto.KeyGenerator.html"><code class="inline">Plug.Crypto.KeyGenerator</code></a>
+when generating the encryption and signing keys. Defaults to 32
+</li>
+<li><code class="inline">:key_digest</code> - option passed to <a href="https://hexdocs.pm/plug/1.4.3/Plug.Crypto.KeyGenerator.html"><code class="inline">Plug.Crypto.KeyGenerator</code></a>
+when generating the encryption and signing keys. Defaults to <code class="inline">:sha256</code>
+</li>
+<li><code class="inline">:signed_at</code> - set the timestamp of the token in seconds.
+Defaults to <code class="inline">System.system_time(:seconds)</code>
+</li>
+</ul>
+
+  </section>
+</div>
+<div class="detail" id="verify/4">
+  
+  
+    <span id="verify/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/verify%2F4" class="dashAnchor"></a>
+  <a href="#verify/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">verify(context, salt, token, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/token.ex#L198" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Decodes the original data from the token and verifies its integrity.</p>
+<h2 id="verify/4-examples" class="section-heading">
+  <a href="#verify/4-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<p>In this scenario we will create a token, sign it, then provide it to a client
+application. The client will then use this token to authenticate requests for
+resources from the server. (See <a href="Phoenix.Token.html#content"><code class="inline">Phoenix.Token</code></a> summary for more info about
+creating tokens.)</p>
+<pre><code class="iex elixir">iex&gt; user_id    = 99
+iex&gt; secret     = &quot;kjoy3o1zeidquwy1398juxzldjlksahdk3&quot;
+iex&gt; user_salt  = &quot;user salt&quot;
+iex&gt; token      = Phoenix.Token.sign(secret, user_salt, user_id)</code></pre>
+<p>The mechanism for passing the token to the client is typically through a
+cookie, a JSON response body, or HTTP header. For now, assume the client has
+received a token it can use to validate requests for protected resources.</p>
+<p>When the server receives a request, it can use <a href="#verify/4"><code class="inline">verify/4</code></a> to determine if it
+should provide the requested resources to the client:</p>
+<pre><code class="iex elixir">iex&gt; Phoenix.Token.verify(secret, user_salt, token, max_age: 86400)
+{:ok, 99}</code></pre>
+<p>In this example, we know the client sent a valid token because <a href="#verify/4"><code class="inline">verify/4</code></a>
+returned a tuple of type <code class="inline">{:ok, user_id}</code>. The server can now proceed with
+the request.</p>
+<p>However, if the client had sent an expired or otherwise invalid token
+<a href="#verify/4"><code class="inline">verify/4</code></a> would have returned an error instead:</p>
+<pre><code class="iex elixir">iex&gt; Phoenix.Token.verify(secret, user_salt, expired, max_age: 86400)
+{:error, :expired}
+
+iex&gt; Phoenix.Token.verify(secret, user_salt, invalid, max_age: 86400)
+{:error, :invalid}</code></pre>
+<h2 id="verify/4-options" class="section-heading">
+  <a href="#verify/4-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:max_age</code> - verifies the token only if it has been generated
+“max age” ago in seconds. A reasonable value is 1 day (<code class="inline">86400</code>
+seconds)
+</li>
+<li><code class="inline">:key_iterations</code> - option passed to <a href="https://hexdocs.pm/plug/1.4.3/Plug.Crypto.KeyGenerator.html"><code class="inline">Plug.Crypto.KeyGenerator</code></a>
+when generating the encryption and signing keys. Defaults to 1000
+</li>
+<li><code class="inline">:key_length</code> - option passed to <a href="https://hexdocs.pm/plug/1.4.3/Plug.Crypto.KeyGenerator.html"><code class="inline">Plug.Crypto.KeyGenerator</code></a>
+when generating the encryption and signing keys. Defaults to 32
+</li>
+<li><code class="inline">:key_digest</code> - option passed to <a href="https://hexdocs.pm/plug/1.4.3/Plug.Crypto.KeyGenerator.html"><code class="inline">Plug.Crypto.KeyGenerator</code></a>
+when generating the encryption and signing keys. Defaults to <code class="inline">:sha256</code>
+</li>
+</ul>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

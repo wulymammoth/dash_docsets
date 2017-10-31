@@ -1,0 +1,851 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Phoenix.Presence – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix v1.4.0-dev</small>
+        Phoenix.Presence <small>behaviour</small>
+        
+          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Provides Presence tracking to processes and channels.</p>
+<p>This behaviour provides presence features such as fetching
+presences for a given topic, as well as handling diffs of
+join and leave events as they occur in real-time. Using this
+module defines a supervisor and allows the calling module to
+implement the <a href="https://hexdocs.pm/phoenix_pubsub/1.0.2/Phoenix.Tracker.html"><code class="inline">Phoenix.Tracker</code></a> behaviour which starts a
+tracker process to handle presence information.</p>
+<h2 id="module-example-usage" class="section-heading">
+  <a href="#module-example-usage" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Example Usage
+</h2>
+
+<p>Start by defining a presence module within your application
+which uses <a href="Phoenix.Presence.html#content"><code class="inline">Phoenix.Presence</code></a> and provide the <code class="inline">:otp_app</code> which
+holds your configuration, as well as the <code class="inline">:pubsub_server</code>.</p>
+<pre><code class="elixir">defmodule MyApp.Presence do
+  use Phoenix.Presence, otp_app: :my_app,
+                        pubsub_server: MyApp.PubSub
+end</code></pre>
+<p>The <code class="inline">:pubsub_server</code> must point to an existing pubsub server
+running in your application, which is included by default as
+<code class="inline">MyApp.PubSub</code> for new applications.</p>
+<p>Next, add the new supervisor to your supervision tree in <code class="inline">lib/my_app.ex</code>:</p>
+<pre><code class="elixir">children = [
+  ...
+  supervisor(MyApp.Presence, []),
+]</code></pre>
+<p>Once added, presences can be tracked in your channel after joining:</p>
+<pre><code class="elixir">defmodule MyApp.MyChannel do
+  use MyAppWeb, :channel
+  alias MyApp.Presence
+
+  def join(&quot;some:topic&quot;, _params, socket) do
+    send(self(), :after_join)
+    {:ok, assign(socket, :user_id, ...)}
+  end
+
+  def handle_info(:after_join, socket) do
+    push socket, &quot;presence_state&quot;, Presence.list(socket)
+    {:ok, _} = Presence.track(socket, socket.assigns.user_id, %{
+      online_at: inspect(System.system_time(:seconds))
+    })
+    {:noreply, socket}
+  end
+end</code></pre>
+<p>In the example above, the current presence information for
+the socket’s topic is pushed to the client as a <code class="inline">&quot;presence_state&quot;</code> event.
+Next, <code class="inline">Presence.track</code> is used to register this
+channel’s process as a presence for the socket’s user ID, with
+a map of metadata.</p>
+<p>Finally, a diff of presence join and leave events will be sent to the
+client as they happen in real-time with the “presence_diff” event.
+The diff structure will be a map of <code class="inline">:joins</code> and <code class="inline">:leaves</code> of the form:</p>
+<pre><code class="elixir">%{joins: %{&quot;123&quot; =&gt; %{metas: [%{status: &quot;away&quot;, phx_ref: ...}]},
+  leaves: %{&quot;456&quot; =&gt; %{metas: [%{status: &quot;online&quot;, phx_ref: ...}]},</code></pre>
+<p>See <a href="Phoenix.Presence.html#list/2"><code class="inline">Phoenix.Presence.list/2</code></a> for more information on the presence
+data structure.</p>
+<h2 id="module-fetching-presence-information" class="section-heading">
+  <a href="#module-fetching-presence-information" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Fetching Presence Information
+</h2>
+
+<p>Presence metadata should be minimized and used to store small,
+ephemeral state, such as a user’s “online” or “away” status.
+More detailed information, such as user details that need to
+be fetched from the database, can be achieved by overriding the <code class="inline">fetch/2</code>
+function. The <code class="inline">fetch/2</code> callback is triggered when using <code class="inline">list/1</code>
+and serves as a mechanism to fetch presence information a single time,
+before broadcasting the information to all channel subscribers.
+This prevents N query problems and gives you a single place to group
+isolated data fetching to extend presence metadata. The function must
+return a map of data matching the outlined Presence data structure,
+including the <code class="inline">:metas</code> key, but can extend the map of information
+to include any additional information. For example:</p>
+<pre><code class="elixir">def fetch(_topic, entries) do
+  query =
+    from u in User,
+      where: u.id in ^Map.keys(entries),
+      select: {u.id, u}
+
+  users = query |&gt; Repo.all |&gt; Enum.into(%{})
+
+  for {key, %{metas: metas}} &lt;- entries, into: %{} do
+    {key, %{metas: metas, user: users[key]}}
+  end
+end</code></pre>
+<p>The function above fetches all users from the database who
+have registered presences for the given topic. The fetched
+information is then extended with a <code class="inline">:user</code> key of the user’s
+information, while maintaining the required <code class="inline">:metas</code> field from the
+original presence data.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:presence/0">presence()</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:presences/0">presences()</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:topic/0">topic()</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#list/2">list(module, topic)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns presences for a topic</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-callbacks summary">
+    <h2>
+      <a href="#callbacks">Callbacks</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:fetch/2">fetch(topic, presences)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:handle_diff/2">handle_diff(%{}, state)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:init/1">init(arg0)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:list/1">list(topic)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:start_link/1">start_link(arg0)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:track/3">track(arg0, key, meta)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:track/4">track(pid, topic, key, meta)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:untrack/2">untrack(arg0, key)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:untrack/3">untrack(pid, topic, key)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:update/3">update(arg0, key, meta)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:update/4">update(pid, topic, key, meta)</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:presence/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/presence" class="dashAnchor"></a>
+  <a href="#t:presence/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">presence()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L107" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>presence() :: %{key: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), meta: map()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="t:presences/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/presences" class="dashAnchor"></a>
+  <a href="#t:presences/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">presences()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L106" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>presences() :: %{optional(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) => %{metas: [map()]}}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="t:topic/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/topic" class="dashAnchor"></a>
+  <a href="#t:topic/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">topic()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L108" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>topic() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="list/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/list%2F2" class="dashAnchor"></a>
+  <a href="#list/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">list(module, topic)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L234" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Returns presences for a topic.</p>
+<h2 id="list/2-presence-data-structure" class="section-heading">
+  <a href="#list/2-presence-data-structure" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Presence data structure
+</h2>
+
+<p>The presence information is returned as a map with presences grouped
+by key, cast as a string, and accumulated metadata, with the following form:</p>
+<pre><code class="elixir">%{key =&gt; %{metas: [%{phx_ref: ..., ...}, ...]}}</code></pre>
+<p>For example, imagine a user with id <code class="inline">123</code> online from two
+different devices, as well as a user with id <code class="inline">456</code> online from
+just one device. The following presence information might be returned:</p>
+<pre><code class="elixir">%{&quot;123&quot; =&gt; %{metas: [%{status: &quot;away&quot;, phx_ref: ...},
+                     %{status: &quot;online&quot;, phx_ref: ...}]},
+  &quot;456&quot; =&gt; %{metas: [%{status: &quot;online&quot;, phx_ref: ...}]}}</code></pre>
+<p>The keys of the map will usually point to a resource ID. The value
+will contain a map with a <code class="inline">:metas</code> key containing a list of metadata
+for each resource. Additionally, every metadata entry will contain a
+<code class="inline">:phx_ref</code> key which can be used to uniquely identify metadata for a
+given key. In the event that the metadata was previously updated,
+a <code class="inline">:phx_ref_prev</code> key will be present containing the previous
+<code class="inline">:phx_ref</code> value.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+        <section id="callbacks" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#callbacks">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Callbacks
+          </h1>
+          <div class="detail" id="c:fetch/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/fetch%2F2" class="dashAnchor"></a>
+  <a href="#c:fetch/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">fetch(topic, presences)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L118" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>fetch(<a href="#t:topic/0">topic</a>(), <a href="#t:presences/0">presences</a>()) :: <a href="#t:presences/0">presences</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:handle_diff/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/handle_diff%2F2" class="dashAnchor"></a>
+  <a href="#c:handle_diff/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">handle_diff(%{}, state)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L120" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>handle_diff(%{optional(<a href="#t:topic/0">topic</a>()) => {joins :: <a href="#t:presences/0">presences</a>(), leaves :: <a href="#t:presences/0">presences</a>()}}, state :: term()) :: {:ok, state :: term()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:init/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/init%2F1" class="dashAnchor"></a>
+  <a href="#c:init/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">init(arg0)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L111" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>init(<a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>()) :: {:ok, pid()} | {:error, reason :: term()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:list/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/list%2F1" class="dashAnchor"></a>
+  <a href="#c:list/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">list(topic)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L119" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>list(<a href="#t:topic/0">topic</a>()) :: <a href="#t:presences/0">presences</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:start_link/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/start_link%2F1" class="dashAnchor"></a>
+  <a href="#c:start_link/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">start_link(arg0)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L110" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>start_link(<a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>()) :: {:ok, pid()} | {:error, reason :: term()} :: :ignore</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:track/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/track%2F3" class="dashAnchor"></a>
+  <a href="#c:track/3" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">track(arg0, key, meta)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L112" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>track(<a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>(), key :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), meta :: map()) ::
+  {:ok, binary()} |
+  {:error, reason :: term()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:track/4">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/track%2F4" class="dashAnchor"></a>
+  <a href="#c:track/4" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">track(pid, topic, key, meta)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L113" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>track(pid(), <a href="#t:topic/0">topic</a>(), key :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), meta :: map()) ::
+  {:ok, binary()} |
+  {:error, reason :: term()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:untrack/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/untrack%2F2" class="dashAnchor"></a>
+  <a href="#c:untrack/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">untrack(arg0, key)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L114" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>untrack(<a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>(), key :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: :ok</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:untrack/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/untrack%2F3" class="dashAnchor"></a>
+  <a href="#c:untrack/3" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">untrack(pid, topic, key)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L115" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>untrack(pid(), <a href="#t:topic/0">topic</a>(), key :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: :ok</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:update/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/update%2F3" class="dashAnchor"></a>
+  <a href="#c:update/3" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">update(arg0, key, meta)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L116" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>update(<a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>(), key :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), meta :: map() | (map() -> map())) ::
+  {:ok, binary()} |
+  {:error, reason :: term()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:update/4">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/update%2F4" class="dashAnchor"></a>
+  <a href="#c:update/4" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">update(pid, topic, key, meta)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/presence.ex#L117" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>update(pid(), <a href="#t:topic/0">topic</a>(), key :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), meta :: map() | (map() -> map())) ::
+  {:ok, binary()} |
+  {:error, reason :: term()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+        </section>
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

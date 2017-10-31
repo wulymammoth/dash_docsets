@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>SpotifyEx – spotify_ex v2.0.7</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-64606230a5.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="https://github.com/jsncmgs1/spotify_ex" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        spotify_ex
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v2.0.7
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<p><a href="https://travis-ci.org/jsncmgs1/spotify_ex"><img src="https://travis-ci.org/jsncmgs1/spotify_ex.svg" alt="Build Status"/></a>
+<a href="http://inch-ci.org/github/jsncmgs1/spotify_ex"><img src="http://inch-ci.org/github/jsncmgs1/spotify_ex.svg" alt="Inline docs"/></a></p>
+<h1>SpotifyEx</h1>
+<p><strong>Elixir Wrapper for the Spotify Web API</strong></p>
+<h2 id="installation" class="section-heading">
+  <a href="#installation" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Installation
+</h2>
+
+<ol>
+<li>Add spotify_ex to your list of dependencies in <code class="inline">mix.exs</code>:
+</li>
+</ol>
+<pre><code class="elixir">def deps do
+ [{:spotify_ex, &quot;~&gt; 2.0.7&quot;}]
+end</code></pre>
+<ol start="2">
+<li>Ensure spotify_ex is started before your application:
+</li>
+</ol>
+<pre><code class="elixir">def application do
+  [applications: [:spotify_ex]]
+end</code></pre>
+<p><a href="https://hexdocs.pm/spotify_ex/1.0.1/api-reference.html">Documentation</a></p>
+<h2 id="what-does-this-wrapper-cover" class="section-heading">
+  <a href="#what-does-this-wrapper-cover" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  What does this wrapper cover?
+</h2>
+
+<p>This wrapper covers the <a href="https://developer.spotify.com/web-api/endpoint-reference/">Spotify Web
+API</a>.</p>
+<p>Follow the abovementioned link. On the left you’ll notice that the API is broken into
+sections, such as Artists, Albums, Playlists, etc. This wrapper does its best
+to keep endpoints in modules mapped to their corresponding section. However,
+Spotify duplicates many of its endpoints. For example, there is an endpoint to
+obtain an artist’s albums that is listed under both Artists and Albums. The endpoints
+are not duplicated in this wrapper, so if you don’t see an endpoint, it can be found in a
+module that’s also related to that endpoint i.e, if you don’t see that endpoint
+in the <code class="inline">Artist</code> module, check <code class="inline">Albums</code>.</p>
+<p>These duplicate endpoints may get aliased in the future to have a 1-1 mapping
+with the docs.</p>
+<h2 id="usage" class="section-heading">
+  <a href="#usage" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Usage
+</h2>
+
+<p>This README will go into some detail about the OAuth process. Consult the
+<a href="https://hexdocs.pm/spotify_ex/0.1.1/api-reference.html">docs</a> for other parts
+of the API.</p>
+<p>I haven’t made any functions private because I think programmer should have
+access to all of the functions. Anything not documented should be considered
+private with respect to the API and can change. Use at your own risk.</p>
+<p>There are 2 functions for each endpoint. For example, to get a playlist,
+<code class="inline">Spotify.Playlist.get_playlist</code>, and <code class="inline">Spotify.Playlist.get_playlist_url</code> are available.  The
+first will use the url function to make the request, and return
+a list of <code class="inline">%Spotify.Track</code> structs.  If you just want the raw response from
+Spotify and/or want to implement your own client and data manipulation, all of
+the url functions are public.</p>
+<p><strong>A basic Phoenix example can be found at
+<a href="http://www.github.com/jsncmgs1/spotify_ex_test">SpotifyExTest</a></strong></p>
+<h2 id="oauth" class="section-heading">
+  <a href="#oauth" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  OAuth
+</h2>
+
+<p>The Spotify API follows the OAuth 2 spec, providing 3 potential authentication flows:</p>
+<ul>
+<li><a href="https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow">Authorization Code flow</a>
+</li>
+<li><a href="https://developer.spotify.com/web-api/authorization-guide/#client_credentials_flow">Client Credentials Flow</a>
+</li>
+<li><a href="https://developer.spotify.com/web-api/authorization-guide/#implicit_grant_flow">Implicit Grant Flow</a>
+</li>
+</ul>
+<p>To connect with the Spotify API, first you must register your app with Spotify,
+and get your <strong>Client ID</strong> and <strong>Client Secret</strong>, which are necessary for
+authentication.</p>
+<p>In <code class="inline">/config</code>, create <code class="inline">config/secret.exs</code> and <code class="inline">config/spotify.exs</code> files</p>
+<pre><code class="elixir"># /config/secret.exs
+
+use Mix.Config
+
+config :spotify_ex, client_id: &quot;&lt;YOUR CLIENT ID&gt;&quot;
+                    secret_key: &quot;&lt;YOUR SECRET KEY&gt;&quot;</code></pre>
+<pre><code class="elixir"># /config/spotify.exs
+
+use Mix.Config
+
+config :spotify_ex, user_id: &quot;&lt;YOUR SPOTIFY USER ID&gt;&quot;,
+                    scopes: &quot;&lt;AUTHENTICATION SCOPES&gt;&quot;,
+                    callback_url: &quot;&lt;YOUR CALLBACK URL&gt;&quot;</code></pre>
+<p>Add the secret file to your .gitignore,  and import it in config.exs</p>
+<pre><code class="elixir">import &quot;config.secret.exs&quot;
+import &quot;spotify.secret.exs&quot;</code></pre>
+<h2 id="authorization-flow" class="section-heading">
+  <a href="#authorization-flow" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Authorization Flow
+</h2>
+
+<p>First your application must be <em>authorized</em> by Spotify. SpotifyEx will use the
+client ID, callback URI, and scopes set in your config file to generate the
+authorization endpoint.</p>
+<pre><code class="elixir">defmodule SpotifyExTest.AuthorizationController do
+  use SpotifyExTest.Web, :controller
+
+  def authorize(conn, _params) do
+    redirect conn, external: Spotify.Authorization.url
+  end
+end</code></pre>
+<p>This will take you to the Spotify Authorization page.  After authorizing your
+app, you will then be directed to authenticate as a Spotify User. When
+successful, you will be redirected to the callback uri you set in the config
+file.</p>
+<h3 id="a-note-about-scopes" class="section-heading">
+  <a href="#a-note-about-scopes" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  A note about scopes
+</h3>
+
+<p>You must be explicit about the permissions your users have when handling
+Spotify account data.  These permissions are set during the authorization
+request.  You can read about them
+<a href="https://developer.spotify.com/web-api/using-scopes/">here</a>.  To set your
+scopes, add them to the list in your <code class="inline">spotify.exs</code> file,</p>
+<pre><code class="elixir">#config/spotify.exs
+
+config :spotify_ex, scopes: [&quot;playlist-read-private&quot;, &quot;playlist-modify-private&quot; &quot;# more scopes&quot;]</code></pre>
+<p>OAuth requires identical redirect URIs to use for the authorization and
+authentication steps. When you attempt to authenticate with Spotify, if
+successful, Spotify needs to know where to send the user afterwards, which
+is what the redirect URI is used for.</p>
+<pre><code class="elixir">config :spotify_ex, callback_url: &quot;http://www.your-api.com/auth-endpoint&quot;</code></pre>
+<p>Set it in your config file. Now that your application is <em>authorized</em>, the user
+must be <em>authenticated</em>. Spotify is going to send an authorization code in the
+query string to this endpoint, which should then send that code to Spotify to
+request an <strong>access token</strong> and a <strong>remember token</strong>.</p>
+<pre><code class="elixir">config :spotify_ex, callback_url: &quot;http://localhost:4000/authenticate&quot;</code></pre>
+<p>Authenticate like this:</p>
+<pre><code class="elixir">Spotify.Authentication.authenticate(conn, params)</code></pre>
+<p><code class="inline">Spotify.Authentication.authenticate</code> will look for <code class="inline">params[&quot;code&quot;]</code>,the code
+sent back by Spotify after authorization request. If successful, the user will
+be redirected to the URL set in the <code class="inline">spotify.exs</code> file, where you can
+handle different responses.</p>
+<pre><code class="elixir">defmodule SpotifyExTest.AuthenticationController do
+  use SpotifyExTest.Web, :controller
+
+  def authenticate(conn, params) do
+    case Spotify.Authentication.authenticate(conn, params) do
+      {:ok, conn } -&gt;
+        # do stuff
+        redirect conn, to: &quot;/whereever-you-want-to-go&quot;
+      { :error, reason, conn }-&gt; redirect conn, to: &quot;/error&quot;
+    end
+  end
+end</code></pre>
+<p>The authentication module will set refresh and access tokens in a cookie. The
+access token expires every hour, so you’ll need to check your reponses for 401
+errors. Call <code class="inline">Spotify.Authentication.refresh</code>, if there is a refresh token
+present.  If not, you’ll need to redirect back to authorization.</p>
+<h2 id="contributing" class="section-heading">
+  <a href="#contributing" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Contributing
+</h2>
+
+<p>All contributions are more than welcome! I will not accept a PR without tests
+if it looks like something that should be tested (which is pretty much
+everything.) Development is done on the <code class="inline">development</code> branch, and moved to
+<code class="inline">master</code> for release on hexpm.</p>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

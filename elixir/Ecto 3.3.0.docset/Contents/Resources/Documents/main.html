@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.16.1">
+    <title>Phoenix/Ecto – Phoenix/Ecto v3.3.0</title>
+    <link rel="stylesheet" href="dist/app-4ecae1abb8.css" />
+    
+    <script src="dist/sidebar_items-14f4bc888d.js"></script>
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="main.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix/Ecto
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v3.3.0
+      </h2>
+    </div>
+    
+  </a>
+
+  <div class="sidebar-search">
+    <span class="icon-search" aria-hidden="true"></span>
+    <input type="text" class="sidebar-searchInput" placeholder="search" aria-label="Search" autocomplete="off" />
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<p>A project that integrates <a href="http://github.com/phoenixframework/phoenix">Phoenix</a> with <a href="http://github.com/elixir-lang/ecto">Ecto</a>, implementing all relevant protocols.</p>
+<h2 id="usage" class="section-heading">
+  <a href="#usage" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Usage
+</h2>
+
+<p>You can use <code class="inline">phoenix_ecto</code> in your projects in two steps:</p>
+<ol>
+<li><p>Add it to your <code class="inline">mix.exs</code> dependencies:</p>
+<pre><code class="elixir">def deps do
+  [{:phoenix_ecto, &quot;~&gt; 3.0&quot;}]
+end</code></pre>
+</li>
+<li><p>List it as your application dependency:</p>
+<pre><code class="elixir">def application do
+  [applications: [:logger, :phoenix_ecto]]
+end</code></pre>
+</li>
+</ol>
+<h2 id="concurrent-browser-tests" class="section-heading">
+  <a href="#concurrent-browser-tests" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Concurrent browser tests
+</h2>
+
+<p>This library also provides a plug called <a href="Phoenix.Ecto.SQL.Sandbox.html"><code class="inline">Phoenix.Ecto.SQL.Sandbox</code></a> that allows developers to run acceptance tests powered by headless browsers such as Phantom.js and Selenium concurrently. If you are not familiar with Ecto’s SQL sandbox, we recommend you to first get acquainted with it by <a href="https://hexdocs.pm/ecto/Ecto.Adapters.SQL.Sandbox.html">reading <code class="inline">Ecto.Adapters.SQL.Sandbox</code> documentation</a>.</p>
+<p>To enable concurrent acceptance tests, make sure you are using PostgreSQL and follow the instructions below:</p>
+<ol>
+<li><p>Set a flag to enable the sandbox in <code class="inline">config/test.exs</code>:</p>
+<pre><code class="elixir">config :your_app, sql_sandbox: true</code></pre>
+</li>
+<li><p>And use the flag to conditionally add the plug to <code class="inline">lib/your_app/endpoint.ex</code>:</p>
+<pre><code class="elixir">if Application.get_env(:your_app, :sql_sandbox) do
+  plug Phoenix.Ecto.SQL.Sandbox
+end</code></pre>
+<p>Make sure that this is placed <strong>before</strong> the line <code class="inline">plug YourApp.Router</code> (or any other plug that may access the database).</p>
+</li>
+</ol>
+<p>You can now checkout a sandboxed connection and pass the connection information to an acceptance testing tool like <a href="https://github.com/hashnuke/hound">Hound</a> or <a href="https://github.com/keathley/wallaby">Wallaby</a>.</p>
+<h3>Hound</h3>
+<p>To write concurrent acceptance tests with Hound, first add it as a dependency to your <code class="inline">mix.exs</code>:</p>
+<pre><code class="elixir">{:hound, &quot;~&gt; 1.0&quot;}</code></pre>
+<p>Make sure to start it at the top of your <code class="inline">test/test_helper.exs</code>:</p>
+<pre><code class="elixir">{:ok, _} = Application.ensure_all_started(:hound)</code></pre>
+<p>Then add the following to your test case (or to your case template):</p>
+<pre><code class="elixir">use Hound.Helpers
+
+setup do
+  :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
+  metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self())
+  Hound.start_session(metadata: metadata)
+end</code></pre>
+<p>Hound supports multiple drivers like Chrome, Firefox, etc but it does not support concurrent tests under PhantomJS (the default).</p>
+<h3>Wallaby</h3>
+<p>To write concurrent acceptance tests with Wallaby, first add it as a dependency to your <code class="inline">mix.exs</code>:</p>
+<pre><code class="elixir">{:wallaby, &quot;~&gt; 0.6&quot;}</code></pre>
+<p>Make sure to start it at the top of your <code class="inline">test/test_helper.exs</code>:</p>
+<pre><code class="elixir">{:ok, _} = Application.ensure_all_started(:wallaby)</code></pre>
+<p>Then add the following to your test case (or to your case template):</p>
+<pre><code class="elixir">use Wallaby.DSL
+
+setup do
+  :ok = Ecto.Adapters.SQL.Sandbox.checkout(YourApp.Repo)
+  metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(YourApp.Repo, self())
+  {:ok, session} = Wallaby.start_session(metadata: metadata)
+end</code></pre>
+<p>Wallaby currently supports PhantomJS (including concurrent tests). Support for other drivers may be added in the future.</p>
+<h2 id="the-phoenix-ecto-integration" class="section-heading">
+  <a href="#the-phoenix-ecto-integration" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  The Phoenix &lt;-&gt; Ecto integration
+</h2>
+
+<p>Thanks to Elixir protocols, the integration between Phoenix and Ecto is simply a matter of implementing a handful of protocols. We provide the following implementations:</p>
+<ul>
+<li><code class="inline">Phoenix.HTML.FormData</code> protocol for <code class="inline">Ecto.Changeset</code>
+</li>
+<li><code class="inline">Phoenix.HTML.Safe</code> protocol for <code class="inline">Decimal</code>, <code class="inline">Ecto.Date</code>, <code class="inline">Ecto.Time</code> and <code class="inline">Ecto.DateTime</code>
+</li>
+<li><code class="inline">Plug.Exception</code> protocol for the relevant Ecto exceptions
+</li>
+</ul>
+<h2 id="configuration" class="section-heading">
+  <a href="#configuration" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Configuration
+</h2>
+
+<p>The <code class="inline">Plug.Exception</code> implementations for Ecto exceptions may be disabled by including the error in the mix configuration.</p>
+<pre><code class="elixir">config :phoenix_ecto,
+  exclude_ecto_exceptions_from_plug: [Ecto.NoResultsError]</code></pre>
+<h2 id="license" class="section-heading">
+  <a href="#license" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  License
+</h2>
+
+<p>Same license as Phoenix.</p>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.16.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-126b5f0e90.js"></script>
+  </body>
+</html>
+

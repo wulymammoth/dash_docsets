@@ -1,0 +1,209 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>phx.gen.json – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="tasks">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix v1.4.0-dev</small>
+        mix phx.gen.json
+        
+          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/mix/tasks/phx.gen.json.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Generates controller, views, and context for an JSON resource.</p>
+<pre><code class="elixir">mix phx.gen.json Accounts User users name:string age:integer</code></pre>
+<p>The first argument is the context module followed by the schema module
+and its plural name (used as the schema table name).</p>
+<p>The context is an Elixir module that serves as an API boundary for
+the given resource. A context often holds many related resources.
+Therefore, if the context already exists, it will be augmented with
+functions for the given resource. Note a resource may also be split
+over distinct contexts (such as Accounts.User and Payments.User).</p>
+<p>The schema is responsible for mapping the database fields into an
+Elixir struct.</p>
+<p>Overall, this generator will add the following files to <code class="inline">lib/</code>:</p>
+<ul>
+<li>a context module in lib/app/accounts/accounts.ex for the accounts API
+</li>
+<li>a schema in lib/app/accounts/user.ex, with an <code class="inline">users</code> table
+</li>
+<li>a view in lib/app_web/views/user_view.ex
+</li>
+<li>a controller in lib/app_web/controllers/user_controller.ex
+</li>
+</ul>
+<p>A migration file for the repository and test files for the context and
+controller features will also be generated.</p>
+<p>The location of the web files (controllers, views, templates, etc) in an
+umbrella application will vary based on the <code class="inline">:context_app</code> config located
+in your applications <code class="inline">:generators</code> configuration. When set, the Phoenix
+generators will generate web files directly in your lib and test folders
+since the application is assumed to be isolated to web specific functionality.
+If <code class="inline">:context_app</code> is not set, the generators will place web related lib
+and test files in a <code class="inline">web/</code> directory since the application is assumed
+to be handling both web and domain specific functionality.
+Example configuration:</p>
+<pre><code class="elixir">config :my_app_web, :generators, context_app: :my_app</code></pre>
+<p>Alternatively, the <code class="inline">--context-app</code> option may be supplied to the generator:</p>
+<pre><code class="elixir">mix phx.gen.json Sales User users --context-app warehouse</code></pre>
+<h2 id="module-web-namespace" class="section-heading">
+  <a href="#module-web-namespace" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Web namespace
+</h2>
+
+<p>By default, the controller and view will be namespaced by the schema name.
+You can customize the web module namespace by passing the <code class="inline">--web</code> flag with a
+module name, for example:</p>
+<pre><code class="elixir">mix phx.gen.json Sales User users --web Sales</code></pre>
+<p>Which would generate a <code class="inline">lib/app_web/controllers/sales/user_controller.ex</code> and
+<code class="inline">lib/app_web/views/sales/user_view.ex</code>.</p>
+<h2 id="module-generating-without-a-schema-or-context-file" class="section-heading">
+  <a href="#module-generating-without-a-schema-or-context-file" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Generating without a schema or context file
+</h2>
+
+<p>In some cases, you may wish to bootstrap JSON views, controllers, and
+controller tests, but leave internal implementation of the context or schema
+to yourself. You can use the <code class="inline">--no-context</code> and <code class="inline">--no-schema</code> flags for
+file generation control.</p>
+<h2 id="module-table" class="section-heading">
+  <a href="#module-table" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  table
+</h2>
+
+<p>By default, the table name for the migration and schema will be
+the plural name provided for the resource. To customize this value,
+a <code class="inline">--table</code> option may be provided. For example:</p>
+<pre><code class="elixir">mix phx.gen.json Accounts User users --table cms_users</code></pre>
+<h2 id="module-binary_id" class="section-heading">
+  <a href="#module-binary_id" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  binary_id
+</h2>
+
+<p>Generated migration can use <code class="inline">binary_id</code> for schema’s primary key
+and its references with option <code class="inline">--binary-id</code>.</p>
+<h2 id="module-default-options" class="section-heading">
+  <a href="#module-default-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Default options
+</h2>
+
+<p>This generator uses default options provided in the <code class="inline">:generators</code>
+configuration of your application. These are the defaults:</p>
+<pre><code class="elixir">config :your_app, :generators,
+  migration: true,
+  binary_id: false,
+  sample_binary_id: &quot;11111111-1111-1111-1111-111111111111&quot;</code></pre>
+<p>You can override those options per invocation by providing corresponding
+switches, e.g. <code class="inline">--no-binary-id</code> to use normal ids despite the default
+configuration or <code class="inline">--migration</code> to force generation of the migration.</p>
+<p>Read the documentation for <code class="inline">phx.gen.schema</code> for more information on
+attributes.</p>
+
+        </section>
+      
+
+      
+
+      
+
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

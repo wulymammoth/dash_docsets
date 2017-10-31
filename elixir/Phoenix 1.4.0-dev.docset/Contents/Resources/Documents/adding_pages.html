@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Adding Pages – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Adding Pages</h1>
+<p>Our task for this guide is to add two new pages to our Phoenix project. One will be a purely static page, and the other will take part of the path from the URL as input and pass it through to a template for display. Along the way, we will gain familiarity with the basic components of a Phoenix project: the router, controllers, views, and templates.</p>
+<p>When Phoenix generates a new application for us, it builds a top-level directory structure like this:</p>
+<pre><code class="console">├── _build
+├── assets
+├── config
+├── deps
+├── lib
+│   └── hello
+│   └── hello_web
+│   └── hello.ex
+│   └── hello_web.ex
+├── priv
+├── test</code></pre>
+<p>Most of our work in this guide will be in the <code class="inline">lib/hello_web</code> directory, which holds the web-related parts of our application. It looks like this when expanded:</p>
+<pre><code class="console">├── channels
+│   └── user_socket.ex
+├── controllers
+│   └── page_controller.ex
+├── templates
+│   ├── layout
+│   │   └── app.html.eex
+│   └── page
+│       └── index.html.eex
+└── views
+│   ├── error_helpers.ex
+│   ├── error_view.ex
+│   ├── layout_view.ex
+│   └── page_view.ex
+├── endpoint.ex
+├── gettext.ex
+├── router.ex</code></pre>
+<p>All of the files which are currently in the <code class="inline">controllers</code>, <code class="inline">templates</code>, and <code class="inline">views</code> directories are there to create the “Welcome to Phoenix!” page we saw in the last guide. We will see how we can re-use some of that code shortly. When running in development, code changes will be automatically recompiled on new web requests.</p>
+<p>All of our application’s static assets like js, css, and image files live in <code class="inline">assets</code>, which are built into <code class="inline">priv/static</code> by brunch or other front-end build tools. We won’t be making any changes here for now, but it is good to know where to look for future reference.</p>
+<pre><code class="console">├── assets
+│   ├── css
+│   │   └── app.css
+│   ├── js
+│   │   └── app.js
+│   └── static
+│   └── node_modules
+│   └── vendor</code></pre>
+<p>There are also non web-related files we should know about. Our application file (which starts our Elixir application and its supervision tree) is at <code class="inline">lib/hello/application.ex</code>. We also have our Ecto Repo in <code class="inline">lib/hello/repo.ex</code> for interacting with the database. We’ll touch on Ecto in an upcoming guide.</p>
+<pre><code class="console">lib
+├── hello
+|   ├── application.ex
+|   └── repo.ex
+├── hello_web
+|   ├── channels
+|   ├── controllers
+|   ├── templates
+|   ├── views
+|   ├── endpoint.ex
+|   ├── gettext.ex
+|   └── router.ex</code></pre>
+<p>Our <code class="inline">lib/hello_web</code> directory contains web-related files – routers, controllers, templates, channels, etc. The rest of our greater Elixir application lives inside <code class="inline">lib/hello</code>, and you structure code here like any other Elixir application.</p>
+<p>Enough prep, let’s get on with our first new Phoenix page!</p>
+<h3 id="a-new-route" class="section-heading">
+  <a href="#a-new-route" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  A New Route
+</h3>
+
+<p>Routes map unique HTTP verb/path pairs to controller/action pairs which will handle them. Phoenix generates a router file for us in new applications at <code class="inline">lib/hello_web/router.ex</code>. This is where we will be working for this section.</p>
+<p>The route for our “Welcome to Phoenix!” page from the previous Up And Running Guide looks like this.</p>
+<pre><code class="elixir">get &quot;/&quot;, PageController, :index</code></pre>
+<p>Let’s digest what this route is telling us. Visiting <a href="http://localhost:4000/">http://localhost:4000/</a> issues an HTTP <code class="inline">GET</code> request to the root path. All requests like this will be handled by the <code class="inline">index</code> function in the <code class="inline">HelloWeb.PageController</code> module defined in <code class="inline">lib/hello_web/controllers/page_controller.ex</code>.</p>
+<p>The page we are going to build will simply say “Hello World, from Phoenix!” when we point our browser to <a href="http://localhost:4000/hello">http://localhost:4000/hello</a>.</p>
+<p>The first thing we need to do to create that page is define a route for it. Let’s open up <code class="inline">lib/hello_web/router.ex</code> in a text editor. It should currently look like this:</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use HelloWeb, :router
+
+  pipeline :browser do
+    plug :accepts, [&quot;html&quot;]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+
+  pipeline :api do
+    plug :accepts, [&quot;json&quot;]
+  end
+
+  scope &quot;/&quot;, HelloWeb do
+    pipe_through :browser # Use the default browser stack
+
+    get &quot;/&quot;, PageController, :index
+  end
+
+  # Other scopes may use custom stacks.
+  # scope &quot;/api&quot;, HelloWeb do
+  #   pipe_through :api
+  # end
+end
+</code></pre>
+<p>For now, we’ll ignore the pipelines and the use of <code class="inline">scope</code> here and just focus on adding a route. (We cover these topics in the <a href="routing.html">Routing Guide</a>, if you’re curious.)</p>
+<p>Let’s add a new route to the router that maps a <code class="inline">GET</code> request for <code class="inline">/hello</code> to the <code class="inline">index</code> action of a soon-to-be-created <code class="inline">HelloWeb.HelloController</code>:</p>
+<pre><code class="elixir">get &quot;/hello&quot;, HelloController, :index</code></pre>
+<p>The <code class="inline">scope &quot;/&quot;</code> block of our <code class="inline">router.ex</code> file should now look like this:</p>
+<pre><code class="elixir">scope &quot;/&quot;, HelloWeb do
+  pipe_through :browser # Use the default browser stack
+
+  get &quot;/&quot;, PageController, :index
+  get &quot;/hello&quot;, HelloController, :index
+end</code></pre>
+<h3 id="a-new-controller" class="section-heading">
+  <a href="#a-new-controller" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  A New Controller
+</h3>
+
+<p>Controllers are Elixir modules, and actions are Elixir functions defined in them. The purpose of actions is to gather any data and perform any tasks needed for rendering. Our route specifies that we need a <code class="inline">HelloWeb.HelloController</code> module with an <code class="inline">index/2</code> action.</p>
+<p>To make that happen, let’s create a new <code class="inline">lib/hello_web/controllers/hello_controller.ex</code> file, and make it look like the following:</p>
+<pre><code class="elixir">defmodule HelloWeb.HelloController do
+  use HelloWeb, :controller
+
+  def index(conn, _params) do
+    render conn, &quot;index.html&quot;
+  end
+end</code></pre>
+<p>We’ll save a discussion of <code class="inline">use HelloWeb, :controller</code> for the <a href="controllers.html">Controllers Guide</a>. For now, let’s focus on the <code class="inline">index/2</code> action.</p>
+<p>All controller actions take two arguments. The first is <code class="inline">conn</code>, a struct which holds a ton of data about the request. The second is <code class="inline">params</code>, which are the request parameters. Here, we are not using <code class="inline">params</code>, and we avoid compiler warnings by adding the leading <code class="inline">_</code>.</p>
+<p>The core of this action is <code class="inline">render conn, &quot;index.html&quot;</code>. This tells Phoenix to find a template called <code class="inline">index.html.eex</code> and render it. Phoenix will look for the template in a directory named after our controller, so <code class="inline">lib/hello_web/templates/hello</code>.</p>
+<blockquote><p>Note: Using an atom as the template name will also work here, <code class="inline">render conn, :index</code>, but the template will be chosen based off the Accept headers, e.g. <code class="inline">&quot;index.html&quot;</code> or <code class="inline">&quot;index.json&quot;</code>.</p>
+</blockquote>
+<p>The modules responsible for rendering are views, and we’ll make a new one of those next.</p>
+<h3 id="a-new-view" class="section-heading">
+  <a href="#a-new-view" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  A New View
+</h3>
+
+<p>Phoenix views have several important jobs. They render templates. They also act as a presentation layer for raw data from the controller, preparing it for use in a template. Functions which perform this transformation should go in a view.</p>
+<p>As an example, say we have a data structure which represents a user with a <code class="inline">first_name</code> field and a <code class="inline">last_name</code> field, and in a template, we want to show the user’s full name. We could write code in the template to merge those fields into a full name, but the better approach is to write a function in the view to do it for us, then call that function in the template. The result is a cleaner and more legible template.</p>
+<p>In order to render any templates for our <code class="inline">HelloController</code>, we need a <code class="inline">HelloView</code>. The names are significant here - the first part of the names of the view and controller must match. Let’s create an empty one for now, and leave a more detailed description of views for later. Create <code class="inline">lib/hello_web/views/hello_view.ex</code> and make it look like this:</p>
+<pre><code class="elixir">defmodule HelloWeb.HelloView do
+  use HelloWeb, :view
+end</code></pre>
+<h3 id="a-new-template" class="section-heading">
+  <a href="#a-new-template" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  A New Template
+</h3>
+
+<p>Phoenix templates are just that, templates into which data can be rendered. The standard templating engine Phoenix uses is EEx, which stands for <a href="https://hexdocs.pm/eex/1.5.1/EEx.html">Embedded Elixir</a>. Phoenix enhances EEx to include automatic escaping of values. This protects you from security vulnerabilities like Cross-Site-Scripting with no extra work on your part. All of our template files will have the <code class="inline">.eex</code> file extension.</p>
+<p>Templates are scoped to a view, which are scoped to controller. Phoenix creates a <code class="inline">lib/hello_web/templates</code> directory where we can put all these. It is best to namespace these for organization, so for our hello page, that means we need to create a <code class="inline">hello</code> directory under <code class="inline">lib/hello_web/templates</code> and then create an <code class="inline">index.html.eex</code> file within it.</p>
+<p>Let’s do that now. Create <code class="inline">lib/hello_web/templates/hello/index.html.eex</code> and make it look like this:</p>
+<pre><code class="html">&lt;div class=&quot;jumbotron&quot;&gt;
+  &lt;h2&gt;Hello World, from Phoenix!&lt;/h2&gt;
+&lt;/div&gt;</code></pre>
+<p>Now that we’ve got the route, controller, view, and template, we should be able to point our browsers at <a href="http://localhost:4000/hello">http://localhost:4000/hello</a> and see our greeting from Phoenix! (In case you stopped the server along the way, the task to restart it is <code class="inline">mix phx.server</code>.)</p>
+<p><img src="assets/images/hello-from-phoenix.png" alt="Phoenix Greets Us"/></p>
+<p>There are a couple of interesting things to notice about what we just did. We didn’t need to stop and re-start the server while we made these changes. Yes, Phoenix has hot code reloading! Also, even though our <code class="inline">index.html.eex</code> file consisted of only a single <code class="inline">div</code> tag, the page we get is a full HTML document. Our index template is rendered into the application layout - <code class="inline">lib/hello_web/templates/layout/app.html.eex</code>. If you open it, you’ll see a line that looks like this:</p>
+<pre><code class="elixir">&lt;%= render @view_module, @view_template, assigns %&gt;</code></pre>
+<p>which is what renders our template into the layout before the HTML is sent off to the browser.</p>
+<h2 id="another-new-page" class="section-heading">
+  <a href="#another-new-page" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Another New Page
+</h2>
+
+<p>Let’s add just a little complexity to our application. We’re going to add a new page that will recognize a piece of the URL, label it as a “messenger” and pass it through the controller into the template so our messenger can say hello.</p>
+<p>As we did last time, the first thing we’ll do is create a new route.</p>
+<h3 id="a-new-route" class="section-heading">
+  <a href="#a-new-route" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  A New Route
+</h3>
+
+<p>For this exercise, we’re going to re-use the <code class="inline">HelloController</code> we just created and just add a new <code class="inline">show</code> action. We’ll add a line just below our last route, like this:</p>
+<pre><code class="elixir">scope &quot;/&quot;, HelloWeb do
+  pipe_through :browser # Use the default browser stack.
+
+  get &quot;/&quot;, PageController, :index
+  get &quot;/hello&quot;, HelloController, :index
+  get &quot;/hello/:messenger&quot;, HelloController, :show
+end</code></pre>
+<p>Notice that we put the atom <code class="inline">:messenger</code> in the path. Phoenix will take whatever value that appears in that position in the URL and pass a <a href="https://hexdocs.pm/elixir/1.5.1/Map.html">Map</a> with the key <code class="inline">messenger</code> pointing to that value to the controller.</p>
+<p>For example, if we point the browser at: <a href="http://localhost:4000/hello/Frank">http://localhost:4000/hello/Frank</a>, the value of “:messenger” will be “Frank”.</p>
+<h3 id="a-new-action" class="section-heading">
+  <a href="#a-new-action" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  A New Action
+</h3>
+
+<p>Requests to our new route will be handled by the <code class="inline">HelloWeb.HelloController</code> <code class="inline">show</code> action. We already have the controller at <code class="inline">lib/hello_web/controllers/hello_controller.ex</code>, so all we need to do is edit that file and add a <code class="inline">show</code> action to it. This time, we’ll need to keep one of the items in the map of params that gets passed into the action, so that we can pass it (the messenger) to the template. To do that, we add this show function to the controller:</p>
+<pre><code class="elixir">def show(conn, %{&quot;messenger&quot; =&gt; messenger}) do
+  render conn, &quot;show.html&quot;, messenger: messenger
+end</code></pre>
+<p>There are a couple of things to notice here. We pattern match against the params passed into the show function so that the <code class="inline">messenger</code> variable will be bound to the value we put in the <code class="inline">:messenger</code> position in the URL. For example, if our URL is <a href="http://localhost:4000/hello/Frank">http://localhost:4000/hello/Frank</a>, the messenger variable would be bound to <code class="inline">Frank</code>.</p>
+<p>Within the body of the <code class="inline">show</code> action, we also pass a third argument into the render function, a key/value pair where <code class="inline">:messenger</code> is the key, and the <code class="inline">messenger</code> variable is passed as the value.</p>
+<blockquote><p>Note: If the body of the action needs access to the full map of parameters bound to the params variable in addition to the bound messenger variable, we could define <code class="inline">show/2</code> like this:</p>
+</blockquote>
+<pre><code class="elixir">def show(conn, %{&quot;messenger&quot; =&gt; messenger} = params) do
+  ...
+end</code></pre>
+<p>It’s good to remember that the keys to the <code class="inline">params</code> map will always be strings, and that the equals sign does not represent assignment, but is instead a <a href="https://elixir-lang.org/getting-started/pattern-matching.html">pattern match</a> assertion.</p>
+<h3 id="a-new-template" class="section-heading">
+  <a href="#a-new-template" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  A New Template
+</h3>
+
+<p>For the last piece of this puzzle, we’ll need a new template. Since it is for the <code class="inline">show</code> action of the <code class="inline">HelloController</code>, it will go into the <code class="inline">lib/hello_web/templates/hello</code> directory and be called <code class="inline">show.html.eex</code>. It will look surprisingly like our <code class="inline">index.html.eex</code> template, except that we will need to display the name of our messenger.</p>
+<p>To do that, we’ll use the special EEx tags for executing Elixir expressions - <code class="inline">&lt;%=  %&gt;</code>. Notice that the initial tag has an equals sign like this: <code class="inline">&lt;%=</code> . That means that any Elixir code that goes between those tags will be executed, and the resulting value will replace the tag. If the equals sign were missing, the code would still be executed, but the value would not appear on the page.</p>
+<p>And this is what the template should look like:</p>
+<pre><code class="html">&lt;div class=&quot;jumbotron&quot;&gt;
+  &lt;h2&gt;Hello World, from &lt;%= @messenger %&gt;!&lt;/h2&gt;
+&lt;/div&gt;</code></pre>
+<p>Our messenger appears as <code class="inline">@messenger</code>. In this case, this is not a module attribute. It is special bit of metaprogrammed syntax which stands in for <code class="inline">assigns.messenger</code>. The result is much nicer on the eyes and much easier to work with in a template.</p>
+<p>We’re done. If you point your browser here: <a href="http://localhost:4000/hello/Frank">http://localhost:4000/hello/Frank</a>, you should see a page that looks like this:</p>
+<p><img src="assets/images/hello-world-from-frank.png" alt="Frank Greets Us from Phoenix"/></p>
+<p>Play around a bit. Whatever you put after <code class="inline">/hello/</code> will appear on the page as your messenger.</p>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

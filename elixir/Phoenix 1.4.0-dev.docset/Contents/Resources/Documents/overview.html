@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Overview – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Overview</h1>
+<p>Phoenix is a web development framework written in Elixir which implements the server-side MVC pattern. Many of its components and concepts will seem familiar to those of us with experience in other web frameworks like Ruby on Rails or Python’s Django.</p>
+<p>Phoenix provides the best of both worlds - high developer productivity <em>and</em> high application performance. It also has some interesting new twists like channels for implementing realtime features and pre-compiled templates for blazing speed.</p>
+<p>If you are already familiar with Elixir, great! If not, there are a number of places to learn. The <a href="https://elixir-lang.org/getting-started/introduction.html">Elixir guides</a> are a great place to start. We also have a list of helpful resources in the <a href="learning.html">Learning Elixir and Erlang Guide</a>.</p>
+<p>The aim of this introductory guide is to present a brief, high-level overview of Phoenix, the parts that make it up, and the layers underneath that support it.</p>
+<p>If you would prefer to read these guides as an EPUB <a href="Phoenix.epub">click here!</a></p>
+<h3 id="phoenix" class="section-heading">
+  <a href="#phoenix" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Phoenix
+</h3>
+
+<p>Phoenix is made up of a number of distinct parts, each with its own purpose and role to play in building a web application. We will cover them all in depth throughout these guides, but here’s a quick breakdown.</p>
+<ul>
+<li><p><a href="endpoint.html">Endpoint</a></p>
+<ul>
+<li>the start and end of the request lifecycle
+</li>
+<li>handles all aspects of requests up until the point where the router takes over
+</li>
+<li>provides a core set of plugs to apply to all requests
+</li>
+<li>dispatches requests into a designated router
+</li>
+</ul>
+</li>
+<li><p><a href="routing.html">Router</a></p>
+<ul>
+<li>parses incoming requests and dispatches them to the correct controller/action, passing parameters as needed
+</li>
+<li>provides helpers to generate route paths or urls to resources
+</li>
+<li>defines named pipelines through which we may pass our requests
+</li>
+<li>Pipelines - allow easy application of groups of plugs to a set of routes
+</li>
+</ul>
+</li>
+<li><p><a href="controllers.html">Controllers</a></p>
+<ul>
+<li>provide functions, called <em>actions</em>, to handle requests
+</li>
+<li><p>actions:</p>
+<ul>
+<li>prepare data and pass it into views
+</li>
+<li>invoke rendering via views
+</li>
+<li>perform redirects
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a href="views.html">Views</a></p>
+<ul>
+<li>render templates
+</li>
+<li>act as a presentation layer
+</li>
+<li>define helper functions, available in templates, to decorate data for presentation
+</li>
+</ul>
+</li>
+<li><p><a href="templates.html">Templates</a></p>
+<ul>
+<li>files containing the contents that will be served in a response
+</li>
+<li>provide the basic structure for a response, and allow dynamic data to be substituted in
+</li>
+<li>are precompiled and fast
+</li>
+</ul>
+</li>
+<li><p><a href="channels.html">Channels</a></p>
+<ul>
+<li>manage sockets for easy realtime communication
+</li>
+<li>are analogous to controllers except that they allow bi-directional communication with persistent connections
+</li>
+</ul>
+</li>
+<li><p>PubSub</p>
+<ul>
+<li>underlies the channel layer and allows clients to subscribe to <em>topics</em>
+</li>
+<li>abstracts the underlying pubsub adapter for third-party pubsub integration
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="phoenix-layers" class="section-heading">
+  <a href="#phoenix-layers" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Phoenix Layers
+</h2>
+
+<p>We just covered the internal parts that make up Phoenix, but its important to remember Phoenix itself is actually the top layer of a multi-layer system designed to be modular and flexible. The other layers include Cowboy, Plug, and Ecto.</p>
+<h3 id="cowboy" class="section-heading">
+  <a href="#cowboy" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Cowboy
+</h3>
+
+<p>By default, the web server used by Phoenix (and Plug) is Cowboy. It is uncommon to interface with Cowboy directly when using Phoenix. If you do require using Cowboy directly, please refer to the <a href="https://ninenines.eu/docs/en/cowboy/1.0/guide/">Cowboy documentation</a>.</p>
+<h3 id="plug" class="section-heading">
+  <a href="#plug" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Plug
+</h3>
+
+<p><a href="https://hexdocs.pm/plug/">Plug</a> is a specification for constructing composable modules to build web applications. Plugs are reusable modules or functions built to that specification. They provide discrete behaviors - like request header parsing or logging. Because the Plug API is small and consistent, plugs can be defined and executed in a set order, like a pipeline. They can also be re-used within a project or across projects.</p>
+<p>Plugs can be written to handle almost anything, from authentication to parameter pre-processing, and even rendering.</p>
+<p>Phoenix takes great advantage of Plug in general - the router and controllers especially so.</p>
+<p>One of the most important things about Plug is that it provides adapters to HTTP servers which will ultimately deliver application content to our users. Currently Plug only provides an adapter for <a href="https://github.com/ninenines/cowboy">Cowboy</a>, a web server written in Erlang by Loïc Hoguin of <a href="http://ninenines.eu/">99s</a>.</p>
+<p>Have a look at the <a href="plug.html">Plug Guide</a> for more details.</p>
+<h3 id="ecto" class="section-heading">
+  <a href="#ecto" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Ecto
+</h3>
+
+<p><a href="https://hexdocs.pm/ecto">Ecto</a> is a language integrated query composition tool and database wrapper for Elixir. With Ecto, we can read and write to different databases, model our domain data, write complex queries in a type-safe way, protect against attack vectors - including SQL injection, and much more.</p>
+<p>Ecto is built around four main abstractions:</p>
+<ul>
+<li><p>Repo - A repository represents a connection to an individual database. Every database operation is done via the repository.</p>
+</li>
+<li><p>Schema - Schemas are our data definitions. They define table names and fields as well as each field’s type. Schemas also define associations - the relationships between our resources.</p>
+</li>
+<li><p>Query - Queries tie both schemas and repositories together, allowing us to elegantly retrieve data from the repository and cast it into the schemas themselves.</p>
+</li>
+<li><p>Changeset - Changesets declare transformations we need to perform on our data before our application can use it. These include type casting, validations, and more.</p>
+</li>
+</ul>
+<p>A new Phoenix application will use Ecto with PostgreSQL storage by default.</p>
+<h2 id="a-note-about-these-guides" class="section-heading">
+  <a href="#a-note-about-these-guides" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  A Note about these guides
+</h2>
+
+<p>If you find an issue with the guides or would like to help improve these guides please checkout the <a href="https://github.com/phoenixframework/phoenix/tree/master/guides/">Phoenix Guides</a> on github. Issues and Pull Requests are happily accepted!</p>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

@@ -1,0 +1,1728 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Phoenix.ConnTest – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix v1.4.0-dev</small>
+        Phoenix.ConnTest
+        
+          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Conveniences for testing Phoenix endpoints and
+connection related helpers.</p>
+<p>You likely want to use this module or make it part of
+your <a href="https://hexdocs.pm/ex_unit/ExUnit.CaseTemplate.html"><code class="inline">ExUnit.CaseTemplate</code></a>. Once used, this module
+automatically imports all functions defined here as
+well as the functions in <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html"><code class="inline">Plug.Conn</code></a>.</p>
+<h2 id="module-endpoint-testing" class="section-heading">
+  <a href="#module-endpoint-testing" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Endpoint testing
+</h2>
+
+<p><a href="Phoenix.ConnTest.html#content"><code class="inline">Phoenix.ConnTest</code></a> typically works against endpoints. That’s
+the preferred way to test anything that your router dispatches
+to.</p>
+<pre><code class="elixir">conn = get build_conn(), &quot;/&quot;
+assert conn.resp_body =~ &quot;Welcome!&quot;
+
+conn = post build_conn(), &quot;/login&quot;, [username: &quot;john&quot;, password: &quot;doe&quot;]
+assert conn.resp_body =~ &quot;Logged in!&quot;</code></pre>
+<p>As in your application, the connection is also the main abstraction
+in testing. <code class="inline">build_conn()</code> returns a new connection and functions in this
+module can be used to manipulate the connection before dispatching
+to the endpoint.</p>
+<p>For example, one could set the accepts header for json requests as
+follows:</p>
+<pre><code class="elixir">build_conn()
+|&gt; put_req_header(&quot;accept&quot;, &quot;application/json&quot;)
+|&gt; get(&quot;/&quot;)</code></pre>
+<p>The endpoint being tested is accessed via the <code class="inline">@endpoint</code> module
+attribute.</p>
+<h2 id="module-controller-testing" class="section-heading">
+  <a href="#module-controller-testing" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Controller testing
+</h2>
+
+<p>The functions in this module can also be used for controller
+testing. While endpoint testing is preferred over controller
+testing as a controller often depends on the pipelines invoked
+in the router and before, unit testing controllers may be helpful
+in some situations.</p>
+<p>For such cases, just pass an atom representing the action
+to dispatch:</p>
+<pre><code class="elixir">conn = get build_conn(), :index
+assert conn.resp_body =~ &quot;Welcome!&quot;</code></pre>
+<h2 id="module-views-testing" class="section-heading">
+  <a href="#module-views-testing" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Views testing
+</h2>
+
+<p>Under other circumstances, you may be testing a view or
+another layer that requires a connection for processing.
+For such cases, a connection can be created using the
+<a href="#conn/3"><code class="inline">conn/3</code></a> helper:</p>
+<pre><code class="elixir">MyApp.UserView.render &quot;hello.html&quot;,
+                       conn: conn(:get, &quot;/&quot;)</code></pre>
+<h2 id="module-recycling" class="section-heading">
+  <a href="#module-recycling" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Recycling
+</h2>
+
+<p>Browsers implement a storage by using cookies. When a cookie
+is set in the response, the browser stores it and sends it in
+the next request.</p>
+<p>To emulate this behaviour, this module provides the idea of
+recycling. The <a href="#recycle/1"><code class="inline">recycle/1</code></a> function receives a connection and
+returns a new connection, similar to the one returned by
+<a href="#conn/0"><code class="inline">conn/0</code></a> with all the response cookies from the previous
+connection defined as request headers. This is useful when
+testing multiple routes that require cookies or session to
+work.</p>
+<p>Keep in mind Phoenix will automatically recycle the connection
+between dispatches. This usually works out well most times, but
+it may discard information if you are modifying the connection
+before the next dispatch:</p>
+<pre><code class="elixir"># No recycling as the connection is fresh
+conn = get build_conn(), &quot;/&quot;
+
+# The connection is recycled, creating a new one behind the scenes
+conn = post conn, &quot;/login&quot;
+
+# We can also recycle manually in case we want custom headers
+conn =
+  conn
+  |&gt; recycle()
+  |&gt; put_req_header(&quot;x-special&quot;, &quot;nice&quot;)
+
+# No recycling as we did it explicitly
+conn = delete conn, &quot;/logout&quot;</code></pre>
+<p>Recycling also recycles the “accept” header.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#assert_error_sent/2">assert_error_sent(status_int_or_atom, func)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Asserts an error was wrapped and sent with the given status</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#build_conn/0">build_conn()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Creates a connection to be used in upcoming requests</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#build_conn/3">build_conn(method, path, params_or_body \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Creates a connection to be used in upcoming requests
+with a preset method, path and body</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#bypass_through/1">bypass_through(conn)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Calls the Endpoint and bypasses Router match</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#bypass_through/3">bypass_through(conn, router, pipelines \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Calls the Endpoint and bypasses Router match</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#clear_flash/1">clear_flash(conn)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Clears up the flash storage</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#conn/0">conn()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Deprecated version of conn/0. Use build_conn/0 instead</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#conn/3">conn(method, path, params_or_body \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Deprecated version of conn/3. Use build_conn/3 instead</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#connect/3">connect(conn, path_or_action, params_or_body \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the current endpoint</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#delete/3">delete(conn, path_or_action, params_or_body \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the current endpoint</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#delete_req_cookie/2">delete_req_cookie(conn, key)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Deletes a request cookie</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#dispatch/5">dispatch(conn, endpoint, method, path_or_action, params_or_body \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches the connection to the given endpoint</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#ensure_recycled/1">ensure_recycled(conn)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Ensures the connection is recycled if it wasn’t already</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#fetch_flash/1">fetch_flash(conn)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Fetches the flash storage</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get/3">get(conn, path_or_action, params_or_body \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the current endpoint</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_flash/1">get_flash(conn)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Gets the whole flash storage</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_flash/2">get_flash(conn, key)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Gets the given key from the flash storage</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#head/3">head(conn, path_or_action, params_or_body \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the current endpoint</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#html_response/2">html_response(conn, status)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Asserts the given status code, that we have an html response and
+returns the response body if one was set or sent</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#json_response/2">json_response(conn, status)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Asserts the given status code, that we have an json response and
+returns the decoded JSON response if one was set or sent</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#options/3">options(conn, path_or_action, params_or_body \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the current endpoint</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#patch/3">patch(conn, path_or_action, params_or_body \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the current endpoint</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#post/3">post(conn, path_or_action, params_or_body \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the current endpoint</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put/3">put(conn, path_or_action, params_or_body \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the current endpoint</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put_flash/3">put_flash(conn, key, value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Puts the given value under key in the flash storage</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put_req_cookie/3">put_req_cookie(conn, key, value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Puts a request cookie</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#recycle/1">recycle(conn)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Recycles the connection</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#redirected_params/1">redirected_params(conn)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns the matched params from the URL the connection was redirected to</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#redirected_to/2">redirected_to(conn, status \\ 302)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns the location header from the given redirect response</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#response/2">response(conn, given)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Asserts the given status code and returns the response body
+if one was set or sent</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#response_content_type/2">response_content_type(conn, format)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns the content type as long as it matches the given format</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#text_response/2">text_response(conn, status)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Asserts the given status code, that we have an text response and
+returns the response body if one was set or sent</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#trace/3">trace(conn, path_or_action, params_or_body \\ nil)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches to the current endpoint</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="assert_error_sent/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/assert_error_sent%2F2" class="dashAnchor"></a>
+  <a href="#assert_error_sent/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">assert_error_sent(status_int_or_atom, func)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L594" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>assert_error_sent(integer() | atom(), function()) :: {integer(), list(), term()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Asserts an error was wrapped and sent with the given status.</p>
+<p>Useful for testing actions that you expect raise an error and have
+the response wrapped in an HTTP status, with content usually rendered
+by your MyApp.ErrorView.</p>
+<p>The function accepts a status either as an integer HTTP status or
+atom, such as <code class="inline">404</code> or <code class="inline">:not_found</code>. If an error is raised, a
+3-tuple of the wrapped response is returned matching the
+status, headers, and body of the response:</p>
+<pre><code class="elixir">{404, [{&quot;content-type&quot;, &quot;text/html&quot;} | _], &quot;Page not found&quot;}</code></pre>
+<h2 id="assert_error_sent/2-examples" class="section-heading">
+  <a href="#assert_error_sent/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">assert_error_sent :not_found, fn -&gt;
+  get build_conn(), &quot;/users/not-found&quot;
+end
+
+response = assert_error_sent 404, fn -&gt;
+  get build_conn(), &quot;/users/not-found&quot;
+end
+assert {404, [_h | _t], &quot;Page not found&quot;} = response</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="build_conn/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/build_conn%2F0" class="dashAnchor"></a>
+  <a href="#build_conn/0" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">build_conn()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L114" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>build_conn() :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Creates a connection to be used in upcoming requests.</p>
+
+  </section>
+</div>
+<div class="detail" id="build_conn/3">
+  
+  
+    <span id="build_conn/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/build_conn%2F3" class="dashAnchor"></a>
+  <a href="#build_conn/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">build_conn(method, path, params_or_body \\ nil)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L138" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>build_conn(atom() | binary(), binary(), binary() | list() | map()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Creates a connection to be used in upcoming requests
+with a preset method, path and body.</p>
+<p>This is useful when a specific connection is required
+for testing a plug or a particular function.</p>
+
+  </section>
+</div>
+<div class="detail" id="bypass_through/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/bypass_through%2F1" class="dashAnchor"></a>
+  <a href="#bypass_through/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">bypass_through(conn)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L530" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>bypass_through(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Calls the Endpoint and bypasses Router match.</p>
+<p>Useful for unit testing Plugs where Endpoint and/or
+router pipeline plugs are required for proper setup.</p>
+<h2 id="bypass_through/1-examples" class="section-heading">
+  <a href="#bypass_through/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<p>For example, imagine you are testing an authentication
+plug in isolation, but you need to invoke the Endpoint plugs
+and <code class="inline">:browser</code> pipeline of your Router for session and flash
+related dependencies:</p>
+<pre><code class="elixir">conn =
+  conn
+  |&gt; bypass_through(MyAppWeb.Router, [:browser])
+  |&gt; get(&quot;/&quot;)
+  |&gt; MyApp.RequireAuthentication.call([])
+assert conn.halted</code></pre>
+<p>Alternatively, you could invoke only the Endpoint, and Router:</p>
+<pre><code class="elixir">conn =
+  conn
+  |&gt; bypass_through(MyAppWeb.Router, [])
+  |&gt; get(&quot;/&quot;)
+  |&gt; MyApp.RequireAuthentication.call([])
+assert conn.halted</code></pre>
+<p>Or only invoke the Endpoint’s plugs:</p>
+<pre><code class="elixir">conn =
+  conn
+  |&gt; bypass_through()
+  |&gt; get(&quot;/&quot;)
+  |&gt; MyApp.RequireAuthentication.call([])
+assert conn.halted</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="bypass_through/3">
+  
+  
+    <span id="bypass_through/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/bypass_through%2F3" class="dashAnchor"></a>
+  <a href="#bypass_through/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">bypass_through(conn, router, pipelines \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L540" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>bypass_through(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), module(), :atom | list()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Calls the Endpoint and bypasses Router match.</p>
+<p>See <a href="#bypass_through/1"><code class="inline">bypass_through/1</code></a>.</p>
+
+  </section>
+</div>
+<div class="detail" id="clear_flash/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/clear_flash%2F1" class="dashAnchor"></a>
+  <a href="#clear_flash/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">clear_flash(conn)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L288" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>clear_flash(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Clears up the flash storage.</p>
+
+  </section>
+</div>
+<div class="detail" id="conn/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/conn%2F0" class="dashAnchor"></a>
+  <a href="#conn/0" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">conn()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L122" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>conn() :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Deprecated version of conn/0. Use build_conn/0 instead</p>
+
+  </section>
+</div>
+<div class="detail" id="conn/3">
+  
+  
+    <span id="conn/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/conn%2F3" class="dashAnchor"></a>
+  <a href="#conn/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">conn(method, path, params_or_body \\ nil)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L148" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>conn(atom() | binary(), binary(), binary() | list() | map()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Deprecated version of conn/3. Use build_conn/3 instead</p>
+
+  </section>
+</div>
+<div class="detail" id="connect/3">
+  
+  
+    <span id="connect/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/connect%2F3" class="dashAnchor"></a>
+  <a href="#connect/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">connect(conn, path_or_action, params_or_body \\ nil)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L164" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the current endpoint.</p>
+<p>See <a href="#dispatch/5"><code class="inline">dispatch/5</code></a> for more information.</p>
+
+  </section>
+</div>
+<div class="detail" id="delete/3">
+  
+  
+    <span id="delete/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/delete%2F3" class="dashAnchor"></a>
+  <a href="#delete/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">delete(conn, path_or_action, params_or_body \\ nil)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L164" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the current endpoint.</p>
+<p>See <a href="#dispatch/5"><code class="inline">dispatch/5</code></a> for more information.</p>
+
+  </section>
+</div>
+<div class="detail" id="delete_req_cookie/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/delete_req_cookie%2F2" class="dashAnchor"></a>
+  <a href="#delete_req_cookie/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">delete_req_cookie(conn, key)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L258" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>delete_req_cookie(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), binary()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Deletes a request cookie.</p>
+
+  </section>
+</div>
+<div class="detail" id="dispatch/5">
+  
+  
+    <span id="dispatch/4"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/dispatch%2F5" class="dashAnchor"></a>
+  <a href="#dispatch/5" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">dispatch(conn, endpoint, method, path_or_action, params_or_body \\ nil)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L228" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches the connection to the given endpoint.</p>
+<p>When invoked via <a href="#get/3"><code class="inline">get/3</code></a>, <a href="#post/3"><code class="inline">post/3</code></a> and friends, the endpoint
+is automatically retrieved from the <code class="inline">@endpoint</code> module
+attribute, otherwise it must be given as an argument.</p>
+<p>The connection will be configured with the given <code class="inline">method</code>,
+<code class="inline">path_or_action</code> and <code class="inline">params_or_body</code>.</p>
+<p>If <code class="inline">path_or_action</code> is a string, it is considered to be the
+request path and stored as so in the connection. If an atom,
+it is assumed to be an action and the connection is dispatched
+to the given action.</p>
+<h2 id="dispatch/5-parameters-and-body" class="section-heading">
+  <a href="#dispatch/5-parameters-and-body" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Parameters and body
+</h2>
+
+<p>This function, as well as <a href="#get/3"><code class="inline">get/3</code></a>, <a href="#post/3"><code class="inline">post/3</code></a> and friends, accepts the
+request body or parameters as last argument:</p>
+<pre><code class="elixir">  get build_conn(), &quot;/&quot;, some: &quot;param&quot;
+  get build_conn(), &quot;/&quot;, &quot;some=param&amp;url=encoded&quot;</code></pre>
+<p>The allowed values are:</p>
+<ul>
+<li><p><code class="inline">nil</code> - meaning there is no body</p>
+</li>
+<li><p>a binary - containing a request body. For such cases, <code class="inline">:headers</code>
+must be given as option with a content-type</p>
+</li>
+<li><p>a map or list - containing the parameters which will automatically
+set the content-type to multipart. The map or list may contain
+other lists or maps and all entries will be normalized to string
+keys</p>
+</li>
+<li><p>a struct - unlike other maps, a struct will be passed through as-is
+without normalizing its entries</p>
+</li>
+</ul>
+
+  </section>
+</div>
+<div class="detail" id="ensure_recycled/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/ensure_recycled%2F1" class="dashAnchor"></a>
+  <a href="#ensure_recycled/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">ensure_recycled(conn)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L483" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>ensure_recycled(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Ensures the connection is recycled if it wasn’t already.</p>
+<p>See <a href="#recycle/1"><code class="inline">recycle/1</code></a> for more information.</p>
+
+  </section>
+</div>
+<div class="detail" id="fetch_flash/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/fetch_flash%2F1" class="dashAnchor"></a>
+  <a href="#fetch_flash/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">fetch_flash(conn)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L264" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>fetch_flash(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Fetches the flash storage.</p>
+
+  </section>
+</div>
+<div class="detail" id="get/3">
+  
+  
+    <span id="get/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/get%2F3" class="dashAnchor"></a>
+  <a href="#get/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">get(conn, path_or_action, params_or_body \\ nil)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L164" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the current endpoint.</p>
+<p>See <a href="#dispatch/5"><code class="inline">dispatch/5</code></a> for more information.</p>
+
+  </section>
+</div>
+<div class="detail" id="get_flash/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/get_flash%2F1" class="dashAnchor"></a>
+  <a href="#get_flash/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_flash(conn)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L270" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>get_flash(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Gets the whole flash storage.</p>
+
+  </section>
+</div>
+<div class="detail" id="get_flash/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/get_flash%2F2" class="dashAnchor"></a>
+  <a href="#get_flash/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_flash(conn, key)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L276" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>get_flash(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), term()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Gets the given key from the flash storage.</p>
+
+  </section>
+</div>
+<div class="detail" id="head/3">
+  
+  
+    <span id="head/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/head%2F3" class="dashAnchor"></a>
+  <a href="#head/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">head(conn, path_or_action, params_or_body \\ nil)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L164" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the current endpoint.</p>
+<p>See <a href="#dispatch/5"><code class="inline">dispatch/5</code></a> for more information.</p>
+
+  </section>
+</div>
+<div class="detail" id="html_response/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/html_response%2F2" class="dashAnchor"></a>
+  <a href="#html_response/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">html_response(conn, status)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L375" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>html_response(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), status :: integer() | atom()) ::
+  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() |
+  no_return()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Asserts the given status code, that we have an html response and
+returns the response body if one was set or sent.</p>
+<h2 id="html_response/2-examples" class="section-heading">
+  <a href="#html_response/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">assert html_response(conn, 200) =~ &quot;&lt;html&gt;&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="json_response/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/json_response%2F2" class="dashAnchor"></a>
+  <a href="#json_response/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">json_response(conn, status)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L407" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>json_response(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), status :: integer() | atom()) ::
+  map() |
+  no_return()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Asserts the given status code, that we have an json response and
+returns the decoded JSON response if one was set or sent.</p>
+<h2 id="json_response/2-examples" class="section-heading">
+  <a href="#json_response/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">body = json_response(conn, 200)
+assert &quot;can&#39;t be blank&quot; in body[&quot;errors&quot;]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="options/3">
+  
+  
+    <span id="options/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/options%2F3" class="dashAnchor"></a>
+  <a href="#options/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">options(conn, path_or_action, params_or_body \\ nil)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L164" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the current endpoint.</p>
+<p>See <a href="#dispatch/5"><code class="inline">dispatch/5</code></a> for more information.</p>
+
+  </section>
+</div>
+<div class="detail" id="patch/3">
+  
+  
+    <span id="patch/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/patch%2F3" class="dashAnchor"></a>
+  <a href="#patch/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">patch(conn, path_or_action, params_or_body \\ nil)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L164" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the current endpoint.</p>
+<p>See <a href="#dispatch/5"><code class="inline">dispatch/5</code></a> for more information.</p>
+
+  </section>
+</div>
+<div class="detail" id="post/3">
+  
+  
+    <span id="post/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/post%2F3" class="dashAnchor"></a>
+  <a href="#post/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">post(conn, path_or_action, params_or_body \\ nil)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L164" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the current endpoint.</p>
+<p>See <a href="#dispatch/5"><code class="inline">dispatch/5</code></a> for more information.</p>
+
+  </section>
+</div>
+<div class="detail" id="put/3">
+  
+  
+    <span id="put/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/put%2F3" class="dashAnchor"></a>
+  <a href="#put/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">put(conn, path_or_action, params_or_body \\ nil)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L164" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the current endpoint.</p>
+<p>See <a href="#dispatch/5"><code class="inline">dispatch/5</code></a> for more information.</p>
+
+  </section>
+</div>
+<div class="detail" id="put_flash/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/put_flash%2F3" class="dashAnchor"></a>
+  <a href="#put_flash/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">put_flash(conn, key, value)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L282" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>put_flash(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), term(), term()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Puts the given value under key in the flash storage.</p>
+
+  </section>
+</div>
+<div class="detail" id="put_req_cookie/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/put_req_cookie%2F3" class="dashAnchor"></a>
+  <a href="#put_req_cookie/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">put_req_cookie(conn, key, value)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L252" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>put_req_cookie(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), binary(), binary()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Puts a request cookie.</p>
+
+  </section>
+</div>
+<div class="detail" id="recycle/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/recycle%2F1" class="dashAnchor"></a>
+  <a href="#recycle/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">recycle(conn)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L466" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>recycle(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Recycles the connection.</p>
+<p>Recycling receives a connection and returns a new connection,
+containing cookies and relevant information from the given one.</p>
+<p>This emulates behaviour performed by browsers where cookies
+returned in the response are available in following requests.</p>
+<p>Note <a href="#recycle/1"><code class="inline">recycle/1</code></a> is automatically invoked when dispatching
+to the endpoint, unless the connection has already been
+recycled.</p>
+
+  </section>
+</div>
+<div class="detail" id="redirected_params/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/redirected_params%2F1" class="dashAnchor"></a>
+  <a href="#redirected_params/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">redirected_params(conn)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L556" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>redirected_params(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: map()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns the matched params from the URL the connection was redirected to.</p>
+<p>Uses the provided <code class="inline">%Plug.Conn{}</code>s router matched in the previous request.
+Raises if the response’s location header is not set.</p>
+<h2 id="redirected_params/1-examples" class="section-heading">
+  <a href="#redirected_params/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">assert redirected_to(conn) =~ &quot;/posts/123&quot;
+assert %{id: &quot;123&quot;} = redirected_params(conn)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="redirected_to/2">
+  
+  
+    <span id="redirected_to/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/redirected_to%2F2" class="dashAnchor"></a>
+  <a href="#redirected_to/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">redirected_to(conn, status \\ 302)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L448" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>redirected_to(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), status :: non_neg_integer()) :: <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns the location header from the given redirect response.</p>
+<p>Raises if the response does not match the redirect status code
+(defaults to 302).</p>
+<h2 id="redirected_to/2-examples" class="section-heading">
+  <a href="#redirected_to/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">assert redirected_to(conn) =~ &quot;/foo/bar&quot;
+assert redirected_to(conn, 301) =~ &quot;/foo/bar&quot;
+assert redirected_to(conn, :moved_permanently) =~ &quot;/foo/bar&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="response/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/response%2F2" class="dashAnchor"></a>
+  <a href="#response/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">response(conn, given)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L356" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>response(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), status :: integer() | atom()) ::
+  binary() |
+  no_return()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Asserts the given status code and returns the response body
+if one was set or sent.</p>
+<h2 id="response/2-examples" class="section-heading">
+  <a href="#response/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">conn = get build_conn(), &quot;/&quot;
+assert response(conn, 200) =~ &quot;hello world&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="response_content_type/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/response_content_type%2F2" class="dashAnchor"></a>
+  <a href="#response_content_type/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">response_content_type(conn, format)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L300" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>response_content_type(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), atom()) ::
+  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() |
+  no_return()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns the content type as long as it matches the given format.</p>
+<h2 id="response_content_type/2-examples" class="section-heading">
+  <a href="#response_content_type/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir"># Assert we have an html response with utf-8 charset
+assert response_content_type(conn, :html) =~ &quot;charset=utf-8&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="text_response/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/text_response%2F2" class="dashAnchor"></a>
+  <a href="#text_response/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">text_response(conn, status)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L390" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>text_response(<a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), status :: integer() | atom()) ::
+  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() |
+  no_return()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Asserts the given status code, that we have an text response and
+returns the response body if one was set or sent.</p>
+<h2 id="text_response/2-examples" class="section-heading">
+  <a href="#text_response/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">assert text_response(conn, 200) =~ &quot;hello&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="trace/3">
+  
+  
+    <span id="trace/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/trace%2F3" class="dashAnchor"></a>
+  <a href="#trace/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">trace(conn, path_or_action, params_or_body \\ nil)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/test/conn_test.ex#L164" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches to the current endpoint.</p>
+<p>See <a href="#dispatch/5"><code class="inline">dispatch/5</code></a> for more information.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

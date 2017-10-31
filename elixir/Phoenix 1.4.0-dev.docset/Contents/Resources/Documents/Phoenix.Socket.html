@@ -1,0 +1,599 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Phoenix.Socket – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix v1.4.0-dev</small>
+        Phoenix.Socket <small>behaviour</small>
+        
+          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Defines a socket and its state.</p>
+<p><a href="Phoenix.Socket.html#content"><code class="inline">Phoenix.Socket</code></a> is used as a module for establishing and maintaining
+the socket state via the <a href="Phoenix.Socket.html#content"><code class="inline">Phoenix.Socket</code></a> struct.</p>
+<p>Once connected to a socket, incoming and outgoing events are routed to
+channels. The incoming client data is routed to channels via transports.
+It is the responsibility of the socket to tie transports and channels
+together.</p>
+<p>By default, Phoenix supports both websockets and longpoll transports.
+For example:</p>
+<pre><code class="elixir">transport :websocket, Phoenix.Transports.WebSocket</code></pre>
+<p>The command above means incoming socket connections can be made via
+the WebSocket transport. Events are routed by topic to channels:</p>
+<pre><code class="elixir">channel &quot;room:lobby&quot;, MyApp.LobbyChannel</code></pre>
+<p>See <a href="Phoenix.Channel.html"><code class="inline">Phoenix.Channel</code></a> for more information on channels. Check each
+transport module to find the options specific to each transport.</p>
+<h2 id="module-socket-behaviour" class="section-heading">
+  <a href="#module-socket-behaviour" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Socket Behaviour
+</h2>
+
+<p>Socket handlers are mounted in Endpoints and must define two callbacks:</p>
+<ul>
+<li><code class="inline">connect/2</code> - receives the socket params and authenticates the connection.
+Must return a <a href="Phoenix.Socket.html#content"><code class="inline">Phoenix.Socket</code></a> struct, often with custom assigns.
+</li>
+<li><code class="inline">id/1</code> - receives the socket returned by <code class="inline">connect/2</code> and returns the
+id of this connection as a string. The <code class="inline">id</code> is used to identify socket
+connections, often to a particular user, allowing us to force disconnections.
+For sockets requiring no authentication, <code class="inline">nil</code> can be returned.
+</li>
+</ul>
+<h2 id="module-examples" class="section-heading">
+  <a href="#module-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">defmodule MyApp.UserSocket do
+  use Phoenix.Socket
+
+  transport :websocket, Phoenix.Transports.WebSocket
+  channel &quot;room:*&quot;, MyApp.RoomChannel
+
+  def connect(params, socket) do
+    {:ok, assign(socket, :user_id, params[&quot;user_id&quot;])}
+  end
+
+  def id(socket), do: &quot;users_socket:#{socket.assigns.user_id}&quot;
+end
+
+# Disconnect all user&#39;s socket connections and their multiplexed channels
+MyApp.Endpoint.broadcast(&quot;users_socket:&quot; &lt;&gt; user.id, &quot;disconnect&quot;, %{})</code></pre>
+<h2 id="module-socket-fields" class="section-heading">
+  <a href="#module-socket-fields" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Socket Fields
+</h2>
+
+<ul>
+<li><code class="inline">id</code> - The string id of the socket
+</li>
+<li><code class="inline">assigns</code> - The map of socket assigns, default: <code class="inline">%{}</code>
+</li>
+<li><code class="inline">channel</code> - The current channel module
+</li>
+<li><code class="inline">channel_pid</code> - The channel pid
+</li>
+<li><code class="inline">endpoint</code> - The endpoint module where this socket originated, for example: <code class="inline">MyApp.Endpoint</code>
+</li>
+<li><code class="inline">handler</code> - The socket module where this socket originated, for example: <code class="inline">MyApp.UserSocket</code>
+</li>
+<li><code class="inline">joined</code> - If the socket has effectively joined the channel
+</li>
+<li><code class="inline">pubsub_server</code> - The registered name of the socket’s pubsub server
+</li>
+<li><code class="inline">join_ref</code> - The ref sent by the client when joining
+</li>
+<li><code class="inline">ref</code> - The latest ref sent by the client
+</li>
+<li><code class="inline">topic</code> - The string topic, for example <code class="inline">&quot;room:123&quot;</code>
+</li>
+<li><code class="inline">transport</code> - The socket’s transport, for example: <a href="Phoenix.Transports.WebSocket.html"><code class="inline">Phoenix.Transports.WebSocket</code></a>
+</li>
+<li><code class="inline">transport_pid</code> - The pid of the socket’s transport process
+</li>
+<li><code class="inline">transport_name</code> - The socket’s transport, for example: <code class="inline">:websocket</code>
+</li>
+<li><code class="inline">serializer</code> - The serializer for socket messages,
+for example: <code class="inline">Phoenix.Transports.WebSocketSerializer</code>
+</li>
+<li><code class="inline">vsn</code> - The protocol version of the client, for example: “2.0.0”
+</li>
+</ul>
+<h2 id="module-custom-transports" class="section-heading">
+  <a href="#module-custom-transports" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Custom transports
+</h2>
+
+<p>See the <a href="Phoenix.Socket.Transport.html"><code class="inline">Phoenix.Socket.Transport</code></a> documentation for more information on
+writing your own transports.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:t/0">t()</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#assign/3">assign(socket, key, value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds key/value pair to socket assigns</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#channel/3">channel(topic_pattern, module, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Defines a channel matching the given topic and transports</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#transport/3">transport(name, module, config \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Defines a transport with configuration</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-callbacks summary">
+    <h2>
+      <a href="#callbacks">Callbacks</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:connect/2">connect(params, arg1)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Receives the socket params and authenticates the connection</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:id/1">id(arg0)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Identifies the socket connection</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:t/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/t" class="dashAnchor"></a>
+  <a href="#t:t/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">t()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket.ex#L125" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>t() :: %Phoenix.Socket{assigns: map(), channel: atom(), channel_pid: pid(), endpoint: atom(), handler: atom(), id: nil, join_ref: term(), joined: boolean(), private: %{}, pubsub_server: atom(), ref: term(), serializer: atom(), topic: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), transport: atom(), transport_name: atom(), transport_pid: pid(), vsn: term()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="assign/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/assign%2F3" class="dashAnchor"></a>
+  <a href="#assign/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">assign(socket, key, value)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket.ex#L230" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Adds key/value pair to socket assigns.</p>
+<h2 id="assign/3-examples" class="section-heading">
+  <a href="#assign/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; socket.assigns[:token]
+nil
+iex&gt; socket = assign(socket, :token, &quot;bar&quot;)
+iex&gt; socket.assigns[:token]
+&quot;bar&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="channel/3">
+  
+  
+    <span id="channel/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/channel%2F3" class="dashAnchor"></a>
+  <a href="#channel/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">channel(topic_pattern, module, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket.ex#L263" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Defines a channel matching the given topic and transports.</p>
+<ul>
+<li><code class="inline">topic_pattern</code> - The string pattern, for example “room:<em>“, “users:</em>”, “system”
+</li>
+<li><code class="inline">module</code> - The channel module handler, for example <code class="inline">MyApp.RoomChannel</code>
+</li>
+<li><code class="inline">opts</code> - The optional list of options, see below
+</li>
+</ul>
+<h2 id="channel/3-options" class="section-heading">
+  <a href="#channel/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:via</code> - the transport adapters to accept on this channel.
+Defaults <code class="inline">[:websocket, :longpoll]</code>
+</li>
+<li><code class="inline">:assigns</code> - the map of socket assigns to merge into the socket on join.
+</li>
+</ul>
+<h2 id="channel/3-examples" class="section-heading">
+  <a href="#channel/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">channel &quot;topic1:*&quot;, MyChannel
+channel &quot;topic2:*&quot;, MyChannel, via: [:websocket]
+channel &quot;topic&quot;,    MyChannel, via: [:longpoll]</code></pre>
+<h2 id="channel/3-topic-patterns" class="section-heading">
+  <a href="#channel/3-topic-patterns" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Topic Patterns
+</h2>
+
+<p>The <code class="inline">channel</code> macro accepts topic patterns in two flavors. A splat argument
+can be provided as the last character to indicate a “topic:subtopic” match. If
+a plain string is provided, only that topic will match the channel handler.
+Most use-cases will use the “topic:*” pattern to allow more versatile topic
+scoping.</p>
+<p>See <a href="Phoenix.Channel.html"><code class="inline">Phoenix.Channel</code></a> for more information</p>
+
+  </section>
+</div>
+<div class="detail" id="transport/3">
+  
+  
+    <span id="transport/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/transport%2F3" class="dashAnchor"></a>
+  <a href="#transport/3" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">transport(name, module, config \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket.ex#L298" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Defines a transport with configuration.</p>
+<h2 id="transport/3-examples" class="section-heading">
+  <a href="#transport/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir"># customize default `:websocket` transport options
+transport :websocket, Phoenix.Transports.WebSocket,
+  timeout: 10_000
+
+# define separate transport, using websocket handler
+transport :websocket_slow_clients, Phoenix.Transports.WebSocket,
+  timeout: 60_000</code></pre>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+        <section id="callbacks" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#callbacks">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Callbacks
+          </h1>
+          <div class="detail" id="c:connect/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/connect%2F2" class="dashAnchor"></a>
+  <a href="#c:connect/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">connect(params, arg1)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket.ex#L100" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>connect(params :: map(), <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()) ::
+  {:ok, <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()} |
+  :error</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Receives the socket params and authenticates the connection.</p>
+<h2 id="c:connect/2-socket-params-and-assigns" class="section-heading">
+  <a href="#c:connect/2-socket-params-and-assigns" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Socket params and assigns
+</h2>
+
+<p>Socket params are passed from the client and can
+be used to verify and authenticate a user. After
+verification, you can put default assigns into
+the socket that will be set for all channels, ie</p>
+<pre><code class="elixir">{:ok, assign(socket, :user_id, verified_user_id)}</code></pre>
+<p>To deny connection, return <code class="inline">:error</code>.</p>
+<p>See <a href="Phoenix.Token.html"><code class="inline">Phoenix.Token</code></a> documentation for examples in
+performing token verification on connect.</p>
+
+  </section>
+</div>
+<div class="detail" id="c:id/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/id%2F1" class="dashAnchor"></a>
+  <a href="#c:id/1" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">id(arg0)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket.ex#L116" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>id(<a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Identifies the socket connection.</p>
+<p>Socket IDs are topics that allow you to identify all sockets for a given user:</p>
+<pre><code class="elixir">def id(socket), do: &quot;users_socket:#{socket.assigns.user_id}&quot;</code></pre>
+<p>Would allow you to broadcast a “disconnect” event and terminate
+all active sockets and channels for a given user:</p>
+<pre><code class="elixir">MyApp.Endpoint.broadcast(&quot;users_socket:&quot; &lt;&gt; user.id, &quot;disconnect&quot;, %{})</code></pre>
+<p>Returning <code class="inline">nil</code> makes this socket anonymous.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Installation – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Installation</h1>
+<p>In the <a href="overview.html">Overview Guide</a> we got a look at the Phoenix ecosystem and how the pieces interrelate. Now it’s time to install any software we might need before we jump into the <a href="up_and_running.html">Up and Running Guide</a>.</p>
+<p>Please take a look at this list and make sure to install anything necessary for your system. Having dependencies installed in advance can prevent frustrating problems later on.</p>
+<h3 id="elixir-1-4-or-later" class="section-heading">
+  <a href="#elixir-1-4-or-later" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Elixir 1.4 or later
+</h3>
+
+<p>Phoenix is written in Elixir, and our application code will also be written in Elixir. We won’t get far in a Phoenix app without it! The Elixir site maintains a great <a href="https://elixir-lang.org/install.html">Installation Page</a> to help.</p>
+<p>If we have just installed Elixir for the first time, we will need to install the Hex package manager as well. Hex is necessary to get a Phoenix app running (by installing dependencies) and to install any extra dependencies we might need along the way.</p>
+<p>Here’s the command to install Hex (If you have Hex already installed, it will upgrade Hex to the latest version):</p>
+<pre><code class="console">$ mix local.hex</code></pre>
+<h3 id="erlang-18-or-later" class="section-heading">
+  <a href="#erlang-18-or-later" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Erlang 18 or later
+</h3>
+
+<p>Elixir code compiles to Erlang byte code to run on the Erlang virtual machine. Without Erlang, Elixir code has no virtual machine to run on, so we need to install Erlang as well.</p>
+<p>When we install Elixir using instructions from the Elixir <a href="https://elixir-lang.org/install.html">Installation Page</a>,  we will usually get Erlang too. If Erlang was not installed along with Elixir, please see the <a href="https://elixir-lang.org/install.html#installing-erlang">Erlang Instructions</a> section of the Elixir Installation Page for instructions.</p>
+<p>People using Debian-based systems may need to explicitly install Erlang to get all the needed packages.</p>
+<pre><code class="console">$ wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb &amp;&amp; sudo dpkg -i erlang-solutions_1.0_all.deb
+$ sudo apt-get update
+$ sudo apt-get install esl-erlang</code></pre>
+<h3 id="phoenix" class="section-heading">
+  <a href="#phoenix" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Phoenix
+</h3>
+
+<p>To check that we are on Elixir 1.4 and Erlang 18 or later, run:</p>
+<pre><code class="console">elixir -v
+Erlang/OTP 19 [erts-8.3] [source] [64-bit] [smp:8:8] [async-threads:10] [hipe] [kernel-poll:false] [dtrace]
+
+Elixir 1.4.2</code></pre>
+<p>Once we have Elixir and Erlang, we are ready to install the Phoenix Mix archive. A Mix archive is a Zip file which contains an application as well as its compiled BEAM files. It is tied to a specific version of the application. The archive is what we will use to generate a new, base Phoenix application which we can build from.</p>
+<p>Here’s the command to install the Phoenix archive:</p>
+<pre><code class="console">$ mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez</code></pre>
+<blockquote><p>Note: if the Phoenix archive won’t install properly with this command, we can download the package from the <a href="https://github.com/phoenixframework/archives">Phoenix archives</a>, save it to the filesystem, and then run: <code class="inline">mix archive.install /path/to/local/phx_new.ez</code>.</p>
+</blockquote>
+<h3 id="plug-cowboy-and-ecto" class="section-heading">
+  <a href="#plug-cowboy-and-ecto" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Plug, Cowboy, and Ecto
+</h3>
+
+<p>These are either Elixir or Erlang projects which are part of Phoenix applications by default. We won’t need to do anything special to install them. If we let Mix install our dependencies as we create our new application, these will be taken care of for us. If we don’t, Phoenix will tell us how to do so after the app creation is done.</p>
+<h3 id="node-js-5-0-0" class="section-heading">
+  <a href="#node-js-5-0-0" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  node.js (&gt;= 5.0.0)
+</h3>
+
+<p>Node is an optional dependency. Phoenix will use <a href="http://brunch.io/">brunch.io</a> to compile static assets (JavaScript, CSS, etc), by default. Brunch.io uses the node package manager (npm) to install its dependencies, and npm requires node.js.</p>
+<p>If we don’t have any static assets, or we want to use another build tool, we can pass the <code class="inline">--no-brunch</code> flag when creating a new application and node won’t be required at all.</p>
+<p>We can get node.js from the <a href="https://nodejs.org/en/download/">download page</a>. When selecting a package to download, it’s important to note that Phoenix requires version 5.0.0 or greater.</p>
+<p>Mac OS X users can also install node.js via <a href="https://brew.sh/">homebrew</a>.</p>
+<p>Note: io.js, which is an npm compatible platform originally based on Node.js, is not known to work with Phoenix.</p>
+<p>Debian/Ubuntu users might see an error that looks like this:</p>
+<pre><code class="console">sh: 1: node: not found
+npm WARN This failure might be due to the use of legacy binary &quot;node&quot;</code></pre>
+<p>This is due to Debian having conflicting binaries for node: <a href="http://stackoverflow.com/questions/21168141/can-not-install-packages-using-node-package-manager-in-ubuntu">discussion on stackoverflow</a></p>
+<p>There are two options to fix this problem, either:</p>
+<ul>
+<li>install nodejs-legacy:
+</li>
+</ul>
+<pre><code class="console">$ apt-get install nodejs-legacy</code></pre>
+<p>or</p>
+<ul>
+<li>create a symlink
+</li>
+</ul>
+<pre><code class="console">$ ln -s /usr/bin/nodejs /usr/bin/node</code></pre>
+<h3 id="postgresql" class="section-heading">
+  <a href="#postgresql" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  PostgreSQL
+</h3>
+
+<p>PostgreSQL is a relational database server. Phoenix configures applications to use it by default, but we can switch to MySQL by passing the <code class="inline">--database mysql</code> flag when creating a new application.</p>
+<p>When we work with Ecto schemas in these guides, we will use PostgreSQL and the Postgrex adapter for it. In order to follow along with the examples, we should install PostgreSQL. The PostgreSQL wiki has <a href="https://wiki.postgresql.org/wiki/Detailed_installation_guides">installation guides</a> for a number of different systems.</p>
+<p>Postgrex is a direct Phoenix dependency, and it will be automatically installed along with the rest of our dependencies as we start our app.</p>
+<h3 id="inotify-tools-for-linux-users" class="section-heading">
+  <a href="#inotify-tools-for-linux-users" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  inotify-tools (for linux users)
+</h3>
+
+<p>This is a Linux-only filesystem watcher that Phoenix uses for live code reloading. (Mac OS X or Windows users can safely ignore it.)</p>
+<p>Linux users need to install this dependency. Please consult the <a href="https://github.com/rvoicilas/inotify-tools/wiki">inotify-tools wiki</a> for distribution-specific installation instructions.</p>
+<h3 id="our-first-phoenix-application" class="section-heading">
+  <a href="#our-first-phoenix-application" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Our First Phoenix Application
+</h3>
+
+<p>Now that we have everything installed, let’s create our first Phoenix application and get <a href="up_and_running.html">up and running</a></p>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

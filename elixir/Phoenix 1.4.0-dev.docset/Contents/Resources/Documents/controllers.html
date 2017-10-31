@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Controllers – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Controllers</h1>
+<p>Phoenix controllers act as intermediary modules. Their functions - called actions - are invoked from the router in response to HTTP requests. The actions, in turn, gather all the necessary data and perform all the necessary steps before invoking the view layer to render a template or returning a JSON response.</p>
+<p>Phoenix controllers also build on the Plug package, and are themselves plugs. Controllers provide the functions to do almost anything we need to in an action. If we do find ourselves looking for something that Phoenix controllers don’t provide; however, we might find what we’re looking for in Plug itself. Please see the <a href="plug.html">Plug Guide</a> or <a href="https://hexdocs.pm/plug/">Plug Documentation</a> for more information.</p>
+<p>A newly generated Phoenix app will have a single controller, the <code class="inline">PageController</code>, which can be found at <code class="inline">lib/hello_web/controllers/page_controller.ex</code> and looks like this.</p>
+<pre><code class="elixir">defmodule HelloWeb.PageController do
+  use HelloWeb, :controller
+
+  def index(conn, _params) do
+    render conn, &quot;index.html&quot;
+  end
+end</code></pre>
+<p>The first line below the module definition invokes the <code class="inline">__using__/1</code> macro of the <code class="inline">HelloWeb</code> module, which imports some useful modules.</p>
+<p>The <code class="inline">PageController</code> gives us the <code class="inline">index</code> action to display the Phoenix welcome page associated with the default route Phoenix defines in the router.</p>
+<h3 id="actions" class="section-heading">
+  <a href="#actions" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Actions
+</h3>
+
+<p>Controller actions are just functions. We can name them anything we like as long as they follow Elixir’s naming rules. The only requirement we must fulfill is that the action name matches a route defined in the router.</p>
+<p>For example, in <code class="inline">lib/hello_web/router.ex</code> we could change the action name in the default route that Phoenix gives us in a new app from index:</p>
+<pre><code class="elixir">get &quot;/&quot;, PageController, :index</code></pre>
+<p>To test:</p>
+<pre><code class="elixir">get &quot;/&quot;, PageController, :test</code></pre>
+<p>As long as we change the action name in the <code class="inline">PageController</code> to <code class="inline">test</code> as well, the welcome page will load as before.</p>
+<pre><code class="elixir">defmodule HelloWeb.PageController do
+  . . .
+
+  def test(conn, _params) do
+    render conn, &quot;index.html&quot;
+  end
+end</code></pre>
+<p>While we can name our actions whatever we like, there are conventions for action names which we should follow whenever possible. We went over these in the <a href="routing.html">Routing Guide</a>, but we’ll take another quick look here.</p>
+<ul>
+<li>index   - renders a list of all items of the given resource type
+</li>
+<li>show    - renders an individual item by id
+</li>
+<li>new     - renders a form for creating a new item
+</li>
+<li>create  - receives params for one new item and saves it in a datastore
+</li>
+<li>edit    - retrieves an individual item by id and displays it in a form for editing
+</li>
+<li>update  - receives params for one edited item and saves it to a datastore
+</li>
+<li>delete  - receives an id for an item to be deleted and deletes it from a datastore
+</li>
+</ul>
+<p>Each of these actions takes two parameters, which will be provided by Phoenix behind the scenes.</p>
+<p>The first parameter is always <code class="inline">conn</code>, a struct which holds information about the request such as the host, path elements, port, query string, and much more. <code class="inline">conn</code>, comes to Phoenix via Elixir’s Plug middleware framework. More detailed info about <code class="inline">conn</code> can be found in <a href="https://hexdocs.pm/plug/Plug.Conn.html">plug’s documentation</a>.</p>
+<p>The second parameter is <code class="inline">params</code>. Not surprisingly, this is a map which holds any parameters passed along in the HTTP request. It is a good practice to pattern match against params in the function signature to provide data in a simple package we can pass on to rendering. We saw this in the <a href="adding_pages.html">Adding Pages guide</a> when we added a messenger parameter to our <code class="inline">show</code> route in <code class="inline">lib/hello_web/controllers/hello_controller.ex</code>.</p>
+<pre><code class="elixir">defmodule HelloWeb.HelloController do
+  . . .
+
+  def show(conn, %{&quot;messenger&quot; =&gt; messenger}) do
+    render conn, &quot;show.html&quot;, messenger: messenger
+  end
+end</code></pre>
+<p>In some cases - often in <code class="inline">index</code> actions, for instance - we don’t care about parameters because our behavior doesn’t depend on them. In those cases, we don’t use the incoming params, and simply prepend the variable name with an underscore, <code class="inline">_params</code>. This will keep the compiler from complaining about the unused variable while still keeping the correct arity.</p>
+<h3 id="gathering-data" class="section-heading">
+  <a href="#gathering-data" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Gathering Data
+</h3>
+
+<p>While Phoenix does not ship with its own data access layer, the Elixir project <a href="https://hexdocs.pm/ecto">Ecto</a> provides a very nice solution for those using the <a href="http://www.postgresql.org/">Postgres</a> relational database. We cover how to use Ecto in a Phoenix project in the <a href="ecto.html">Ecto Guide</a>. Databases supported by Ecto are covered in the <a href="https://github.com/elixir-lang/ecto#usage">Usage section of the Ecto README</a>.</p>
+<p>Of course, there are many other data access options. <a href="http://www.erlang.org/doc/man/ets.html">Ets</a> and <a href="http://www.erlang.org/doc/man/dets.html">Dets</a> are key value data stores built into <a href="http://www.erlang.org/doc/">OTP</a>. OTP also provides a relational database called <a href="http://www.erlang.org/doc/man/mnesia.html">mnesia</a> with its own query language called QLC. Both Elixir and Erlang also have a number of libraries for working with a wide range of popular data stores.</p>
+<p>The data world is your oyster, but we won’t be covering these options in these guides.</p>
+<h3 id="flash-messages" class="section-heading">
+  <a href="#flash-messages" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Flash Messages
+</h3>
+
+<p>There are times when we need to communicate with users during the course of an action. Maybe there was an error updating a schema. Maybe we just want to welcome them back to the application. For this, we have flash messages.</p>
+<p>The <a href="Phoenix.Controller.html"><code class="inline">Phoenix.Controller</code></a> module provides the <code class="inline">put_flash/3</code> and <code class="inline">get_flash/2</code> functions to help us set and retrieve flash messages as a key value pair. Let’s set two flash messages in our <code class="inline">HelloWeb.PageController</code> to try this out.</p>
+<p>To do this we modify the <code class="inline">index</code> action as follows:</p>
+<pre><code class="elixir">defmodule HelloWeb.PageController do
+  . . .
+  def index(conn, _params) do
+    conn
+    |&gt; put_flash(:info, &quot;Welcome to Phoenix, from flash info!&quot;)
+    |&gt; put_flash(:error, &quot;Let&#39;s pretend we have an error.&quot;)
+    |&gt; render(&quot;index.html&quot;)
+  end
+end</code></pre>
+<p>The <code class="inline">Phoenix.Controller</code> module is not particular about the keys we use. As long as we are internally consistent, all will be well. <code class="inline">:info</code> and <code class="inline">:error</code>, however, are common.</p>
+<p>In order to see our flash messages, we need to be able to retrieve them and display them in a template/layout. One way to do the first part is with <code class="inline">get_flash/2</code> which takes <code class="inline">conn</code> and the key we care about. It then returns the value for that key.</p>
+<p>Fortunately, our application layout, <code class="inline">lib/hello_web/templates/layout/app.html.eex</code>, already has markup for displaying flash messages.</p>
+<pre><code class="html">&lt;p class=&quot;alert alert-info&quot; role=&quot;alert&quot;&gt;&lt;%= get_flash(@conn, :info) %&gt;&lt;/p&gt;
+&lt;p class=&quot;alert alert-danger&quot; role=&quot;alert&quot;&gt;&lt;%= get_flash(@conn, :error) %&gt;&lt;/p&gt;</code></pre>
+<p>When we reload the <a href="http://localhost:4000/">Welcome Page</a>, our messages should appear just above “Welcome to Phoenix!”</p>
+<p>Besides <code class="inline">put_flash/3</code> and <code class="inline">get_flash/2</code>, the <a href="Phoenix.Controller.html"><code class="inline">Phoenix.Controller</code></a> module has another useful function worth knowing about. <code class="inline">clear_flash/1</code> takes only <code class="inline">conn</code> and removes any flash messages which might be stored in the session.</p>
+<h3 id="rendering" class="section-heading">
+  <a href="#rendering" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Rendering
+</h3>
+
+<p>Controllers have several ways of rendering content. The simplest is to render some plain text using the <code class="inline">text/2</code> function which Phoenix provides.</p>
+<p>Let’s say we have a <code class="inline">show</code> action which receives an id from the params map, and all we want to do is return some text with the id. For that, we could do the following.</p>
+<pre><code class="elixir">def show(conn, %{&quot;id&quot; =&gt; id}) do
+  text conn, &quot;Showing id #{id}&quot;
+end</code></pre>
+<p>Assuming we had a route for <code class="inline">get &quot;/our_path/:id&quot;</code> mapped to this <code class="inline">show</code> action, going to <code class="inline">/our_path/15</code> in your browser should display <code class="inline">Showing id 15</code> as plain text without any HTML.</p>
+<p>A step beyond this is rendering pure JSON with the <code class="inline">json/2</code> function. We need to pass it something that the <a href="https://github.com/devinus/poison">Poison library</a> can parse into JSON, such as a map. (Poison is one of Phoenix’s dependencies.)</p>
+<pre><code class="elixir">def show(conn, %{&quot;id&quot; =&gt; id}) do
+  json conn, %{id: id}
+end</code></pre>
+<p>If we again visit <code class="inline">our_path/15</code> in the browser, we should see a block of JSON with the key <code class="inline">id</code> mapped to the number <code class="inline">15</code>.</p>
+<pre><code class="json">{&quot;id&quot;: &quot;15&quot;}</code></pre>
+<p>Phoenix controllers can also render HTML without a template. As you may have already guessed, the <code class="inline">html/2</code> function does just that. This time, we implement the <code class="inline">show</code> action like this.</p>
+<pre><code class="elixir">def show(conn, %{&quot;id&quot; =&gt; id}) do
+  html conn, &quot;&quot;&quot;
+     &lt;html&gt;
+       &lt;head&gt;
+          &lt;title&gt;Passing an Id&lt;/title&gt;
+       &lt;/head&gt;
+       &lt;body&gt;
+         &lt;p&gt;You sent in id #{id}&lt;/p&gt;
+       &lt;/body&gt;
+     &lt;/html&gt;
+    &quot;&quot;&quot;
+end</code></pre>
+<p>Hitting <code class="inline">/our_path/15</code> now renders the HTML string we defined in the <code class="inline">show</code> action, with the value <code class="inline">15</code> interpolated. Note that what we wrote in the action is not an <code class="inline">eex</code> template. It’s a multi-line string, so we interpolate the <code class="inline">id</code> variable like this <code class="inline">#{id}</code> instead of this <code class="inline">&lt;%= id %&gt;</code>.</p>
+<p>It is worth noting that the <code class="inline">text/2</code>, <code class="inline">json/2</code>, and <code class="inline">html/2</code> functions require neither a Phoenix view, nor a template to render.</p>
+<p>The <code class="inline">json/2</code> function is obviously useful for writing APIs, and the other two may come in handy, but rendering a template into a layout with values we pass in is a very common case.</p>
+<p>For this, Phoenix provides the <code class="inline">render/3</code> function.</p>
+<p>Interestingly, <code class="inline">render/3</code> is defined in the <a href="Phoenix.View.html"><code class="inline">Phoenix.View</code></a> module instead of <a href="Phoenix.Controller.html"><code class="inline">Phoenix.Controller</code></a>, but it is aliased in <a href="Phoenix.Controller.html"><code class="inline">Phoenix.Controller</code></a> for convenience.</p>
+<p>We have already seen the render function in the <a href="adding_pages.html">Adding Pages Guide</a>. Our <code class="inline">show</code> action in <code class="inline">lib/hello_web/controllers/hello_controller.ex</code> looked like this.</p>
+<pre><code class="elixir">defmodule HelloWeb.HelloController do
+  use HelloWeb, :controller
+
+  def show(conn, %{&quot;messenger&quot; =&gt; messenger}) do
+    render conn, &quot;show.html&quot;, messenger: messenger
+  end
+end</code></pre>
+<p>In order for the <code class="inline">render/3</code> function to work correctly, the controller must have the same root name as the individual view. The individual view must also have the same root name as the template directory where the <code class="inline">show.html.eex</code> template lives. In other words, the <code class="inline">HelloController</code> requires <code class="inline">HelloView</code>, and <code class="inline">HelloView</code> requires the existence of the <code class="inline">lib/hello_web/templates/hello</code> directory, which must contain the <code class="inline">show.html.eex</code> template.</p>
+<p><code class="inline">render/3</code> will also pass the value which the <code class="inline">show</code> action received for <code class="inline">messenger</code> from the params hash into the template for interpolation.</p>
+<p>If we need to pass values into the template when using <code class="inline">render</code>, that’s easy. We can pass a dictionary like we’ve seen with <code class="inline">messenger: messenger</code>, or we can use <code class="inline">Plug.Conn.assign/3</code>, which conveniently returns <code class="inline">conn</code>.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  conn
+  |&gt; assign(:message, &quot;Welcome Back!&quot;)
+  |&gt; render(&quot;index.html&quot;)
+end</code></pre>
+<p>Note: The <a href="Phoenix.Controller.html"><code class="inline">Phoenix.Controller</code></a> module imports <code class="inline">Plug.Conn</code>, so shortening the call to <code class="inline">assign/3</code> works just fine.</p>
+<p>We can access this message in our <code class="inline">index.html.eex</code> template, or in our layout, with this <code class="inline">&lt;%= @message %&gt;</code>.</p>
+<p>Passing more than one value in to our template is as simple as connecting <code class="inline">assign/3</code> functions together in a pipeline.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  conn
+  |&gt; assign(:message, &quot;Welcome Back!&quot;)
+  |&gt; assign(:name, &quot;Dweezil&quot;)
+  |&gt; render(&quot;index.html&quot;)
+end</code></pre>
+<p>With this, both <code class="inline">@message</code> and <code class="inline">@name</code> will be available in the <code class="inline">index.html.eex</code> template.</p>
+<p>What if we want to have a default welcome message that some actions can override? That’s easy, we just use <code class="inline">plug</code> and transform <code class="inline">conn</code> on its way towards the controller action.</p>
+<pre><code class="elixir">plug :assign_welcome_message, &quot;Welcome Back&quot;
+
+def index(conn, _params) do
+  conn
+  |&gt; assign(:message, &quot;Welcome Forward&quot;)
+  |&gt; render(&quot;index.html&quot;)
+end
+
+defp assign_welcome_message(conn, msg) do
+  assign(conn, :message, msg)
+end</code></pre>
+<p>What if we want to plug <code class="inline">assign_welcome_message</code>, but only for some of our actions? Phoenix offers a solution to this by letting us specify which actions a plug should be applied to. If we only wanted <code class="inline">plug :assign_welcome_message</code> to work on the <code class="inline">index</code> and <code class="inline">show</code> actions, we could do this.</p>
+<pre><code class="elixir">defmodule HelloWeb.PageController do
+  use HelloWeb, :controller
+
+  plug :assign_welcome_message, &quot;Hi!&quot; when action in [:index, :show]
+. . .</code></pre>
+<h3 id="sending-responses-directly" class="section-heading">
+  <a href="#sending-responses-directly" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Sending responses directly
+</h3>
+
+<p>If none of the rendering options above quite fits our needs, we can compose our own using some of the functions that Plug gives us. Let’s say we want to send a response with a status of “201” and no body whatsoever. We can easily do that with the <code class="inline">send_resp/3</code> function.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  conn
+  |&gt; send_resp(201, &quot;&quot;)
+end</code></pre>
+<p>Reloading <a href="http://localhost:4000">http://localhost:4000</a> should show us a completely blank page. The network tab of our browser’s developer tools should show a response status of “201”.</p>
+<p>If we would like to be really specific about the content type, we can use <code class="inline">put_resp_content_type/2</code> in conjunction with <code class="inline">send_resp/3</code>.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  conn
+  |&gt; put_resp_content_type(&quot;text/plain&quot;)
+  |&gt; send_resp(201, &quot;&quot;)
+end</code></pre>
+<p>Using Plug functions in this way, we can craft just the response we need.</p>
+<p>Rendering does not end with the template, though. By default, the results of the template render will be inserted into a layout, which will also be rendered.</p>
+<p><a href="templates.html">Templates and layouts</a> have their own guide, so we won’t spend much time on them here. What we will look at is how to assign a different layout, or none at all, from inside a controller action.</p>
+<h3 id="assigning-layouts" class="section-heading">
+  <a href="#assigning-layouts" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Assigning Layouts
+</h3>
+
+<p>Layouts are just a special subset of templates. They live in <code class="inline">lib/hello_web/templates/layout</code>. Phoenix created one for us when we generated our app. It’s called <code class="inline">app.html.eex</code>, and it is the layout into which all templates will be rendered by default.</p>
+<p>Since layouts are really just templates, they need a view to render them. This is the <code class="inline">LayoutView</code> module defined in <code class="inline">lib/hello_web/views/layout_view.ex</code>. Since Phoenix generated this view for us, we won’t have to create a new one as long as we put the layouts we want to render inside the <code class="inline">lib/hello_web/templates/layout</code> directory.</p>
+<p>Before we create a new layout, though, let’s do the simplest possible thing and render a template with no layout at all.</p>
+<p>The <a href="Phoenix.Controller.html"><code class="inline">Phoenix.Controller</code></a> module provides the <code class="inline">put_layout/2</code> function for us to switch layouts. This takes <code class="inline">conn</code> as its first argument and a string for the basename of the layout we want to render. Another clause of the function will match on the boolean <code class="inline">false</code> for the second argument, and that’s how we will render the Phoenix welcome page without a layout.</p>
+<p>In a freshly generated Phoenix app, edit the <code class="inline">index</code> action of the <code class="inline">PageController</code> module <code class="inline">lib/hello_web/controllers/page_controller.ex</code> to look like this.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  conn
+  |&gt; put_layout(false)
+  |&gt; render(&quot;index.html&quot;)
+end</code></pre>
+<p>After reloading <a href="http://localhost:4000/">http://localhost:4000/</a>, we should see a very different page, one with no title, logo image, or css styling at all.</p>
+<p>Very Important! For function calls in a pipeline, it is critical to use parentheses around the arguments because the pipe operator binds very tightly. This leads to parsing problems and very strange results.</p>
+<p>If you ever get a stack trace that looks like this,</p>
+<pre><code class="console">**(FunctionClauseError) no function clause matching in Plug.Conn.get_resp_header/2
+
+Stacktrace
+
+    (plug) lib/plug/conn.ex:353: Plug.Conn.get_resp_header(false, &quot;content-type&quot;)</code></pre>
+<p>where your argument replaces <code class="inline">conn</code> as the first argument, one of the first things to check is whether there are parentheses in the right places.</p>
+<p>This is fine.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  conn
+  |&gt; put_layout(false)
+  |&gt; render(&quot;index.html&quot;)
+end</code></pre>
+<p>Whereas this won’t work.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  conn
+  |&gt; put_layout false
+  |&gt; render &quot;index.html&quot;
+end</code></pre>
+<p>Now let’s actually create another layout and render the index template into it. As an example, let’s say we had a different layout for the admin section of our application which didn’t have the logo image. To do this, let’s copy the existing <code class="inline">app.html.eex</code> to a new file <code class="inline">admin.html.eex</code> in the same directory <code class="inline">lib/hello_web/templates/layout</code>. Then let’s remove the line in <code class="inline">admin.html.eex</code> that displays the logo.</p>
+<pre><code class="html">&lt;span class=&quot;logo&quot;&gt;&lt;/span&gt; &lt;!-- remove this line --&gt;</code></pre>
+<p>Then, pass the basename of the new layout into <code class="inline">put_layout/2</code> in our <code class="inline">index</code> action in <code class="inline">lib/hello_web/controllers/page_controller.ex</code>.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  conn
+  |&gt; put_layout(&quot;admin.html&quot;)
+  |&gt; render(&quot;index.html&quot;)
+end</code></pre>
+<p>When we load the page, we should be rendering the admin layout without a logo.</p>
+<h3 id="overriding-rendering-formats" class="section-heading">
+  <a href="#overriding-rendering-formats" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Overriding Rendering Formats
+</h3>
+
+<p>Rendering HTML through a template is fine, but what if we need to change the rendering format on the fly? Let’s say that sometimes we need HTML, sometimes we need plain text, and sometimes we need JSON. Then what?</p>
+<p>Phoenix allows us to change formats on the fly with the <code class="inline">_format</code> query string parameter. To make this happen, Phoenix requires an appropriately named view and an appropriately named template in the correct directory.</p>
+<p>As an example, let’s take the <code class="inline">PageController</code> index action from a newly generated app. Out of the box, this has the right view, <code class="inline">PageView</code>, the right templates directory, <code class="inline">lib/hello_web/templates/page</code>, and the right template for rendering HTML, <code class="inline">index.html.eex</code>.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  render conn, &quot;index.html&quot;
+end</code></pre>
+<p>What it doesn’t have is an alternative template for rendering text. Let’s add one at <code class="inline">lib/hello_web/templates/page/index.text.eex</code>. Here is our example <code class="inline">index.text.eex</code> template.</p>
+<pre><code class="elixir">OMG, this is actually some text.</code></pre>
+<p>There are just a few more things we need to do to make this work. We need to tell our router that it should accept the <code class="inline">text</code> format. We do that by adding <code class="inline">text</code> to the list of accepted formats in the <code class="inline">:browser</code> pipeline. Let’s open up <code class="inline">lib/hello_web/router.ex</code> and change the <code class="inline">plug :accepts</code> to include <code class="inline">text</code> as well as <code class="inline">html</code> like this.</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use HelloWeb, :router
+
+  pipeline :browser do
+    plug :accepts, [&quot;html&quot;, &quot;text&quot;]
+    plug :fetch_session
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+. . .</code></pre>
+<p>We also need to tell the controller to render a template with the same format as the one returned by <a href="Phoenix.Controller.html#get_format/1"><code class="inline">Phoenix.Controller.get_format/1</code></a>. We do that by substituting the atom version of the template <code class="inline">:index</code> for the string version <code class="inline">&quot;index.html&quot;</code>.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  render conn, :index
+end</code></pre>
+<p>If we go to <a href="http://localhost:4000/?_format=text">http://localhost:4000/?_format=text</a>, we will see <code class="inline">OMG, this is actually some text.</code></p>
+<p>Of course, we can pass data into our template as well. Let’s change our action to take in a message parameter by removing the <code class="inline">_</code> in front of <code class="inline">params</code> in the function definition. This time, we’ll use the somewhat less-flexible string version of our text template, just to see that it works as well.</p>
+<pre><code class="elixir">def index(conn, params) do
+  render conn, &quot;index.text&quot;, message: params[&quot;message&quot;]
+end</code></pre>
+<p>And let’s add a bit to our text template.</p>
+<pre><code class="elixir">OMG, this is actually some text. &lt;%= @message %&gt;</code></pre>
+<p>Now if we go to <code class="inline">http://localhost:4000/?_format=text&amp;message=CrazyTown</code>, we will see “OMG, this is actually some text. CrazyTown”</p>
+<h3 id="setting-the-content-type" class="section-heading">
+  <a href="#setting-the-content-type" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Setting the Content Type
+</h3>
+
+<p>Analogous to the <code class="inline">_format</code> query string param, we can render any sort of format we want by modifying the HTTP Content-Type Header and providing the appropriate template.</p>
+<p>If we wanted to render an xml version of our <code class="inline">index</code> action, we might implement the action like this in <code class="inline">lib/hello_web/page_controller.ex</code>.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  conn
+  |&gt; put_resp_content_type(&quot;text/xml&quot;)
+  |&gt; render(&quot;index.xml&quot;, content: some_xml_content)
+end</code></pre>
+<p>We would then need to provide an <code class="inline">index.xml.eex</code> template which created valid xml, and we would be done.</p>
+<p>For a list of valid content mime-types, please see the <a href="https://github.com/elixir-lang/mime/blob/master/lib/mime.types">mime.types</a> documentation from the mime type library.</p>
+<h3 id="setting-the-http-status" class="section-heading">
+  <a href="#setting-the-http-status" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Setting the HTTP Status
+</h3>
+
+<p>We can also set the HTTP status code of a response similarly to the way we set the content type. The <code class="inline">Plug.Conn</code> module, imported into all controllers, has a <code class="inline">put_status/2</code> function to do this.</p>
+<p><code class="inline">put_status/2</code> takes <code class="inline">conn</code> as the first parameter and as the second parameter either an integer or a “friendly name” used as an atom for the status code we want to set. Here is the list of supported <a href="https://github.com/elixir-lang/plug/blob/v1.3.0/lib/plug/conn/status.ex#L9-L69">friendly names</a>.</p>
+<p>Let’s change the status in our <code class="inline">PageController</code> <code class="inline">index</code> action.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  conn
+  |&gt; put_status(202)
+  |&gt; render(&quot;index.html&quot;)
+end</code></pre>
+<p>The status code we provide must be valid - <a href="https://github.com/ninenines/cowboy">Cowboy</a>, the web server Phoenix runs on, will throw an error on invalid codes. If we look at our development logs (which is to say, the iex session), or use our browser’s web inspection network tool, we will see the status code being set as we reload the page.</p>
+<p>If the action sends a response - either renders or redirects - changing the code will not change the behavior of the response. If, for example, we set the status to 404 or 500 and then <code class="inline">render &quot;index.html&quot;</code>, we do not get an error page. Similarly, no 300 level code will actually redirect. (It wouldn’t know where to redirect to, even if the code did affect behavior.)</p>
+<p>The following implementation of the <code class="inline">HelloWeb.PageController</code> <code class="inline">index</code> action, for example, will <em>not</em> render the default <code class="inline">not_found</code> behavior as expected.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  conn
+  |&gt; put_status(:not_found)
+  |&gt; render(&quot;index.html&quot;)
+end</code></pre>
+<p>The correct way to render the 404 page from <code class="inline">HelloWeb.PageController</code> is:</p>
+<pre><code class="elixir">def index(conn, _params) do
+  conn
+  |&gt; put_status(:not_found)
+  |&gt; put_view(HelloWeb.ErrorView)
+  |&gt; render(&quot;404.html&quot;)
+end</code></pre>
+<h3 id="redirection" class="section-heading">
+  <a href="#redirection" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Redirection
+</h3>
+
+<p>Often, we need to redirect to a new url in the middle of a request. A successful <code class="inline">create</code> action, for instance, will usually redirect to the <code class="inline">show</code> action for the schema we just created. Alternately, it could redirect to the <code class="inline">index</code> action to show all the things of that same type. There are plenty of other cases where redirection is useful as well.</p>
+<p>Whatever the circumstance, Phoenix controllers provide the handy <code class="inline">redirect/2</code> function to make redirection easy. Phoenix differentiates between redirecting to a path within the application and redirecting to a url - either within our application or external to it.</p>
+<p>In order to try out <code class="inline">redirect/2</code>, let’s create a new route in <code class="inline">lib/hello_web/router.ex</code>.</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use HelloWeb, :router
+  . . .
+
+  scope &quot;/&quot;, HelloWeb do
+    . . .
+    get &quot;/&quot;, PageController, :index
+  end
+
+  # New route for redirects
+  scope &quot;/&quot;, HelloWeb do
+    get &quot;/redirect_test&quot;, PageController, :redirect_test, as: :redirect_test
+  end
+  . . .
+end</code></pre>
+<p>Then we’ll change the <code class="inline">index</code> action to do nothing but redirect to our new route.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  redirect conn, to: &quot;/redirect_test&quot;
+end</code></pre>
+<p>Finally, let’s define in the same file the action we redirect to, which simply renders the text <code class="inline">Redirect!</code>.</p>
+<pre><code class="elixir">def redirect_test(conn, _params) do
+  text conn, &quot;Redirect!&quot;
+end</code></pre>
+<p>When we reload our <a href="http://localhost:4000">Welcome Page</a>, we see that we’ve been redirected to <code class="inline">/redirect_test</code> which has rendered the text <code class="inline">Redirect!</code>. It works!</p>
+<p>If we care to, we can open up our developer tools, click on the network tab, and visit our root route again. We see two main requests for this page - a get to <code class="inline">/</code> with a status of <code class="inline">302</code>, and a get to <code class="inline">/redirect_test</code> with a status of <code class="inline">200</code>.</p>
+<p>Notice that the redirect function takes <code class="inline">conn</code> as well as a string representing a relative path within our application. It can also take <code class="inline">conn</code> and a string representing a fully-qualified url.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  redirect conn, external: &quot;https://elixir-lang.org/&quot;
+end</code></pre>
+<p>We can also make use of the path helpers we learned about in the <a href="routing.html">Routing Guide</a>.</p>
+<pre><code class="elixir">defmodule HelloWeb.PageController do
+  use HelloWeb, :controller
+
+  def index(conn, _params) do
+    redirect conn, to: redirect_test_path(conn, :redirect_test)
+  end
+end</code></pre>
+<p>Note that we can’t use the url helper here because <code class="inline">redirect/2</code> using the atom <code class="inline">:to</code>, expects a path. For example, the following will fail.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  redirect conn, to: redirect_test_url(conn, :redirect_test)
+end</code></pre>
+<p>If we want to use the url helper to pass a full url to <code class="inline">redirect/2</code>, we must use the atom <code class="inline">:external</code>. Note that the url does not have to be truly external to our application to use <code class="inline">:external</code>, as we see in this example.</p>
+<pre><code class="elixir">def index(conn, _params) do
+  redirect conn, external: redirect_test_url(conn, :redirect_test)
+end</code></pre>
+<h3 id="action-fallback" class="section-heading">
+  <a href="#action-fallback" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Action Fallback
+</h3>
+
+<p>Action Fallback allows us to centralize error handling code in plugs which are called when a controller action fails to return a <code class="inline">Plug.Conn.t</code>. These plugs receive both the conn which was originally passed to the controller action along with the return value of the action.</p>
+<p>Let’s say we have a <code class="inline">show</code> action which uses <code class="inline">with</code> to fetch a blog post and then authorize the current user to view that blog post. In this example we might expect <code class="inline">Blog.fetch_post/1</code> to return <code class="inline">{:error, :not_found}</code> if the post is not found and <code class="inline">Authorizer.authorize/3</code> might return <code class="inline">{:error, :unauthorized}</code> if the user is unauthorized. We could render the error views for these non-happy-paths directly.</p>
+<pre><code class="elixir">defmodule HelloWeb.MyController do
+  use Phoenix.Controller
+  alias Hello.{Authorizer, Blog}
+
+  def show(conn, %{&quot;id&quot; =&gt; id}, current_user) do
+    with {:ok, post} &lt;- Blog.fetch_post(id),
+         :ok &lt;- Authorizer.authorize(current_user, :view, post) do
+
+      render(conn, &quot;show.json&quot;, post: post)
+    else
+      {:error, :not_found} -&gt;
+        conn
+        |&gt; put_status(:not_found)
+        |&gt; put_view(ErrorView)
+        |&gt; render(:&quot;404&quot;)
+      {:error, :unauthorized} -&gt;
+        conn
+        |&gt; put_status(403)
+        |&gt; put_view(ErrorView)
+        |&gt; render(:&quot;403&quot;)
+    end
+  end
+end</code></pre>
+<p>Many times - especially when implementing controllers for an API - error handling in the controllers like this results in a lot of repetition. Instead we can define a plug which knows how to handle these error cases.</p>
+<pre><code class="elixir">defmodule HelloWeb.MyFallbackController do
+  use Phoenix.Controller
+  alias HelloWeb.ErrorView
+
+  def call(conn, {:error, :not_found}) do
+    conn
+    |&gt; put_status(:not_found)
+    |&gt; put_view(ErrorView)
+    |&gt; render(:&quot;404&quot;)
+  end
+
+  def call(conn, {:error, :unauthorized}) do
+    conn
+    |&gt; put_status(403)
+    |&gt; put_view(ErrorView)
+    |&gt; render(:&quot;403&quot;)
+  end
+end</code></pre>
+<p>Then we can reference that plug using action_fallback and simply remove the <code class="inline">else</code> block from our <code class="inline">with</code>.  Our plug will receive the original conn as well as the result of the action and respond appropriately.</p>
+<pre><code class="elixir">defmodule HelloWeb.MyController do
+  use Phoenix.Controller
+  alias Hello.{Authorizer, Blog}
+
+  action_fallback HelloWeb.MyFallbackController
+
+  def show(conn, %{&quot;id&quot; =&gt; id}, current_user) do
+    with {:ok, post} &lt;- Blog.fetch_post(id),
+         :ok &lt;- Authorizer.authorize(current_user, :view, post) do
+
+      render(conn, &quot;show.json&quot;, post: post)
+    end
+  end
+end</code></pre>
+<h3 id="halting-the-plug-pipeline" class="section-heading">
+  <a href="#halting-the-plug-pipeline" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Halting the Plug Pipeline
+</h3>
+
+<p>As we mentioned - Controllers are plugs…. specifically plugs which are called toward the end of the plug pipeline.  At any step of the pipeline we might have cause to stop processing - typically because we’ve redirected or rendered a response. <code class="inline">Plug.Conn.t</code> has a <code class="inline">:halted</code> key - setting it to true will cause downstream plugs to be skipped. We can do that easily using <code class="inline">Plug.Conn.halt/1</code>.</p>
+<p>Consider a <code class="inline">HelloWeb.PostFinder</code> plug. On call, if we find a post related to a given id then we add it to <code class="inline">assigns</code>; and if we don’t find the post we respond with a 404 page.</p>
+<pre><code class="elixir">defmodule HelloWeb.PostFinder do
+  use Plug
+  import Plog.Conn
+
+  alias Hello.Blog
+
+  def init(opts), do: opts
+
+  def call(conn, _) do
+    case Blog.get_post(conn.params[&quot;id&quot;]) do
+      {:ok, post} -&gt;
+        assign(conn, :post, post)
+      {:error, :notfound} -&gt;
+        conn
+        |&gt; send_resp(404, &quot;Not found&quot;)
+    end
+  end
+end</code></pre>
+<p>If we call this plug as part of the plug pipeline any downstream plugs will still be processed. If we want to prevent downstream plugs from being processed in the event of the 404 response we can simply call <code class="inline">Plug.Conn.halt/1</code>.</p>
+<pre><code class="elixir">    case Blog.get_post(conn.params[&quot;id&quot;]) do
+      {:ok, post} -&gt;
+        assign(conn, :post, post)
+      {:error, :notfound} -&gt;
+        conn
+        |&gt; send_resp(404, &quot;Not found&quot;)
+        |&gt; halt()
+    end</code></pre>
+<p>It’s important to note that <code class="inline">halt/1</code> simply sets the <code class="inline">:halted</code> key on <code class="inline">Plug.Conn.t</code> to <code class="inline">true</code>.  This is enough to prevent downstream plugs from being invoked but it will not stop the execution of code locally. As such</p>
+<pre><code class="elixir">  conn
+  |&gt; send_resp(404, &quot;Not found&quot;)
+  |&gt; halt()</code></pre>
+<p>… is functionally equivalent to…</p>
+<pre><code class="elixir">  conn
+  |&gt; halt()
+  |&gt; send_resp(404, &quot;Not found&quot;)</code></pre>
+<p>It’s also important to note that halting will only stop the plug pipeline from continuing. Function plugs will still execute unless their implementation checks for the <code class="inline">:halt</code> value.</p>
+<pre><code class="elixir">  def post_authorization_plug(%{halted: true} = conn, _), do: conn
+  def post_authorization_plug(conn, _) do
+  . . .
+  end</code></pre>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

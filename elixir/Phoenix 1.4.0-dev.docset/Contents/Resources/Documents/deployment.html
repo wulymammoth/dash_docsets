@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Introduction to Deployment – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Introduction to Deployment</h1>
+<p>Once we have a working application, we’re ready to deploy it. If you’re not quite finished with your own application, don’t worry. Just follow the <a href="up_and_running.html">Up and Running Guide</a> to create a basic application to work with.</p>
+<p>When preparing an application for deployment, there are three main steps:</p>
+<ul>
+<li>Handling of your application secrets
+</li>
+<li>Compiling your application assets
+</li>
+<li>Starting your server in production
+</li>
+</ul>
+<p>How those are exactly handled depends on your deployment infrastructure. We have included a guide specific to <a href="heroku.html">Heroku</a>, and for anyone not using Heroku, we recommend using  <a href="https://github.com/bitwalker/distillery">Distillery</a>.</p>
+<p>In any case, this chapter provides a general overview of the deployment steps, which will be useful regardless of your infrastructure or if you want to run in production locally.</p>
+<p>Let’s explore those steps above one by one.</p>
+<blockquote><p>Note: this guide assumes you are using at least Elixir v1.0.4, which brought some improvements on how applications are compiled and are optimized for the production environment</p>
+</blockquote>
+<h2 id="handling-of-your-application-secrets" class="section-heading">
+  <a href="#handling-of-your-application-secrets" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Handling of your application secrets
+</h2>
+
+<p>All Phoenix applications have data that must be kept secure, for example, the username and password for your production database, and the secret Phoenix uses to sign and encrypt important information. This data is typically kept in <code class="inline">config/prod.secret.exs</code> and by default it is not checked into your version control system.</p>
+<p>Therefore, the first step is to get this data into your production machine. Here is the template shipped with new applications:</p>
+<pre><code class="elixir">use Mix.Config
+
+# In this file, we keep production configuration that
+# you likely want to automate and keep it away from
+# your version control system.
+
+# You can generate a new secret by running:
+#
+#     mix phx.gen.secret
+config :foo, Foo.Endpoint,
+  secret_key_base: &quot;A LONG SECRET&quot;
+
+# Configure your database
+config :foo, Foo.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  username: &quot;postgres&quot;,
+  password: &quot;postgres&quot;,
+  database: &quot;foo_prod&quot;,
+  size: 20 # The amount of database connections in the pool</code></pre>
+<p>There are different ways to get this data into production. One option is to replace the data above by environment variables and set those environment variables in your production machine. This is the step that we follow <a href="heroku.html">in the Heroku guides</a>.</p>
+<p>Another approach is to configure the file above and place it in your production machines apart from your code checkout, for example, at “/var/config.prod.exs”. After doing so, you will have to import it from <code class="inline">config/prod.exs</code>. Search for the <code class="inline">import_config</code> line and replace it by the proper path:</p>
+<pre><code class="elixir">import_config &quot;/var/config.prod.exs&quot;</code></pre>
+<p>With your secret information properly secured, it is time to configure assets!
+Before taking this step, we need to do one bit of preparation.
+Since we will be readying everything for production, we need to do some setup in that environment by getting our dependencies and compiling.</p>
+<pre><code class="console">$ mix deps.get --only prod
+$ MIX_ENV=prod mix compile</code></pre>
+<h2 id="compiling-your-application-assets" class="section-heading">
+  <a href="#compiling-your-application-assets" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Compiling your application assets
+</h2>
+
+<p>This step is required only if you have static assets like images, JavaScript, stylesheets and more in your Phoenix applications. By default, Phoenix uses brunch, and that’s what we are going to explore.</p>
+<p>Compilation of static assets happens in two steps:</p>
+<pre><code class="console">$ brunch build --production
+
+$ mix phx.digest
+
+Check your digested files at &quot;priv/static&quot;.</code></pre>
+<p>And that is it! The first command builds the assets and the second generates digests as well as a cache manifest file so Phoenix can quickly serve assets in production.</p>
+<p>Keep in mind that, if you by any chance forget to run the steps above, Phoenix will show an error message:</p>
+<pre><code class="console">$ PORT=4001 MIX_ENV=prod mix phx.server
+10:50:18.732 [info] Running MyApp.Endpoint with Cowboy on http://example.com
+10:50:18.735 [error] Could not find static manifest at &quot;my_app/_build/prod/lib/foo/priv/static/cache_manifest.json&quot;. Run &quot;mix phx.digest&quot; after building your static files or remove the configuration from &quot;config/prod.exs&quot;.</code></pre>
+<p>The error message is quite clear: it says Phoenix could not find a static manifest. Just run the commands above to fix it or, if you are not serving or don’t care about assets at all, you can just remove the <code class="inline">cache_static_manifest</code> configuration from <code class="inline">config/prod.exs</code>.</p>
+<h2 id="starting-your-server-in-production" class="section-heading">
+  <a href="#starting-your-server-in-production" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Starting your server in production
+</h2>
+
+<p>To run Phoenix in production, we need to set the <code class="inline">PORT</code> and <code class="inline">MIX_ENV</code> environment variables when invoking <code class="inline">mix phx.server</code>:</p>
+<pre><code class="console">$ PORT=4001 MIX_ENV=prod mix phx.server
+10:59:19.136 [info] Running MyApp.Endpoint with Cowboy on http://example.com</code></pre>
+<p>In case you get an error message, please read it carefully, and open up a bug report if it is still not clear how to address it.</p>
+<p>You can also run your application inside an interactive shell:</p>
+<pre><code class="console">$ PORT=4001 MIX_ENV=prod iex -S mix phx.server
+10:59:19.136 [info] Running MyApp.Endpoint with Cowboy on http://example.com</code></pre>
+<p>Or run it detached from the iex console. This effectively daemonizes the process so it can run independently in the background:</p>
+<pre><code class="elixir">MIX_ENV=prod PORT=4001 elixir --detached -S mix do compile, phx.server</code></pre>
+<p>Running the application in detached mode allows us to keep the application running even after we terminate the shell connection with the server.</p>
+<h2 id="putting-it-all-together" class="section-heading">
+  <a href="#putting-it-all-together" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Putting it all together
+</h2>
+
+<p>The previous sections give an overview about the main steps required to deploy your Phoenix application. In practice, you will end-up adding steps of your own as well. For example, if you are using a database, you will also want to run <code class="inline">mix ecto.migrate</code> before starting the server to ensure your database is up to date.</p>
+<p>Overall, here is a script you can use as starting point:</p>
+<pre><code class="elixir"># Initial setup
+$ mix deps.get --only prod
+$ MIX_ENV=prod mix compile
+
+# Compile assets
+$ brunch build --production
+
+$ mix phx.digest
+
+# Custom tasks (like DB migrations)
+$ MIX_ENV=prod mix ecto.migrate
+
+# Finally run the server
+$ PORT=4001 MIX_ENV=prod mix phx.server</code></pre>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

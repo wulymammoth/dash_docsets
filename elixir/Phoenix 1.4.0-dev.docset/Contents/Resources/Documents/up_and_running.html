@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Up and Running – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Up and Running</h1>
+<p>The aim of this first guide is to get a Phoenix application up and running as quickly as possible.</p>
+<p>Before we begin, please take a minute to read the <a href="installation.html">Installation Guide</a>. By installing any necessary dependencies beforehand, we’ll be able to get our application up and running smoothly.</p>
+<p>At this point, we should have Elixir, Erlang, Hex, and the Phoenix archive installed. We should also have PostgreSQL and node.js installed to build a default application.</p>
+<p>Ok, we’re ready to go!</p>
+<p>We can run <code class="inline">mix phx.new</code> from any directory in order to bootstrap our Phoenix application. Phoenix will accept either an absolute or relative path for the directory of our new project. Assuming that the name of our application is <code class="inline">hello</code>, let’s run the following command:</p>
+<pre><code class="console">$ mix phx.new hello</code></pre>
+<blockquote><p>A note about <a href="http://brunch.io/">Brunch.io</a> before we begin: Phoenix will use Brunch.io for asset management by default. Brunch.io’s dependencies are installed via the node package manager, not mix. Phoenix will prompt us to install them at the end of the <code class="inline">mix phx.new</code> task. If we say “no” at that point, and if we don’t install those dependencies later with <code class="inline">npm install</code>, our application will raise errors when we try to start it, and our assets may not load properly. If we don’t want to use Brunch.io at all, we can simply pass <code class="inline">--no-brunch</code> to <code class="inline">mix phx.new</code>.</p>
+</blockquote>
+<blockquote><p>A note about <a href="https://hexdocs.pm/phoenix/ecto.html">Ecto</a>: Ecto allows our Phoenix application to communicate with a data store, such as PostgreSQL or MongoDB. If our application will not require this component we can skip this dependency by passing the <code class="inline">--no-ecto</code> flag to the <code class="inline">mix phx.new</code>. This flag may also be combined with <code class="inline">--no-brunch</code> to create a skeleton application.</p>
+</blockquote>
+<pre><code class="console">mix phx.new hello
+* creating hello/config/config.exs
+* creating hello/config/dev.exs
+* creating hello/config/prod.exs
+...
+* creating hello/lib/hello_web/views/layout_view.ex
+* creating hello/lib/hello_web/views/page_view.ex
+
+Fetch and install dependencies? [Yn]</code></pre>
+<p>Phoenix generates the directory structure and all the files we will need for our application. When it’s done, it will ask us if we want it to install our dependencies for us. Let’s say yes to that.</p>
+<pre><code class="console">Fetch and install dependencies? [Yn] Y
+* running mix deps.get
+* running mix deps.compile
+* running cd assets &amp;&amp; npm install &amp;&amp; node node_modules/brunch/bin/brunch build
+
+We are all set! Go into your application by running:
+
+    $ cd hello
+
+Then configure your database in config/dev.exs and run:
+
+    $ mix ecto.create
+
+Start your Phoenix app with:
+
+    $ mix phx.server
+
+You can also run your app inside IEx (Interactive Elixir) as:
+
+    $ iex -S mix phx.server</code></pre>
+<p>Once our dependencies are installed, the task will prompt us to change into our project directory and start our application.</p>
+<p>Phoenix assumes that our PostgreSQL database will have a <code class="inline">postgres</code> user account with the correct permissions and a password of “postgres”. If that isn’t the case, please see the instructions for the <a href="phoenix_mix_tasks.html#ecto-specific-mix-tasks">ecto.create</a> mix task.</p>
+<p>Ok, let’s give it a try. First, we’ll <code class="inline">cd</code> into the <code class="inline">hello/</code> directory we’ve just created:</p>
+<pre><code class="elixir">$ cd hello</code></pre>
+<p>Now we’ll create our database:</p>
+<pre><code class="elixir">$ mix ecto.create
+The database for Hello.Repo has been created</code></pre>
+<blockquote><p>Note: if this is the first time you are running this command, Phoenix may also ask to install Rebar. Go ahead with the installation as Rebar is used to build Erlang packages.</p>
+</blockquote>
+<p>And finally, we’ll start the Phoenix server:</p>
+<pre><code class="console">$ mix phx.server
+[info] Running HelloWeb.Endpoint with Cowboy using http://0.0.0.0:4000
+19:30:43 - info: compiled 6 files into 2 files, copied 3 in 2.1 sec</code></pre>
+<p>If we choose not to have Phoenix install our dependencies when we generate a new application, the <code class="inline">phx.new</code> task will prompt us to take the necessary steps when we do want to install them.</p>
+<pre><code class="console">Fetch and install dependencies? [Yn] n
+
+We are almost there! The following steps are missing:
+
+    $ cd hello
+    $ mix deps.get
+    $ cd assets &amp;&amp; npm install &amp;&amp; node node_modules/brunch/bin/brunch build
+
+Then configure your database in config/dev.exs and run:
+
+    $ mix ecto.create
+
+Start your Phoenix app with:
+
+    $ mix phx.server
+
+You can also run your app inside IEx (Interactive Elixir) as:
+
+    $ iex -S mix phx.server</code></pre>
+<p>By default Phoenix accepts requests on port 4000. If we point our favorite web browser at <a href="http://localhost:4000">http://localhost:4000</a>, we should see the Phoenix Framework welcome page.</p>
+<p><img src="assets/images/welcome-to-phoenix.png" alt="Phoenix Welcome Page"/></p>
+<p>If your screen looks like the image above, congratulations! You now have a working Phoenix application. In case you can’t see the page above, try accessing it via <a href="http://127.0.0.1:4000">http://127.0.0.1:4000</a> and later make sure your OS has defined “localhost” as “127.0.0.1”.</p>
+<p>Locally, our application is running in an <code class="inline">iex</code> session. To stop it, we hit <code class="inline">ctrl-c</code> twice, just as we would to stop <code class="inline">iex</code> normally.</p>
+<p><a href="http://www.phoenixframework.org/docs/adding-pages">The next step</a> is customizing our application just a bit to give us a sense of how a Phoenix app is put together.</p>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

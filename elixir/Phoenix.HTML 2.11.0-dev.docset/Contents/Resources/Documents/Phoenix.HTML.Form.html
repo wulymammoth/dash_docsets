@@ -1,0 +1,2216 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Phoenix.HTML.Form – Phoenix.HTML v2.11.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-f3114a0f69.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Phoenix.HTML.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix.HTML
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v2.11.0-dev
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix.HTML v2.11.0-dev</small>
+        Phoenix.HTML.Form
+        
+          <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Helpers related to producing HTML forms.</p>
+<p>The functions in this module can be used in three
+distinct scenarios:</p>
+<ul>
+<li><p>with changeset data - when information to populate
+the form comes from a changeset</p>
+</li>
+<li><p>with connection data - when a form is created based
+on the information in the connection (aka <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html"><code class="inline">Plug.Conn</code></a>)</p>
+</li>
+<li><p>without form data - when the functions are used directly,
+outside of a form</p>
+</li>
+</ul>
+<p>We will explore all three scenarios below.</p>
+<h2 id="module-with-changeset-data" class="section-heading">
+  <a href="#module-with-changeset-data" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  With changeset data
+</h2>
+
+<p>The entry point for defining forms in Phoenix is with
+the <a href="#form_for/4"><code class="inline">form_for/4</code></a> function. For this example, we will
+use <code class="inline">Ecto.Changeset</code>, which integrate nicely with Phoenix
+forms via the <code class="inline">phoenix_ecto</code> package.</p>
+<p>Imagine you have the following action in your controller:</p>
+<pre><code class="elixir">def new(conn, _params) do
+  changeset = User.changeset(%User{})
+  render conn, &quot;new.html&quot;, changeset: changeset
+end</code></pre>
+<p>where <code class="inline">User.changeset/2</code> is defined as follows:</p>
+<pre><code class="elixir">def changeset(user, params \\ %{}) do
+  cast(user, params, [:name, :age])
+end</code></pre>
+<p>Now a <code class="inline">@changeset</code> assign is available in views which we
+can pass to the form:</p>
+<pre><code class="elixir">&lt;%= form_for @changeset, user_path(@conn, :create), fn f -&gt; %&gt;
+  &lt;label&gt;
+    Name: &lt;%= text_input f, :name %&gt;
+  &lt;/label&gt;
+
+  &lt;label&gt;
+    Age: &lt;%= select f, :age, 18..100 %&gt;
+  &lt;/label&gt;
+
+  &lt;%= submit &quot;Submit&quot; %&gt;
+&lt;% end %&gt;</code></pre>
+<p><a href="#form_for/4"><code class="inline">form_for/4</code></a> receives the <code class="inline">Ecto.Changeset</code> and converts it
+to a form, which is passed to the function as the argument
+<code class="inline">f</code>. All the remaining functions in this module receive
+the form and automatically generate the input fields, often
+by extracting information from the given changeset. For example,
+if the user had a default value for age set, it will
+automatically show up as selected in the form.</p>
+<h4>A note on <code class="inline">:errors</code></h4>
+<p>If no action has been applied to the changeset, no errors are shown
+on the form object even if the changeset has a non-empty <code class="inline">:errors</code> value.</p>
+<p>This is useful for things like validation hints on form fields, e.g. an empty
+changeset for a new form. That changeset isn’t valid, but we don’t want to
+show errors until an actual user action has been performed.</p>
+<p>Ecto automatically applies the action for you when you call
+Repo.insert/update/delete, but if you want to show errors manually you can
+also set the action yourself, either directly on the <code class="inline">Ecto.Changeset</code> struct
+field or by using <code class="inline">Ecto.Changeset.apply_action/2</code>.</p>
+<h2 id="module-with-connection-data" class="section-heading">
+  <a href="#module-with-connection-data" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  With connection data
+</h2>
+
+<p><a href="#form_for/4"><code class="inline">form_for/4</code></a> expects as first argument any data structure that
+implements the <a href="Phoenix.HTML.FormData.html"><code class="inline">Phoenix.HTML.FormData</code></a> protocol. By default,
+Phoenix implements this protocol for <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html"><code class="inline">Plug.Conn</code></a>, allowing us
+to create forms based only on connection information.</p>
+<p>This is useful when you are creating forms that are not backed
+by any kind of data from the data layer, like a search form.</p>
+<pre><code class="elixir">&lt;%= form_for @conn, search_path(@conn, :new), [as: :search], fn f -&gt; %&gt;
+  &lt;%= text_input f, :for %&gt;
+  &lt;%= submit &quot;Search&quot; %&gt;
+&lt;% end %&gt;</code></pre>
+<p><a href="#form_for/4"><code class="inline">form_for/4</code></a> uses the <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html"><code class="inline">Plug.Conn</code></a> to set input values from the
+request parameters. In this case, the input’s value would be set
+to <code class="inline">@conn.params[&quot;search&quot;][&quot;for&quot;]</code>.</p>
+<h2 id="module-without-form-data" class="section-heading">
+  <a href="#module-without-form-data" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Without form data
+</h2>
+
+<p>Sometimes we may want to generate a <a href="#text_input/3"><code class="inline">text_input/3</code></a> or any other
+tag outside of a form. The functions in this module also support
+such usage by simply passing an atom as first argument instead
+of the form.</p>
+<pre><code class="elixir">&lt;%= text_input :user, :name, value: &quot;This is a prepopulated value&quot; %&gt;</code></pre>
+<h2 id="module-nested-inputs" class="section-heading">
+  <a href="#module-nested-inputs" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Nested inputs
+</h2>
+
+<p>If your data layer supports embedding or nested associations,
+you can use <code class="inline">inputs_for</code> to attach nested data to the form.</p>
+<p>Imagine the following Ecto schemas:</p>
+<pre><code class="elixir">defmodule User do
+  use Ecto.Schema
+
+  schema &quot;users&quot; do
+    field :name
+    embeds_one :permalink, Permalink
+  end
+end
+
+defmodule Permalink do
+  use Ecto.Schema
+
+  embedded_schema do
+    field :url
+  end
+end</code></pre>
+<p>In the form, you now can:</p>
+<pre><code class="elixir">&lt;%= form_for @changeset, user_path(@conn, :create), fn f -&gt; %&gt;
+  &lt;%= text_input f, :name %&gt;
+
+  &lt;%= inputs_for f, :permalink, fn fp -&gt; %&gt;
+    &lt;%= text_input fp, :url %&gt;
+  &lt;% end %&gt;
+&lt;% end %&gt;</code></pre>
+<p>The default option can be given to populate the fields if none
+is given:</p>
+<pre><code class="elixir">&lt;%= inputs_for f, :permalink, [default: %Permalink{title: &quot;default&quot;}], fn fp -&gt; %&gt;
+  &lt;%= text_input fp, :url %&gt;
+&lt;% end %&gt;</code></pre>
+<p><a href="#inputs_for/4"><code class="inline">inputs_for/4</code></a> can be used to work with single entities or
+collections. When working with collections, <code class="inline">:prepend</code> and
+<code class="inline">:append</code> can be used to add entries to the collection
+stored in the changeset.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:t/0">t()</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#__struct__/0">%Phoenix.HTML.Form{}</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Defines the Phoenix.HTML.Form struct</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#checkbox/3">checkbox(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a checkbox</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#color_input/3">color_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a color input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#date_input/3">date_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a date input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#date_select/3">date_select(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates select tags for date</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#datetime_local_input/3">datetime_local_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a datetime-local input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#datetime_select/3">datetime_select(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates select tags for datetime</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#email_input/3">email_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates an email input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#file_input/3">file_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a file input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#form_for/4">form_for(form_data, action, options \\ [], fun)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a form tag with a form builder</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#hidden_input/3">hidden_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a hidden input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#humanize/1">humanize(atom)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Converts an attribute/form field into its humanize version</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#input_id/2">input_id(name, field)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns an id of a corresponding form field</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#input_name/2">input_name(name, field)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns a name of a corresponding form field</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#input_type/3">input_type(form, field, mapping \\ %{&quot;email&quot; =&gt; :email_input, &quot;password&quot; =&gt; :password_input, &quot;search&quot; =&gt; :search_input, &quot;url&quot; =&gt; :url_input})</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Gets the input type for a given field</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#input_validations/2">input_validations(form, field)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns the HTML5 validations that would apply to
+the given field</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#input_value/2">input_value(form, field)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns a value of a corresponding form field</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#inputs_for/4">inputs_for(form, field, options \\ [], fun)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generate a new form builder for the given parameter in form</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#label/2">label(form, field)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a label tag</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#label/3">label(form, field, text)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>See <a href="#label/2"><code class="inline">label/2</code></a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#label/4">label(form, field, text, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>See <a href="#label/2"><code class="inline">label/2</code></a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#multiple_select/4">multiple_select(form, field, options, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a select tag with the given <code class="inline">options</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#number_input/3">number_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a number input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#password_input/3">password_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a password input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#radio_button/4">radio_button(form, field, value, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a radio button</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#range_input/3">range_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a range input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset/2">reset(value, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a reset input to reset all the form fields to
+their original state</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#search_input/3">search_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a search input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#select/4">select(form, field, options, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a select tag with the given <code class="inline">options</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#submit/1">submit(block_option)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a submit button to send the form</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#submit/2">submit(opts, opts \\ [])</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#telephone_input/3">telephone_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a telephone input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#text_input/3">text_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a text input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#textarea/3">textarea(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a textarea input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#time_input/3">time_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a time input</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#time_select/3">time_select(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates select tags for time</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#url_input/3">url_input(form, field, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates an url input</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:t/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/t" class="dashAnchor"></a>
+  <a href="#t:t/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">t()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L187" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>t() :: %Phoenix.HTML.Form{data: %{optional(atom()) => term()}, errors: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>(), hidden: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>(), id: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), impl: module(), index: nil | non_neg_integer(), name: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), options: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>(), params: %{optional(binary()) => term()}, source: <a href="Phoenix.HTML.FormData.html#t:t/0">Phoenix.HTML.FormData.t</a>()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="__struct__/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/__struct__%2F0" class="dashAnchor"></a>
+  <a href="#__struct__/0" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">%Phoenix.HTML.Form{}</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L184" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(struct)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Defines the Phoenix.HTML.Form struct.</p>
+<p>Its fields are:</p>
+<ul>
+<li><p><code class="inline">:source</code> - the data structure given to <a href="#form_for/4"><code class="inline">form_for/4</code></a> that
+implements the form data protocol</p>
+</li>
+<li><p><code class="inline">:impl</code> - the module with the form data protocol implementation.
+This is used to avoid multiple protocol dispatches.</p>
+</li>
+<li><p><code class="inline">:id</code> - the id to be used when generating input fields</p>
+</li>
+<li><p><code class="inline">:name</code> - the name to be used when generating input fields</p>
+</li>
+<li><p><code class="inline">:data</code> - the field used to store lookup data</p>
+</li>
+<li><p><code class="inline">:params</code> - the parameters associated to this form in case
+they were sent as part of a previous request</p>
+</li>
+<li><p><code class="inline">:hidden</code> - a keyword list of fields that are required for
+submitting the form behind the scenes as hidden inputs</p>
+</li>
+<li><p><code class="inline">:options</code> - a copy of the options given when creating the
+form via <a href="#form_for/4"><code class="inline">form_for/4</code></a> without any form data specific key</p>
+</li>
+<li><p><code class="inline">:errors</code> - a keyword list of errors that associated with
+the form</p>
+</li>
+</ul>
+
+  </section>
+</div>
+<div class="detail" id="checkbox/3">
+  
+  
+    <span id="checkbox/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/checkbox%2F3" class="dashAnchor"></a>
+  <a href="#checkbox/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">checkbox(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L776" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a checkbox.</p>
+<p>This function is useful for sending boolean values to the server.</p>
+<h2 id="checkbox/3-examples" class="section-heading">
+  <a href="#checkbox/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir"># Assuming form contains a User schema
+checkbox(form, :famous)
+#=&gt; &lt;input name=&quot;user[famous]&quot; type=&quot;hidden&quot; value=&quot;false&quot;&gt;
+    &lt;input checked=&quot;checked&quot; id=&quot;user_famous&quot; name=&quot;user[famous]&quot; type=&quot;checkbox&quot; value=&quot;true&quot;&gt;</code></pre>
+<h2 id="checkbox/3-options" class="section-heading">
+  <a href="#checkbox/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:checked_value</code> - the value to be sent when the checkbox is checked.
+Defaults to “true”</p>
+</li>
+<li><p><code class="inline">:unchecked_value</code> - the value to be sent when the checkbox is unchecked,
+Defaults to “false”</p>
+</li>
+<li><p><code class="inline">:value</code> - the value used to check if a checkbox is checked or unchecked.
+The default value is extracted from the form data if available</p>
+</li>
+</ul>
+<p>All other options are forwarded to the underlying HTML tag.</p>
+<h2 id="checkbox/3-hidden-fields" class="section-heading">
+  <a href="#checkbox/3-hidden-fields" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Hidden fields
+</h2>
+
+<p>Because an unchecked checkbox is not sent to the server, Phoenix
+automatically generates a hidden field with the unchecked_value
+<em>before</em> the checkbox field to ensure the <code class="inline">unchecked_value</code> is sent
+when the checkbox is not marked.</p>
+
+  </section>
+</div>
+<div class="detail" id="color_input/3">
+  
+  
+    <span id="color_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/color_input%2F3" class="dashAnchor"></a>
+  <a href="#color_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">color_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L505" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a color input.</p>
+<p>Warning: this feature isn’t available in all browsers.
+Check <code class="inline">http://caniuse.com/#feat=input-color</code> for further informations.</p>
+<p>See <a href="#text_input/3"><code class="inline">text_input/3</code></a> for example and docs.</p>
+
+  </section>
+</div>
+<div class="detail" id="date_input/3">
+  
+  
+    <span id="date_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/date_input%2F3" class="dashAnchor"></a>
+  <a href="#date_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">date_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L526" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a date input.</p>
+<p>Warning: this feature isn’t available in all browsers.
+Check <code class="inline">http://caniuse.com/#feat=input-datetime</code> for further informations.</p>
+<p>See <a href="#text_input/3"><code class="inline">text_input/3</code></a> for example and docs.</p>
+
+  </section>
+</div>
+<div class="detail" id="date_select/3">
+  
+  
+    <span id="date_select/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/date_select%2F3" class="dashAnchor"></a>
+  <a href="#date_select/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">date_select(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L1175" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates select tags for date.</p>
+<p>Check <a href="#datetime_select/3"><code class="inline">datetime_select/3</code></a> for more information on options and supported values.</p>
+
+  </section>
+</div>
+<div class="detail" id="datetime_local_input/3">
+  
+  
+    <span id="datetime_local_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/datetime_local_input%2F3" class="dashAnchor"></a>
+  <a href="#datetime_local_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">datetime_local_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L538" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a datetime-local input.</p>
+<p>Warning: this feature isn’t available in all browsers.
+Check <code class="inline">http://caniuse.com/#feat=input-datetime</code> for further informations.</p>
+<p>See <a href="#text_input/3"><code class="inline">text_input/3</code></a> for example and docs.</p>
+
+  </section>
+</div>
+<div class="detail" id="datetime_select/3">
+  
+  
+    <span id="datetime_select/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/datetime_select%2F3" class="dashAnchor"></a>
+  <a href="#datetime_select/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">datetime_select(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L1157" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates select tags for datetime.</p>
+<h2 id="datetime_select/3-examples" class="section-heading">
+  <a href="#datetime_select/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir"># Assuming form contains a User schema
+datetime_select form, :born_at
+#=&gt; &lt;select id=&quot;user_born_at_year&quot; name=&quot;user[born_at][year]&quot;&gt;...&lt;/select&gt; /
+    &lt;select id=&quot;user_born_at_month&quot; name=&quot;user[born_at][month]&quot;&gt;...&lt;/select&gt; /
+    &lt;select id=&quot;user_born_at_day&quot; name=&quot;user[born_at][day]&quot;&gt;...&lt;/select&gt; —
+    &lt;select id=&quot;user_born_at_hour&quot; name=&quot;user[born_at][hour]&quot;&gt;...&lt;/select&gt; :
+    &lt;select id=&quot;user_born_at_min&quot; name=&quot;user[born_at][minute]&quot;&gt;...&lt;/select&gt;</code></pre>
+<p>If you want to include the seconds field (hidden by default), pass <code class="inline">second: []</code>:</p>
+<pre><code class="elixir"># Assuming form contains a User schema
+datetime_select form, :born_at, second: []</code></pre>
+<p>If you want to configure the years range:</p>
+<pre><code class="elixir"># Assuming form contains a User schema
+datetime_select form, :born_at, year: [options: 1900..2100]</code></pre>
+<p>You are also able to configure <code class="inline">:month</code>, <code class="inline">:day</code>, <code class="inline">:hour</code>, <code class="inline">:minute</code> and
+<code class="inline">:second</code>. All options given to those keys will be forwarded to the
+underlying select. See <a href="#select/4"><code class="inline">select/4</code></a> for more information.</p>
+<p>For example, if you are using Phoenix with Gettext and you want to localize
+the list of months, you can pass <code class="inline">:options</code> to the <code class="inline">:month</code> key:</p>
+<pre><code class="elixir"># Assuming form contains a User schema
+datetime_select form, :born_at, month: [
+  options: [
+    {gettext(&quot;January&quot;), &quot;1&quot;},
+    {gettext(&quot;February&quot;), &quot;2&quot;},
+    {gettext(&quot;March&quot;), &quot;3&quot;},
+    {gettext(&quot;April&quot;), &quot;4&quot;},
+    {gettext(&quot;May&quot;), &quot;5&quot;},
+    {gettext(&quot;June&quot;), &quot;6&quot;},
+    {gettext(&quot;July&quot;), &quot;7&quot;},
+    {gettext(&quot;August&quot;), &quot;8&quot;},
+    {gettext(&quot;September&quot;), &quot;9&quot;},
+    {gettext(&quot;October&quot;), &quot;10&quot;},
+    {gettext(&quot;November&quot;), &quot;11&quot;},
+    {gettext(&quot;December&quot;), &quot;12&quot;},
+  ]
+]</code></pre>
+<p>You may even provide your own <code class="inline">localized_datetime_select/3</code> built on top of
+<a href="#datetime_select/3"><code class="inline">datetime_select/3</code></a>:</p>
+<pre><code class="elixir">defp localized_datetime_select(form, field, opts \\ []) do
+  opts =
+    Keyword.put(opts, :month, options: [
+      {gettext(&quot;January&quot;), &quot;1&quot;},
+      {gettext(&quot;February&quot;), &quot;2&quot;},
+      {gettext(&quot;March&quot;), &quot;3&quot;},
+      {gettext(&quot;April&quot;), &quot;4&quot;},
+      {gettext(&quot;May&quot;), &quot;5&quot;},
+      {gettext(&quot;June&quot;), &quot;6&quot;},
+      {gettext(&quot;July&quot;), &quot;7&quot;},
+      {gettext(&quot;August&quot;), &quot;8&quot;},
+      {gettext(&quot;September&quot;), &quot;9&quot;},
+      {gettext(&quot;October&quot;), &quot;10&quot;},
+      {gettext(&quot;November&quot;), &quot;11&quot;},
+      {gettext(&quot;December&quot;), &quot;12&quot;},
+    ])
+
+datetime_select(form, field, opts)</code></pre>
+<p>  end</p>
+<h2 id="datetime_select/3-options" class="section-heading">
+  <a href="#datetime_select/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:value</code> - the value used to select a given option.
+The default value is extracted from the form data if available</p>
+</li>
+<li><p><code class="inline">:default</code> - the default value to use when none was given in
+<code class="inline">:value</code> and none is available in the form data</p>
+</li>
+<li><p><code class="inline">:year</code>, <code class="inline">:month</code>, <code class="inline">:day</code>, <code class="inline">:hour</code>, <code class="inline">:minute</code>, <code class="inline">:second</code> - options passed
+to the underlying select. See <a href="#select/4"><code class="inline">select/4</code></a> for more information.
+The available values can be given in <code class="inline">:options</code>.</p>
+</li>
+<li><p><code class="inline">:builder</code> - specify how the select can be build. It must be a function
+that receives a builder that should be invoked with the select name
+and a set of options. See builder below for more information.</p>
+</li>
+</ul>
+<h2 id="datetime_select/3-builder" class="section-heading">
+  <a href="#datetime_select/3-builder" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Builder
+</h2>
+
+<p>The generated datetime_select can be customized at will by providing a
+builder option. Here is an example from EEx:</p>
+<pre><code class="elixir">&lt;%= datetime_select form, :born_at, builder: fn b -&gt; %&gt;
+  Date: &lt;%= b.(:day, []) %&gt; / &lt;%= b.(:month, []) %&gt; / &lt;%= b.(:year, []) %&gt;
+  Time: &lt;%= b.(:hour, []) %&gt; : &lt;%= b.(:minute, []) %&gt;
+&lt;% end %&gt;</code></pre>
+<p>Although we have passed empty lists as options (they are required), you
+could pass any option there and it would be given to the underlying select
+input.</p>
+<p>In practice, we recommend you to create your own helper with your default
+builder:</p>
+<pre><code class="elixir">def my_datetime_select(form, field, opts \\ []) do
+  builder = fn b -&gt;
+    ~e&quot;&quot;&quot;
+    Date: &lt;%= b.(:day, []) %&gt; / &lt;%= b.(:month, []) %&gt; / &lt;%= b.(:year, []) %&gt;
+    Time: &lt;%= b.(:hour, []) %&gt; : &lt;%= b.(:minute, []) %&gt;
+    &quot;&quot;&quot;
+  end
+
+  datetime_select(form, field, [builder: builder] ++ opts)
+end</code></pre>
+<p>Then you are able to use your own datetime_select throughout your whole
+application.</p>
+<h2 id="datetime_select/3-supported-date-values" class="section-heading">
+  <a href="#datetime_select/3-supported-date-values" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Supported date values
+</h2>
+
+<p>The following values are supported as date:</p>
+<ul>
+<li>a map containing the <code class="inline">year</code>, <code class="inline">month</code> and <code class="inline">day</code> keys (either as strings or atoms)
+</li>
+<li>a tuple with three elements: <code class="inline">{year, month, day}</code>
+</li>
+<li><code class="inline">nil</code>
+</li>
+</ul>
+<h2 id="datetime_select/3-supported-time-values" class="section-heading">
+  <a href="#datetime_select/3-supported-time-values" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Supported time values
+</h2>
+
+<p>The following values are supported as time:</p>
+<ul>
+<li>a map containing the <code class="inline">hour</code> and <code class="inline">min</code> keys and an optional <code class="inline">sec</code> key (either as strings or atoms)
+</li>
+<li>a tuple with three elements: <code class="inline">{hour, min, sec}</code>
+</li>
+<li>a tuple with four elements: <code class="inline">{hour, min, sec, usec}</code>
+</li>
+<li><code class="inline">nil</code>
+</li>
+</ul>
+
+  </section>
+</div>
+<div class="detail" id="email_input/3">
+  
+  
+    <span id="email_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/email_input%2F3" class="dashAnchor"></a>
+  <a href="#email_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">email_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L439" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates an email input.</p>
+<p>See <a href="#text_input/3"><code class="inline">text_input/3</code></a> for example and docs.</p>
+
+  </section>
+</div>
+<div class="detail" id="file_input/3">
+  
+  
+    <span id="file_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/file_input%2F3" class="dashAnchor"></a>
+  <a href="#file_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">file_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L638" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a file input.</p>
+<p>It requires the given form to be configured with <code class="inline">multipart: true</code>
+when invoking <a href="#form_for/4"><code class="inline">form_for/4</code></a>, otherwise it fails with <a href="https://hexdocs.pm/elixir/ArgumentError.html"><code class="inline">ArgumentError</code></a>.</p>
+<p>See <a href="#text_input/3"><code class="inline">text_input/3</code></a> for example and docs.</p>
+
+  </section>
+</div>
+<div class="detail" id="form_for/4">
+  
+  
+    <span id="form_for/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/form_for%2F4" class="dashAnchor"></a>
+  <a href="#form_for/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">form_for(form_data, action, options \\ [], fun)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L251" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>form_for(<a href="Phoenix.HTML.FormData.html#t:t/0">Phoenix.HTML.FormData.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>(), (<a href="#t:t/0">t</a>() -> <a href="Phoenix.HTML.html#t:unsafe/0">Phoenix.HTML.unsafe</a>())) :: <a href="Phoenix.HTML.html#t:safe/0">Phoenix.HTML.safe</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a form tag with a form builder.</p>
+<p>See the module documentation for examples of using this function.</p>
+<h2 id="form_for/4-options" class="section-heading">
+  <a href="#form_for/4-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:as</code> - the server side parameter in which all params for this
+form will be collected (i.e. <code class="inline">as: :user_params</code> would mean all fields
+for this form will be accessed as <code class="inline">conn.params.user_params</code> server
+side). Automatically inflected when a changeset is given.</p>
+</li>
+<li><p><code class="inline">:method</code> - the HTTP method. If the method is not “get” nor “post”,
+an input tag with name <code class="inline">_method</code> is generated along-side the form tag.
+Defaults to “post”.</p>
+</li>
+<li><p><code class="inline">:multipart</code> - when true, sets enctype to “multipart/form-data”.
+Required when uploading files</p>
+</li>
+<li><p><code class="inline">:csrf_token</code> - for “post” requests, the form tag will automatically
+include an input tag with name <code class="inline">_csrf_token</code>. When set to false, this
+is disabled</p>
+</li>
+<li><p><code class="inline">:enforce_utf8</code> - the form will have an <code class="inline">accept-charset</code> attribute set
+to “UTF-8” and a hidden input named <code class="inline">_utf8</code> containing a unicode
+character to force the browser to use UTF-8 as the charset. When set to
+false, this is disabled.</p>
+</li>
+<li><p>Other options will be passed as html attributes.
+ie, <code class="inline">class: &quot;foo&quot;, id: &quot;bar&quot;</code></p>
+</li>
+</ul>
+<p>See <a href="Phoenix.HTML.Tag.html#form_tag/2"><code class="inline">Phoenix.HTML.Tag.form_tag/2</code></a> for more information on the
+options above.</p>
+
+  </section>
+</div>
+<div class="detail" id="hidden_input/3">
+  
+  
+    <span id="hidden_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/hidden_input%2F3" class="dashAnchor"></a>
+  <a href="#hidden_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">hidden_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L430" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a hidden input.</p>
+<p>See <a href="#text_input/3"><code class="inline">text_input/3</code></a> for example and docs.</p>
+
+  </section>
+</div>
+<div class="detail" id="humanize/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/humanize%2F1" class="dashAnchor"></a>
+  <a href="#humanize/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">humanize(atom)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L204" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Converts an attribute/form field into its humanize version.</p>
+<pre><code class="iex elixir">iex&gt; humanize(:username)
+&quot;Username&quot;
+iex&gt; humanize(:created_at)
+&quot;Created at&quot;
+iex&gt; humanize(&quot;user_id&quot;)
+&quot;User&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="input_id/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/input_id%2F2" class="dashAnchor"></a>
+  <a href="#input_id/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">input_id(name, field)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L330" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Returns an id of a corresponding form field.</p>
+<p>The form should either be a <a href="Phoenix.HTML.Form.html#content"><code class="inline">Phoenix.HTML.Form</code></a> emitted
+by <code class="inline">form_for</code> or an atom.</p>
+
+  </section>
+</div>
+<div class="detail" id="input_name/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/input_name%2F2" class="dashAnchor"></a>
+  <a href="#input_name/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">input_name(name, field)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L341" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Returns a name of a corresponding form field.</p>
+<p>The form should either be a <a href="Phoenix.HTML.Form.html#content"><code class="inline">Phoenix.HTML.Form</code></a> emitted
+by <code class="inline">form_for</code> or an atom.</p>
+
+  </section>
+</div>
+<div class="detail" id="input_type/3">
+  
+  
+    <span id="input_type/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/input_type%2F3" class="dashAnchor"></a>
+  <a href="#input_type/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">input_type(form, field, mapping \\ %{&quot;email&quot; =&gt; :email_input, &quot;password&quot; =&gt; :password_input, &quot;search&quot; =&gt; :search_input, &quot;url&quot; =&gt; :url_input})</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L380" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Gets the input type for a given field.</p>
+<p>If the underlying input type is a <code class="inline">:text_field</code>,
+a mapping could be given to further inflect
+the input type based solely on the field name.
+The default mapping is:</p>
+<pre><code class="elixir">%{&quot;url&quot;      =&gt; :url_input,
+  &quot;email&quot;    =&gt; :email_input,
+  &quot;search&quot;   =&gt; :search_input,
+  &quot;password&quot; =&gt; :password_input}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="input_validations/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/input_validations%2F2" class="dashAnchor"></a>
+  <a href="#input_validations/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">input_validations(form, field)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L349" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>input_validations(<a href="#t:t/0">t</a>(), atom()) :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns the HTML5 validations that would apply to
+the given field.</p>
+
+  </section>
+</div>
+<div class="detail" id="input_value/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/input_value%2F2" class="dashAnchor"></a>
+  <a href="#input_value/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">input_value(form, field)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L319" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Returns a value of a corresponding form field.</p>
+<p>The <code class="inline">form</code> should either be a <a href="Phoenix.HTML.Form.html#content"><code class="inline">Phoenix.HTML.Form</code></a> emitted
+by <code class="inline">form_for</code> or an atom.</p>
+<p>When a form is given, it will lookup for changes and then
+fallback to parameters and finally fallback to the default
+struct/map value.</p>
+
+  </section>
+</div>
+<div class="detail" id="inputs_for/4">
+  
+  
+    <span id="inputs_for/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/inputs_for%2F4" class="dashAnchor"></a>
+  <a href="#inputs_for/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">inputs_for(form, field, options \\ [], fun)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L281" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>inputs_for(<a href="#t:t/0">t</a>(), atom(), <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>(), (<a href="#t:t/0">t</a>() -> <a href="Phoenix.HTML.html#t:unsafe/0">Phoenix.HTML.unsafe</a>())) :: <a href="Phoenix.HTML.html#t:safe/0">Phoenix.HTML.safe</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Generate a new form builder for the given parameter in form.</p>
+<p>See the module documentation for examples of using this function.</p>
+<h2 id="inputs_for/4-options" class="section-heading">
+  <a href="#inputs_for/4-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:id</code> - the id to be used in the form, defaults to the
+concatenation of the given <code class="inline">field</code> to the parent form id</p>
+</li>
+<li><p><code class="inline">:as</code> - the name to be used in the form, defaults to the
+concatenation of the given <code class="inline">field</code> to the parent form name</p>
+</li>
+<li><p><code class="inline">:default</code> - the value to use if none is available</p>
+</li>
+<li><p><code class="inline">:prepend</code> - the values to prepend when rendering. This only
+applies if the field value is a list and no parameters were
+sent through the form.</p>
+</li>
+<li><p><code class="inline">:append</code> - the values to append when rendering. This only
+applies if the field value is a list and no parameters were
+sent through the form.</p>
+</li>
+</ul>
+
+  </section>
+</div>
+<div class="detail" id="label/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/label%2F2" class="dashAnchor"></a>
+  <a href="#label/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">label(form, field)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L1346" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a label tag.</p>
+<p>The form should either be a <a href="Phoenix.HTML.Form.html#content"><code class="inline">Phoenix.HTML.Form</code></a> emitted
+by <code class="inline">form_for</code> or an atom.</p>
+<p>All given options are forwarded to the underlying tag.
+A default value is provided for <code class="inline">for</code> attribute but can
+be overriden if you pass a value to the <code class="inline">for</code> option.
+Text content would be inferred from <code class="inline">field</code> if not specified.</p>
+<h2 id="label/2-examples" class="section-heading">
+  <a href="#label/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir"># Assuming form contains a User schema
+label(form, :name, &quot;Name&quot;)
+#=&gt; &lt;label for=&quot;user_name&quot;&gt;Name&lt;/label&gt;
+
+label(:user, :email, &quot;Email&quot;)
+#=&gt; &lt;label for=&quot;user_email&quot;&gt;Email&lt;/label&gt;
+
+label(:user, :email)
+#=&gt; &lt;label for=&quot;user_email&quot;&gt;Email&lt;/label&gt;
+
+label(:user, :email, class: &quot;control-label&quot;)
+#=&gt; &lt;label for=&quot;user_email&quot; class=&quot;control-label&quot;&gt;Email&lt;/label&gt;
+
+label :user, :email do
+  &quot;E-mail Address&quot;
+end
+#=&gt; &lt;label for=&quot;user_email&quot;&gt;E-mail Address&lt;/label&gt;
+
+label :user, :email, class: &quot;control-label&quot; do
+  &quot;E-mail Address&quot;
+end
+#=&gt; &lt;label class=&quot;control-label&quot; for=&quot;user_email&quot;&gt;E-mail Address&lt;/label&gt;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="label/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/label%2F3" class="dashAnchor"></a>
+  <a href="#label/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">label(form, field, text)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L1359" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>See <a href="#label/2"><code class="inline">label/2</code></a>.</p>
+
+  </section>
+</div>
+<div class="detail" id="label/4">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/label%2F4" class="dashAnchor"></a>
+  <a href="#label/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">label(form, field, text, opts)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L1370" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>See <a href="#label/2"><code class="inline">label/2</code></a>.</p>
+
+  </section>
+</div>
+<div class="detail" id="multiple_select/4">
+  
+  
+    <span id="multiple_select/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/multiple_select%2F4" class="dashAnchor"></a>
+  <a href="#multiple_select/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">multiple_select(form, field, options, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L1006" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a select tag with the given <code class="inline">options</code>.</p>
+<p>Values are expected to be an Enumerable containing two-item tuples
+(like maps and keyword lists) or any Enumerable where the element
+will be used both as key and value for the generated select.</p>
+<h2 id="multiple_select/4-examples" class="section-heading">
+  <a href="#multiple_select/4-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir"># Assuming form contains a User schema
+multiple_select(form, :roles, [&quot;Admin&quot;: 1, &quot;Power User&quot;: 2])
+#=&gt; &lt;select id=&quot;user_roles&quot; name=&quot;user[roles][]&quot;&gt;
+    &lt;option value=&quot;1&quot;&gt;Admin&lt;/option&gt;
+    &lt;option value=&quot;2&quot;&gt;Power User&lt;/option&gt;
+    &lt;/select&gt;
+
+multiple_select(form, :roles, [&quot;Admin&quot;: 1, &quot;Power User&quot;: 2], selected: [1])
+#=&gt; &lt;select id=&quot;user_roles&quot; name=&quot;user[roles][]&quot;&gt;
+    &lt;option value=&quot;1&quot; selected=&quot;selected&quot;&gt;Admin&lt;/option&gt;
+    &lt;option value=&quot;2&quot;&gt;Power User&lt;/option&gt;
+    &lt;/select&gt;</code></pre>
+<p>When working with structs, associations and embeds, you will need to tell
+Phoenix how to extract the value out of the collection. For example,
+imagine <code class="inline">user.roles</code> is a list of <code class="inline">%Role{}</code> structs. You must call it as:</p>
+<pre><code class="elixir">multiple_select(form, :roles, [&quot;Admin&quot;: 1, &quot;Power User&quot;: 2],
+                selected: Enum.map(@user.roles, &amp;(&amp;1.id))</code></pre>
+<p>The <code class="inline">:selected</code> option will mark the given IDs as selected unless the form
+is being resubmitted. When resubmitted, it uses the form params as values.</p>
+<h2 id="multiple_select/4-options" class="section-heading">
+  <a href="#multiple_select/4-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:selected</code> - the default options to be marked as selected. The values
+ on this list are ignored in case ids have been set as parameters.
+</li>
+</ul>
+<p>All other options are forwarded to the underlying HTML tag.</p>
+
+  </section>
+</div>
+<div class="detail" id="number_input/3">
+  
+  
+    <span id="number_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/number_input%2F3" class="dashAnchor"></a>
+  <a href="#number_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">number_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L448" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a number input.</p>
+<p>See <a href="#text_input/3"><code class="inline">text_input/3</code></a> for example and docs.</p>
+
+  </section>
+</div>
+<div class="detail" id="password_input/3">
+  
+  
+    <span id="password_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/password_input%2F3" class="dashAnchor"></a>
+  <a href="#password_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">password_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L461" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a password input.</p>
+<p>For security reasons, the form data and parameter values
+are never re-used in <a href="#password_input/3"><code class="inline">password_input/3</code></a>. Pass the value
+explicitly if you would like to set one.</p>
+<p>See <a href="#text_input/3"><code class="inline">text_input/3</code></a> for example and docs.</p>
+
+  </section>
+</div>
+<div class="detail" id="radio_button/4">
+  
+  
+    <span id="radio_button/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/radio_button%2F4" class="dashAnchor"></a>
+  <a href="#radio_button/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">radio_button(form, field, value, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L725" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a radio button.</p>
+<p>Invoke this function for each possible value you want
+to be sent to the server.</p>
+<h2 id="radio_button/4-examples" class="section-heading">
+  <a href="#radio_button/4-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir"># Assuming form contains a User schema
+radio_button(form, :role, &quot;admin&quot;)
+#=&gt; &lt;input id=&quot;user_role_admin&quot; name=&quot;user[role]&quot; type=&quot;radio&quot; value=&quot;admin&quot;&gt;</code></pre>
+<h2 id="radio_button/4-options" class="section-heading">
+  <a href="#radio_button/4-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>All options are simply forwarded to the underlying HTML tag.</p>
+
+  </section>
+</div>
+<div class="detail" id="range_input/3">
+  
+  
+    <span id="range_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/range_input%2F3" class="dashAnchor"></a>
+  <a href="#range_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">range_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L514" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a range input.</p>
+<p>See <a href="#text_input/3"><code class="inline">text_input/3</code></a> for example and docs.</p>
+
+  </section>
+</div>
+<div class="detail" id="reset/2">
+  
+  
+    <span id="reset/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/reset%2F2" class="dashAnchor"></a>
+  <a href="#reset/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">reset(value, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L701" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a reset input to reset all the form fields to
+their original state.</p>
+<p>All options are forwarded to the underlying input tag.</p>
+<h2 id="reset/2-examples" class="section-heading">
+  <a href="#reset/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">reset &quot;Reset&quot;
+#=&gt; &lt;input type=&quot;reset&quot; value=&quot;Reset&quot;&gt;
+
+reset &quot;Reset&quot;, class: &quot;btn&quot;
+#=&gt; &lt;input type=&quot;reset&quot; value=&quot;Reset&quot; class=&quot;btn&quot;&gt;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="search_input/3">
+  
+  
+    <span id="search_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/search_input%2F3" class="dashAnchor"></a>
+  <a href="#search_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">search_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L484" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a search input.</p>
+<p>See <a href="#text_input/3"><code class="inline">text_input/3</code></a> for example and docs.</p>
+
+  </section>
+</div>
+<div class="detail" id="select/4">
+  
+  
+    <span id="select/3"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/select%2F4" class="dashAnchor"></a>
+  <a href="#select/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">select(form, field, options, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L893" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a select tag with the given <code class="inline">options</code>.</p>
+<p><code class="inline">options</code> are expected to be an enumerable which will be used to
+generate each respective <code class="inline">option</code>. The enumerable may have:</p>
+<ul>
+<li><p>keyword lists - each keyword list is expected to have the keys
+<code class="inline">:key</code> and <code class="inline">:value</code>. Additional keys such as <code class="inline">:disabled</code> may
+be given to customize the option</p>
+</li>
+<li><p>two-item tuples - where the first element is an atom, string or
+integer to be used as the option label and the second element is
+an atom, string or integer to be used as the option value</p>
+</li>
+<li><p>atom, string or integer - which will be used as both label and value
+for the generated select</p>
+</li>
+</ul>
+<h2 id="select/4-optgroups" class="section-heading">
+  <a href="#select/4-optgroups" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Optgroups
+</h2>
+
+<p>If <code class="inline">options</code> is map or keyword list where the first element is a string,
+atom or integer and the second element is a list or a map, it is assumed
+the key will be wrapped in an <code class="inline">&lt;optgroup&gt;</code> and the value will be used to
+generate <code class="inline">&lt;options&gt;</code> nested under the group.</p>
+<h2 id="select/4-examples" class="section-heading">
+  <a href="#select/4-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir"># Assuming form contains a User schema
+select(form, :age, 0..120)
+#=&gt; &lt;select id=&quot;user_age&quot; name=&quot;user[age]&quot;&gt;
+    &lt;option value=&quot;0&quot;&gt;0&lt;/option&gt;
+    ...
+    &lt;option value=&quot;120&quot;&gt;120&lt;/option&gt;
+    &lt;/select&gt;
+
+select(form, :role, [&quot;Admin&quot;: &quot;admin&quot;, &quot;User&quot;: &quot;user&quot;])
+#=&gt; &lt;select id=&quot;user_role&quot; name=&quot;user[role]&quot;&gt;
+    &lt;option value=&quot;admin&quot;&gt;Admin&lt;/option&gt;
+    &lt;option value=&quot;user&quot;&gt;User&lt;/option&gt;
+    &lt;/select&gt;
+
+select(form, :role, [[key: &quot;Admin&quot;, value: &quot;admin&quot;, disabled: true],
+                     [key: &quot;User&quot;, value: &quot;user&quot;])
+#=&gt; &lt;select id=&quot;user_role&quot; name=&quot;user[role]&quot;&gt;
+    &lt;option value=&quot;admin&quot; disabled=&quot;disabled&quot;&gt;Admin&lt;/option&gt;
+    &lt;option value=&quot;user&quot;&gt;User&lt;/option&gt;
+    &lt;/select&gt;
+
+select(form, :role, [&quot;Admin&quot;: &quot;admin&quot;, &quot;User&quot;: &quot;user&quot;], prompt: &quot;Choose your role&quot;)
+#=&gt; &lt;select id=&quot;user_role&quot; name=&quot;user[role]&quot;&gt;
+    &lt;option value=&quot;&quot;&gt;Choose your role&lt;/option&gt;
+    &lt;option value=&quot;admin&quot;&gt;Admin&lt;/option&gt;
+    &lt;option value=&quot;user&quot;&gt;User&lt;/option&gt;
+    &lt;/select&gt;</code></pre>
+<p>If you want to select an option that comes from the database,
+such as a manager for a given project, you may write:</p>
+<pre><code class="elixir">select(form, :manager_id, Enum.map(@managers, &amp;{&amp;1.name, &amp;1.id}))
+#=&gt; &lt;select id=&quot;manager_id&quot; name=&quot;project[manager_id]&quot;&gt;
+    &lt;option value=&quot;1&quot;&gt;Mary Jane&lt;/option&gt;
+    &lt;option value=&quot;2&quot;&gt;John Doe&lt;/option&gt;
+    &lt;/select&gt;</code></pre>
+<p>Finally, if the values are a list or a map, we use the keys for
+grouping:</p>
+<pre><code class="elixir">select(form, :country, [&quot;Europe&quot;: [&quot;UK&quot;, &quot;Sweden&quot;, &quot;France&quot;]], ...})
+#=&gt; &lt;select id=&quot;user_country&quot; name=&quot;user[country]&quot;&gt;
+    &lt;optgroup label=&quot;Europe&quot;&gt;
+      &lt;option&gt;UK&lt;/option&gt;
+      &lt;option&gt;Sweden&lt;/option&gt;
+      &lt;option&gt;France&lt;/option&gt;
+    &lt;/optgroup&gt;
+    ...
+    &lt;/select&gt;</code></pre>
+<h2 id="select/4-options" class="section-heading">
+  <a href="#select/4-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:prompt</code> - an option to include at the top of the options with
+the given prompt text</p>
+</li>
+<li><p><code class="inline">:selected</code> - the default value to use when none was sent as parameter</p>
+</li>
+</ul>
+<p>Be aware that a <code class="inline">:multiple</code> option will not generate a correctly
+functioning multiple select element. Use <a href="#multiple_select/4"><code class="inline">multiple_select/4</code></a> instead.</p>
+<p>All other options are forwarded to the underlying HTML tag.</p>
+
+  </section>
+</div>
+<div class="detail" id="submit/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/submit%2F1" class="dashAnchor"></a>
+  <a href="#submit/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">submit(block_option)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L673" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a submit button to send the form.</p>
+<p>All options are forwarded to the underlying button tag.</p>
+<h2 id="submit/1-examples" class="section-heading">
+  <a href="#submit/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">submit &quot;Submit&quot;
+#=&gt; &lt;button type=&quot;submit&quot;&gt;Submit&lt;/button&gt;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="submit/2">
+  
+  
+    <span id="submit/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/submit%2F2" class="dashAnchor"></a>
+  <a href="#submit/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">submit(opts, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L680" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="telephone_input/3">
+  
+  
+    <span id="telephone_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/telephone_input%2F3" class="dashAnchor"></a>
+  <a href="#telephone_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">telephone_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L493" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a telephone input.</p>
+<p>See <a href="#text_input/3"><code class="inline">text_input/3</code></a> for example and docs.</p>
+
+  </section>
+</div>
+<div class="detail" id="text_input/3">
+  
+  
+    <span id="text_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/text_input%2F3" class="dashAnchor"></a>
+  <a href="#text_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">text_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L421" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a text input.</p>
+<p>The form should either be a <a href="Phoenix.HTML.Form.html#content"><code class="inline">Phoenix.HTML.Form</code></a> emitted
+by <code class="inline">form_for</code> or an atom.</p>
+<p>All given options are forwarded to the underlying input,
+default values are provided for id, name and value if
+possible.</p>
+<h2 id="text_input/3-examples" class="section-heading">
+  <a href="#text_input/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir"># Assuming form contains a User schema
+text_input(form, :name)
+#=&gt; &lt;input id=&quot;user_name&quot; name=&quot;user[name]&quot; type=&quot;text&quot; value=&quot;&quot;&gt;
+
+text_input(:user, :name)
+#=&gt; &lt;input id=&quot;user_name&quot; name=&quot;user[name]&quot; type=&quot;text&quot; value=&quot;&quot;&gt;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="textarea/3">
+  
+  
+    <span id="textarea/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/textarea%2F3" class="dashAnchor"></a>
+  <a href="#textarea/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">textarea(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L620" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a textarea input.</p>
+<p>All given options are forwarded to the underlying input,
+default values are provided for id, name and textarea
+content if possible.</p>
+<h2 id="textarea/3-examples" class="section-heading">
+  <a href="#textarea/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir"># Assuming form contains a User schema
+textarea(form, :description)
+#=&gt; &lt;textarea id=&quot;user_description&quot; name=&quot;user[description]&quot;&gt;&lt;/textarea&gt;</code></pre>
+<h2 id="textarea/3-new-lines" class="section-heading">
+  <a href="#textarea/3-new-lines" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  New lines
+</h2>
+
+<p>Notice the generated textarea includes a new line after
+the opening tag. This is because the HTML spec says new
+lines after tags must be ignored and all major browser
+implementations do that.</p>
+<p>So in order to avoid new lines provided by the user
+from being ignored when the form is resubmitted, we
+automatically add a new line before the text area
+value.</p>
+
+  </section>
+</div>
+<div class="detail" id="time_input/3">
+  
+  
+    <span id="time_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/time_input%2F3" class="dashAnchor"></a>
+  <a href="#time_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">time_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L563" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a time input.</p>
+<p>Warning: this feature isn’t available in all browsers.
+Check <code class="inline">http://caniuse.com/#feat=input-datetime</code> for further informations.</p>
+<p>See <a href="#text_input/3"><code class="inline">text_input/3</code></a> for example and docs.</p>
+
+  </section>
+</div>
+<div class="detail" id="time_select/3">
+  
+  
+    <span id="time_select/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/time_select%2F3" class="dashAnchor"></a>
+  <a href="#time_select/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">time_select(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L1205" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates select tags for time.</p>
+<p>Check <a href="#datetime_select/3"><code class="inline">datetime_select/3</code></a> for more information on options and supported values.</p>
+
+  </section>
+</div>
+<div class="detail" id="url_input/3">
+  
+  
+    <span id="url_input/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/url_input%2F3" class="dashAnchor"></a>
+  <a href="#url_input/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">url_input(form, field, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/form.ex#L475" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates an url input.</p>
+<p>See <a href="#text_input/3"><code class="inline">text_input/3</code></a> for example and docs.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

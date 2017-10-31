@@ -1,0 +1,296 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Spotify.Recommendation – spotify_ex v2.0.7</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-64606230a5.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="https://github.com/jsncmgs1/spotify_ex" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        spotify_ex
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v2.0.7
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">spotify_ex v2.0.7</small>
+        Spotify.Recommendation
+        
+          <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/recommendation.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Spotify can make recommendations for you by providing seed data. The
+recommendation comes with tracks and the seed object</p>
+<p>*Note: The possibilities here are quite large. Please read the spotify documentation.</p>
+<p>https://developer.spotify.com/web-api/get-recommendations/</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#build_response/1">build_response(body)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Implements the hook required by the <a href="Responder.html"><code class="inline">Responder</code></a> behavior</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_recommendations/2">get_recommendations(conn, params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Create a playlist-style listening experience based on seed artists, tracks and genres</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_recommendations_url/1">get_recommendations_url(params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Create a playlist-style listening experience based on seed artists, tracks and genres</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#handle_response/1">handle_response(arg)</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="build_response/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/build_response%2F1" class="dashAnchor"></a>
+  <a href="#build_response/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">build_response(body)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/recommendation.ex#L48" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Implements the hook required by the <a href="Responder.html"><code class="inline">Responder</code></a> behavior.</p>
+
+  </section>
+</div>
+<div class="detail" id="get_recommendations/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/get_recommendations%2F2" class="dashAnchor"></a>
+  <a href="#get_recommendations/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_recommendations(conn, params)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/recommendation.ex#L30" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Create a playlist-style listening experience based on seed artists, tracks and genres.</p>
+<p><strong>The response generated by this can vary. Your milage may vary. Because of this, you may want
+to use <code class="inline">get_recommendations_url</code> and use your own implementation for this function.</strong></p>
+<p><a href="https://developer.spotify.com/web-api/get-recommendations/">Spotify Documentation</a></p>
+<p><strong>Method</strong>: <code class="inline">GET</code></p>
+<p><strong>Params</strong>: <strong>The params for this endpoint are complex. Refer to spotify docs</strong></p>
+<pre><code class="elixir">Spotify.Recommendation.get_recommendations(seed_artists: &quot;1,2&quot; energy: &quot;6&quot;)
+# =&gt; { :ok, %Recommendation{tracks: tracks, seeds: seeds} }</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="get_recommendations_url/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/get_recommendations_url%2F1" class="dashAnchor"></a>
+  <a href="#get_recommendations_url/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_recommendations_url(params)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/recommendation.ex#L41" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Create a playlist-style listening experience based on seed artists, tracks and genres.</p>
+<pre><code class="iex elixir">iex&gt; Spotify.Recommendation.get_recommendations_url(limit: 5)
+&quot;https://api.spotify.com/v1/recommendations?limit=5&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="handle_response/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/handle_response%2F1" class="dashAnchor"></a>
+  <a href="#handle_response/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">handle_response(arg)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/recommendation.ex#L10" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

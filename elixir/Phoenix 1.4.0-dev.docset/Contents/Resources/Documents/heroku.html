@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Deploying on Heroku – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Deploying on Heroku</h1>
+<h3 id="what-we-ll-need" class="section-heading">
+  <a href="#what-we-ll-need" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  What we’ll need
+</h3>
+
+<p>The only thing we’ll need for this guide is a working Phoenix application. For those of us who need a simple application to deploy, please follow the <a href="http://www.phoenixframework.org/docs/up-and-running">Up and Running guide</a>.</p>
+<h3 id="goals" class="section-heading">
+  <a href="#goals" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Goals
+</h3>
+
+<p>Our main goal for this guide is to get a Phoenix application running on Heroku.</p>
+<h3 id="limitations" class="section-heading">
+  <a href="#limitations" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Limitations
+</h3>
+
+<p>Heroku is a great platform and Elixir performs well on it. However, you may run into limitations if you plan to leverage advanced features provided by Elixir and Phoenix, such as:</p>
+<ul>
+<li><p>Connections are limited.</p>
+<ul>
+<li>Heroku <a href="https://devcenter.heroku.com/articles/http-routing#request-concurrency">limits the number of simultaneous connections</a> as well as the <a href="https://devcenter.heroku.com/articles/limits#http-timeouts">duration of each connection</a>. It is common to use Elixir for real-time apps which need lots of concurrent, persistent connections, and Phoenix is capable of <a href="http://www.phoenixframework.org/blog/the-road-to-2-million-websocket-connections">handling over 2 million connections on a single server</a>.
+</li>
+</ul>
+</li>
+<li><p>Distributed clustering is not possible.</p>
+<ul>
+<li>Heroku <a href="https://devcenter.heroku.com/articles/dynos#networking">firewalls dynos off from one another</a>. This means things like <a href="https://dockyard.com/blog/2016/01/28/running-elixir-and-phoenix-projects-on-a-cluster-of-nodes">distributed Phoenix channels</a> and <a href="https://elixir-lang.org/getting-started/mix-otp/distributed-tasks-and-configuration.html">distributed tasks</a> will need to rely on something like Redis instead of Elixir’s built-in distribution.
+</li>
+</ul>
+</li>
+<li><p>In-memory state such as those in <a href="https://elixir-lang.org/getting-started/mix-otp/agent.html">Agents</a>, <a href="https://elixir-lang.org/getting-started/mix-otp/genserver.html">GenServers</a>, and <a href="https://elixir-lang.org/getting-started/mix-otp/ets.html">ETS</a> will be lost every 24 hours.</p>
+<ul>
+<li>Heroku <a href="https://devcenter.heroku.com/articles/dynos#restarting">restarts dynos</a> every 24 hours regardless of whether the node is healthy.
+</li>
+</ul>
+</li>
+<li><p><a href="https://hexdocs.pm/iex/IEx.html#module-remote-shells">Remote shells</a> and remote observer are not possible.</p>
+<ul>
+<li>Heroku does not allow SSH access to your dynos so you can not inspect, debug, or trace your production nodes using things like <a href="https://elixir-lang.org/getting-started/mix-otp/supervisor-and-application.html#observer">the built-in Observer</a>.
+</li>
+</ul>
+</li>
+</ul>
+<p>If you are just getting started or you don’t expect to use the features above, Heroku should be enough for your needs. For instance, if you are migrating an existing application running on Heroku to Phoenix, keeping a similar set of features, Elixir will perform just as well or even better than your current stack.</p>
+<p>If you want a platform-as-a-service without these limitations, try <a href="http://gigalixir.readthedocs.io/">Gigalixir</a>. If you would rather deploy to a cloud platform, such as EC2, Google Cloud, etc, consider <a href="https://github.com/bitwalker/distillery">Distillery</a>.</p>
+<h2 id="steps" class="section-heading">
+  <a href="#steps" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Steps
+</h2>
+
+<p>Let’s separate this process into a few steps so we can keep track of where we are.</p>
+<ul>
+<li>Initialize Git repository
+</li>
+<li>Sign up for Heroku
+</li>
+<li>Install the Heroku Toolbelt
+</li>
+<li>Create the Heroku application
+</li>
+<li>Add the Phoenix static buildpack
+</li>
+<li>Make our project ready for Heroku
+</li>
+<li>Deploy time!
+</li>
+<li>Useful Heroku commands
+</li>
+</ul>
+<h2 id="initializing-git-repository" class="section-heading">
+  <a href="#initializing-git-repository" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Initializing Git repository
+</h2>
+
+<p><a href="https://git-scm.com/">Git</a> is a popular decentralized revision control system and is also used to deploy apps to Heroku.</p>
+<p>Before we can push to Heroku we’ll need to initialize a local Git repository and commit our files to it. We can do so by running the following commands in our project directory:</p>
+<pre><code class="console">$ git init
+$ git add .
+$ git commit -m &quot;Initial commit&quot;</code></pre>
+<p>Heroku offers some great information on how it is using Git <a href="https://devcenter.heroku.com/articles/git#tracking-your-app-in-git">here</a>.</p>
+<h2 id="signing-up-for-heroku" class="section-heading">
+  <a href="#signing-up-for-heroku" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Signing up for Heroku
+</h2>
+
+<p>Signing up to Heroku is very simple, just head over to <a href="https://signup.heroku.com/">https://signup.heroku.com/</a> and fill in the form.</p>
+<p>The Free plan will give us one web <a href="https://devcenter.heroku.com/articles/dynos#dynos">dyno</a> and one worker dyno, as well as a PostgreSQL and Redis instance for free.</p>
+<p>These are meant to be used for testing and development, and come with some limitations. In order to run a production application, please consider upgrading to a paid plan.</p>
+<h2 id="installing-the-heroku-toolbelt" class="section-heading">
+  <a href="#installing-the-heroku-toolbelt" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Installing the Heroku Toolbelt
+</h2>
+
+<p>Once we have signed up, we can download the correct version of the Heroku Toolbelt for our system <a href="https://toolbelt.heroku.com/">here</a>.</p>
+<p>The Heroku CLI, part of the Toolbelt, is useful to create Heroku applications, list currently running dynos for an existing application, tail logs or run one-off commands (mix tasks for instance).</p>
+<h2 id="creating-the-heroku-application" class="section-heading">
+  <a href="#creating-the-heroku-application" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Creating the Heroku Application
+</h2>
+
+<p>Now that we have the Toolbelt installed, let’s create the Heroku application. In our project directory, run:</p>
+<blockquote><p>Note: the first time we use a Heroku command, it may prompt us to log in. If this happens, just enter the email and password you specified during signup.</p>
+</blockquote>
+<pre><code class="console">$ heroku create --buildpack &quot;https://github.com/HashNuke/heroku-buildpack-elixir.git&quot;
+Creating mysterious-meadow-6277... done, stack is cedar-14
+Buildpack set. Next release on mysterious-meadow-6277 will use https://github.com/HashNuke/heroku-buildpack-elixir.git.
+https://mysterious-meadow-6277.herokuapp.com/ | https://git.heroku.com/mysterious-meadow-6277.git
+Git remote heroku added</code></pre>
+<blockquote><p>Note: the name of the Heroku application is the random string after “Creating” in the output above (mysterious-meadow-6277). This will be unique, so expect to see a different name from “mysterious-meadow-6277”.</p>
+</blockquote>
+<p>The <code class="inline">--buildpack</code> option we are passing allows us to specify the <a href="https://github.com/HashNuke/heroku-buildpack-elixir">Elixir buildpack</a> we want Heroku to use.
+A <a href="https://devcenter.heroku.com/articles/buildpacks">buildpack</a> is a convenient way of packaging framework and/or runtime support. In our case it’s installing Erlang, Elixir, fetching our application dependencies, and so on, before we run it.</p>
+<p>The URL in the output is the URL to our application. If we open it in our browser now, we will get the default Heroku welcome page.</p>
+<blockquote><p>Note: if we hadn’t initialized our Git repository before we ran the <code class="inline">heroku create</code> command, we wouldn’t have our Heroku remote repository properly set up at this point. We can set that up manually by running: <code class="inline">heroku git:remote -a [our-app-name].</code></p>
+</blockquote>
+<h2 id="adding-the-phoenix-static-buildpack" class="section-heading">
+  <a href="#adding-the-phoenix-static-buildpack" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Adding the Phoenix Static Buildpack
+</h2>
+
+<p>We need to compile static assets for a successful Phoenix deployment. The <a href="https://github.com/gjaldon/heroku-buildpack-phoenix-static">Phoenix static buildpack</a> can take care of that for us, so let’s add it now.</p>
+<p><em>Skip this step if you do not have any static assets (i.e. you created your project with the <code class="inline">--no-brunch --no-html</code> flags).</em></p>
+<pre><code class="console">$ heroku buildpacks:add https://github.com/gjaldon/heroku-buildpack-phoenix-static.git
+Buildpack added. Next release on mysterious-meadow-6277 will use:
+  1. https://github.com/HashNuke/heroku-buildpack-elixir.git
+  2. https://github.com/gjaldon/heroku-buildpack-phoenix-static.git
+Run `git push heroku master` to create a new release using these buildpacks.</code></pre>
+<h2 id="making-our-project-ready-for-heroku" class="section-heading">
+  <a href="#making-our-project-ready-for-heroku" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Making our Project ready for Heroku
+</h2>
+
+<p>Every new Phoenix project ships with a config file <code class="inline">config/prod.secret.exs</code> which stores configuration that should not be committed along with our source code. By default Phoenix adds it to our <code class="inline">.gitignore</code> file.</p>
+<p>This works great except Heroku uses <a href="https://devcenter.heroku.com/articles/config-vars">environment variables</a> to pass sensitive informations to our application. It means we need to make some changes to our config before we can deploy.</p>
+<p>First, let’s make sure our secret key is loaded from Heroku’s environment variables instead of <code class="inline">config/prod.secret.exs</code> by adding a <code class="inline">secret_key_base</code> line  in <code class="inline">config/prod.exs</code> (remember to add a comma to the end of the preceding line):</p>
+<pre><code class="elixir">config :hello, HelloWeb.Endpoint,
+  load_from_system_env: true,
+  url: [host: &quot;example.com&quot;, port: 80],
+  cache_static_manifest: &quot;priv/static/cache_manifest.json&quot;,
+  secret_key_base: Map.fetch!(System.get_env(), &quot;SECRET_KEY_BASE&quot;)</code></pre>
+<p>Then, we’ll add the production database configuration to <code class="inline">config/prod.exs</code>:</p>
+<pre><code class="elixir"># Configure your database
+config :hello, Hello.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  url: System.get_env(&quot;DATABASE_URL&quot;),
+  pool_size: String.to_integer(System.get_env(&quot;POOL_SIZE&quot;) || &quot;10&quot;),
+  ssl: true</code></pre>
+<p>Now, let’s tell Phoenix to use our Heroku URL and enforce we only use the SSL version of the website. Find the url line:</p>
+<pre><code class="elixir">url: [host: &quot;example.com&quot;, port: 80],</code></pre>
+<p>… and replace it with this (don’t forget to replace <code class="inline">mysterious-meadow-6277</code> with your application name):</p>
+<pre><code class="elixir">url: [scheme: &quot;https&quot;, host: &quot;mysterious-meadow-6277.herokuapp.com&quot;, port: 443],
+force_ssl: [rewrite_on: [:x_forwarded_proto]],</code></pre>
+<p>Since our configuration is now handled using Heroku’s environment variables, we don’t need to import the <code class="inline">config/prod.secret.exs</code> file in <code class="inline">/config/prod.exs</code> any longer, so we can delete the following line:</p>
+<pre><code class="elixir">import_config &quot;prod.secret.exs&quot;</code></pre>
+<p>Our <code class="inline">config/prod.exs</code> now looks like this:</p>
+<pre><code class="elixir">use Mix.Config
+
+...
+
+config :hello, HelloWeb.Endpoint,
+  load_from_system_env: true,
+  url: [scheme: &quot;https&quot;, host: &quot;mysterious-meadow-6277.herokuapp.com&quot;, port: 443],
+  force_ssl: [rewrite_on: [:x_forwarded_proto]],
+  cache_static_manifest: &quot;priv/static/cache_manifest.json&quot;,
+  secret_key_base: Map.fetch!(System.get_env(), &quot;SECRET_KEY_BASE&quot;)
+
+# Do not print debug messages in production
+config :logger, level: :info
+
+# Configure your database
+config :hello, Hello.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  url: System.get_env(&quot;DATABASE_URL&quot;),
+  pool_size: String.to_integer(System.get_env(&quot;POOL_SIZE&quot;) || &quot;10&quot;),
+  ssl: true</code></pre>
+<p>Finally, we need to decrease the timeout for the websocket transport in <code class="inline">lib/hello_web/channels/user_socket.ex</code>:</p>
+<pre><code class="elixir">defmodule HelloWeb.UserSocket do
+  use Phoenix.Socket
+
+  ...
+
+  ## Transports
+  transport :websocket, Phoenix.Transports.WebSocket,
+    timeout: 45_000
+    ...
+end</code></pre>
+<p>This ensures that any idle connections are closed by Phoenix before they reach Heroku’s 55-second timeout window.</p>
+<p>Lastly, we’ll need to create a <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a> (a text file called “Procfile” in the root of our project’s folder) with the following line:</p>
+<pre><code class="elixir">web: MIX_ENV=prod mix phx.server</code></pre>
+<h2 id="creating-environment-variables-in-heroku" class="section-heading">
+  <a href="#creating-environment-variables-in-heroku" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Creating Environment Variables in Heroku
+</h2>
+
+<p>The <code class="inline">DATABASE_URL</code> config var is automatically created by Heroku when we add the <a href="https://elements.heroku.com/addons/heroku-postgresql">Heroku Postgres add-on</a>. We can create the database via the heroku toolbelt:</p>
+<pre><code class="console">$ heroku addons:create heroku-postgresql:hobby-dev</code></pre>
+<p>Now we set the <code class="inline">POOL_SIZE</code> config var:</p>
+<pre><code class="console">$ heroku config:set POOL_SIZE=18</code></pre>
+<p>This value should be just under the number of available connections, leaving a couple open for migrations and mix tasks. The hobby-dev database allows 20 connections, so we set this number to 18. If additional dynos will share the database, reduce the <code class="inline">POOL_SIZE</code> to give each dyno an equal share.</p>
+<p>When running a mix task later (after we have pushed the project to Heroku) you will also want to limit its pool size like so:</p>
+<pre><code class="console">$ heroku run &quot;POOL_SIZE=2 mix hello.task&quot;</code></pre>
+<p>So that Ecto does not attempt to open more than the available connections.</p>
+<p>We still have to create the <code class="inline">SECRET_KEY_BASE</code> config based on a random string. First, use <code class="inline">mix phx.gen.secret</code> to get a new secret:</p>
+<pre><code class="console">$ mix phx.gen.secret
+xvafzY4y01jYuzLm3ecJqo008dVnU3CN4f+MamNd1Zue4pXvfvUjbiXT8akaIF53</code></pre>
+<p>Your random string will be different; don’t use this example value.</p>
+<p>Now set it in Heroku:</p>
+<pre><code class="console">$ heroku config:set SECRET_KEY_BASE=&quot;xvafzY4y01jYuzLm3ecJqo008dVnU3CN4f+MamNd1Zue4pXvfvUjbiXT8akaIF53&quot;
+Setting config vars and restarting mysterious-meadow-6277... done, v3
+SECRET_KEY_BASE: xvafzY4y01jYuzLm3ecJqo008dVnU3CN4f+MamNd1Zue4pXvfvUjbiXT8akaIF53</code></pre>
+<p>If you need to make any of your config variables available at compile time, you will need to explicitly define which ones in a configuration file. Create a file <code class="inline">elixir_buildpack.config</code> in your application’s root directory and add a line like: <code class="inline">config_vars_to_export=(MY_VAR)</code>. See <a href="https://github.com/HashNuke/heroku-buildpack-elixir#specifying-config-vars-to-export-at-compile-time">here</a> for more information.</p>
+<h2 id="deploy-time" class="section-heading">
+  <a href="#deploy-time" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Deploy Time!
+</h2>
+
+<p>Our project is now ready to be deployed on Heroku.</p>
+<p>Let’s commit all our changes:</p>
+<pre><code class="elixir">$ git add config/prod.exs
+$ git add Procfile
+$ git add lib/hello_web/channels/user_socket.ex
+$ git commit -m &quot;Use production config from Heroku ENV variables and decrease socket timeout&quot;</code></pre>
+<p>And deploy:</p>
+<pre><code class="console">$ git push heroku master
+Counting objects: 55, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (49/49), done.
+Writing objects: 100% (55/55), 48.48 KiB | 0 bytes/s, done.
+Total 55 (delta 1), reused 0 (delta 0)
+remote: Compressing source files... done.
+remote: Building source:
+remote:
+remote: -----&gt; Multipack app detected
+remote: -----&gt; Fetching custom git buildpack... done
+remote: -----&gt; elixir app detected
+remote: -----&gt; Checking Erlang and Elixir versions
+remote:        WARNING: elixir_buildpack.config wasn&#39;t found in the app
+remote:        Using default config from Elixir buildpack
+remote:        Will use the following versions:
+remote:        * Stack cedar-14
+remote:        * Erlang 17.5
+remote:        * Elixir 1.0.4
+remote:        Will export the following config vars:
+remote:        * Config vars DATABASE_URL
+remote:        * MIX_ENV=prod
+remote: -----&gt; Stack changed, will rebuild
+remote: -----&gt; Fetching Erlang 17.5
+remote: -----&gt; Installing Erlang 17.5 (changed)
+remote:
+remote: -----&gt; Fetching Elixir v1.0.4
+remote: -----&gt; Installing Elixir v1.0.4 (changed)
+remote: -----&gt; Installing Hex
+remote: 2015-07-07 00:04:00 URL:https://s3.amazonaws.com/s3.hex.pm/installs/1.0.0/hex.ez [262010/262010] -&gt;
+&quot;/app/.mix/archives/hex.ez&quot; [1]
+remote: * creating /app/.mix/archives/hex.ez
+remote: -----&gt; Installing rebar
+remote: * creating /app/.mix/rebar
+remote: -----&gt; Fetching app dependencies with mix
+remote: Running dependency resolution
+remote: Dependency resolution completed successfully
+remote: [...]
+remote: -----&gt; Compiling
+remote: [...]
+remote: Generated phoenix_heroku app
+remote: [...]
+remote: Consolidated protocols written to _build/prod/consolidated
+remote: -----&gt; Creating .profile.d with env vars
+remote: -----&gt; Fetching custom git buildpack... done
+remote: -----&gt; Phoenix app detected
+remote:
+remote: -----&gt; Loading configuration and environment
+remote:        Loading config...
+remote:        WARNING: phoenix_static_buildpack.config wasn&#39;t found in the app
+remote:        Using default config from Phoenix static buildpack
+remote:        Will use the following versions:
+remote:        * Node 0.12.4
+remote:        Will export the following config vars:
+remote:        * Config vars DATABASE_URL
+remote:        * MIX_ENV=prod
+remote:
+remote: -----&gt; Installing binaries
+remote:        Downloading node 0.12.4...
+remote:        Installing node 0.12.4...
+remote:        Using default npm version
+remote:
+remote: -----&gt; Building dependencies
+remote:        [...]
+remote:        Running default compile
+remote:               Building Phoenix static assets
+remote:        07 Jul 00:06:22 - info: compiled 3 files into 2 files, copied 3 in 3616ms
+remote:        Check your digested files at &#39;priv/static&#39;.
+remote:
+remote: -----&gt; Finalizing build
+remote:        Creating runtime environment
+remote:
+remote: -----&gt; Discovering process types
+remote:        Procfile declares types     -&gt; (web)
+remote:        Default types for Multipack -&gt; web
+remote:
+remote: -----&gt; Compressing... done, 82.1MB
+remote: -----&gt; Launching... done, v5
+remote:        https://mysterious-meadow-6277.herokuapp.com/ deployed to Heroku
+remote:
+remote: Verifying deploy... done.
+To https://git.heroku.com/mysterious-meadow-6277.git
+ * [new branch]      master -&gt; master</code></pre>
+<p>Typing <code class="inline">heroku open</code> in the terminal should launch a browser with the Phoenix welcome page opened. In the event that you are using Ecto to access a database, you will also need to run migrations after the first deploy:</p>
+<pre><code class="console">$ heroku run &quot;POOL_SIZE=2 mix ecto.migrate&quot;</code></pre>
+<p>And that’s it!</p>
+<h2 id="useful-heroku-commands" class="section-heading">
+  <a href="#useful-heroku-commands" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Useful Heroku Commands
+</h2>
+
+<p>We can look at the logs of our application by running the following command in our project directory:</p>
+<pre><code class="console">$ heroku logs # use --tail if you want to tail them</code></pre>
+<p>We can also start an IEx session attached to our terminal for experimenting in our app’s environment:</p>
+<pre><code class="console">$ heroku run &quot;POOL_SIZE=2 iex -S mix&quot;</code></pre>
+<p>In fact, we can run anything using the <code class="inline">heroku run</code> command, like the Ecto migration task from above:</p>
+<pre><code class="console">$ heroku run &quot;POOL_SIZE=2 mix ecto.migrate&quot;</code></pre>
+<h2 id="troubleshooting" class="section-heading">
+  <a href="#troubleshooting" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Troubleshooting
+</h2>
+
+<h3 id="compilation-error" class="section-heading">
+  <a href="#compilation-error" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Compilation Error
+</h3>
+
+<p>Occasionally, an application will compile locally, but not on Heroku. The compilation error on Heroku will look something like this:</p>
+<pre><code class="console">remote: == Compilation error on file lib/postgrex/connection.ex ==
+remote: could not compile dependency :postgrex, &quot;mix compile&quot; failed. You can recompile this dependency with &quot;mix deps.compile postgrex&quot;, update it with &quot;mix deps.update postgrex&quot; or clean it with &quot;mix deps.clean postgrex&quot;
+remote: ** (CompileError) lib/postgrex/connection.ex:207: Postgrex.Connection.__struct__/0 is undefined, cannot expand struct Postgrex.Connection
+remote:     (elixir) src/elixir_map.erl:58: :elixir_map.translate_struct/4
+remote:     (stdlib) lists.erl:1353: :lists.mapfoldl/3
+remote:     (stdlib) lists.erl:1354: :lists.mapfoldl/3
+remote:
+remote:
+remote:  !     Push rejected, failed to compile elixir app
+remote:
+remote: Verifying deploy...
+remote:
+remote: !   Push rejected to mysterious-meadow-6277.
+remote:
+To https://git.heroku.com/mysterious-meadow-6277.git</code></pre>
+<p>This has to do with stale dependencies which are not getting recompiled properly. It’s possible to force Heroku to recompile all dependencies on each deploy, which should fix this problem. The way to do it is to add a new file called <code class="inline">elixir_buildpack.config</code> at the root of the application. The file should contain this line:</p>
+<pre><code class="elixir">always_rebuild=true</code></pre>
+<p>Commit this file to the repository and try to push again to Heroku.</p>
+<h3 id="connection-timeout-error" class="section-heading">
+  <a href="#connection-timeout-error" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Connection Timeout Error
+</h3>
+
+<p>If you are constantly getting connection timeouts while running <code class="inline">heroku run</code> this could mean that your internet provider has blocked
+port number 5000:</p>
+<pre><code class="console">heroku run &quot;POOL_SIZE=2 mix myapp.task&quot;
+Running POOL_SIZE=2 mix myapp.task on mysterious-meadow-6277... !
+ETIMEDOUT: connect ETIMEDOUT 50.19.103.36:5000</code></pre>
+<p>You can overcome this by adding <code class="inline">detached</code> option to run command:</p>
+<pre><code class="console">heroku run:detached &quot;POOL_SIZE=2 mix ecto.migrate&quot;
+Running POOL_SIZE=2 mix ecto.migrate on mysterious-meadow-6277... done, run.8089 (Free)</code></pre>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

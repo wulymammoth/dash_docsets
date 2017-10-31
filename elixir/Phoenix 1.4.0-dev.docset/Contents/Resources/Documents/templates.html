@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Templates – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Templates</h1>
+<p>Templates are what they sound like they should be: files into which we pass data to form complete HTTP responses. For a web application these responses would typically be full HTML documents. For an API, they would most often be JSON or possibly XML. The majority of the code in template files is often markup, but there will also be sections of Elixir code for Phoenix to compile and evaluate. The fact that Phoenix templates are pre-compiled makes them extremely fast.</p>
+<p>EEx is the default template system in Phoenix, and it is quite similar to ERB in Ruby. It is actually part of Elixir itself, and Phoenix uses EEx templates to create files like the router and the main application view while generating a new application.</p>
+<p>As we learned in the <a href="views.html">View Guide</a>, by default, templates live in the <code class="inline">lib/hello_web/templates</code> directory, organized into directories named after a view. Each directory has its own view module to render the templates in it.</p>
+<h3 id="examples" class="section-heading">
+  <a href="#examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h3>
+
+<p>We’ve already seen several ways in which templates are used, notably in the <a href="adding_pages.html">Adding Pages Guide</a> and the <a href="views.html">Views Guide</a>. We may cover some of the same territory here, but we will certainly add some new information.</p>
+<h5>hello_web.ex</h5>
+<p>Phoenix generates a <code class="inline">lib/hello_web.ex</code> file that serves as place to group common imports and aliases. All declarations here within the <code class="inline">view</code> block apply to all your templates.</p>
+<p>Let’s make some additions to our application so we can experiment a little.</p>
+<p>First, let’s define a new route in <code class="inline">lib/hello_web/router.ex</code>.</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  ...
+
+  scope &quot;/&quot;, HelloWeb do
+    pipe_through :browser # Use the default browser stack
+
+    get &quot;/&quot;, PageController, :index
+    get &quot;/test&quot;, PageController, :test
+  end
+
+  # Other scopes may use custom stacks.
+  # scope &quot;/api&quot;, Hello do
+  #   pipe_through :api
+  # end
+end</code></pre>
+<p>Now, let’s define the controller action we specified in the route. We’ll add a <code class="inline">test/2</code> action in the <code class="inline">lib/hello_web/controllers/page_controller.ex</code> file.</p>
+<pre><code class="elixir">defmodule HelloWeb.PageController do
+  ...
+
+  def test(conn, _params) do
+    render conn, &quot;test.html&quot;
+  end
+end</code></pre>
+<p>We’re going to create a function that tells us which controller and action are handling our request.</p>
+<p>To do that, we need to import the <code class="inline">action_name/1</code> and <code class="inline">controller_module/1</code> functions from <a href="Phoenix.Controller.html"><code class="inline">Phoenix.Controller</code></a> in <code class="inline">lib/hello_web.ex</code>.</p>
+<pre><code class="elixir">  def view do
+    quote do
+      use Phoenix.View, root: &quot;lib/hello_web/templates&quot;,
+                        namespace: HelloWeb
+
+      # Import convenience functions from controllers
+      import Phoenix.Controller, only: [get_flash: 2, view_module: 1,
+                                        action_name: 1, controller_module: 1]
+
+      ...
+    end
+  end</code></pre>
+<p>Next, let’s define a <code class="inline">handler_info/1</code> function at the bottom of the <code class="inline">lib/hello_web/views/page_view.ex</code> which makes use of the <code class="inline">controller_module/1</code> and <code class="inline">action_name/1</code> functions we just imported. We’ll also define a <code class="inline">connection_keys/1</code> function that we’ll use in a moment.</p>
+<pre><code class="elixir">defmodule HelloWeb.PageView do
+  use HelloWeb, :view
+
+  def handler_info(conn) do
+    &quot;Request Handled By: #{controller_module conn}.#{action_name conn}&quot;
+  end
+
+  def connection_keys(conn) do
+    conn
+    |&gt; Map.from_struct()
+    |&gt; Map.keys()
+  end
+end</code></pre>
+<p>We have a route. We created a new controller action. We have made modifications to the main application view. Now all we need is a new template to display the string we get from <code class="inline">handler_info/1</code>. Let’s create a new one at <code class="inline">lib/hello_web/templates/page/test.html.eex</code>.</p>
+<pre><code class="html">&lt;div class=&quot;jumbotron&quot;&gt;
+  &lt;p&gt;&lt;%= handler_info @conn %&gt;&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<p>Notice that <code class="inline">@conn</code> is available to us in the template for free via the <code class="inline">assigns</code> map.</p>
+<p>If we visit <a href="http://localhost:4000/test">localhost:4000/test</a>, we will see that our page is brought to us by <code class="inline">Elixir.HelloWeb.PageController.test</code>.</p>
+<p>We can define functions in any individual view in <code class="inline">lib/hello_web/views</code>. Functions defined in an individual view will only be available to templates which that view renders. For example, functions like our <code class="inline">handler_info</code> above, will only be available to templates in <code class="inline">lib/hello_web/templates/page</code>.</p>
+<h5>Displaying Lists</h5>
+<p>So far, we’ve only displayed singular values in our templates - strings here, and integers in other guides. How would we approach displaying all the elements of a list?</p>
+<p>The answer is that we can use Elixir’s list comprehensions.</p>
+<p>Now that we have a function, visible to our template, that returns a list of keys in the <code class="inline">conn</code> struct, all we need to do is modify our <code class="inline">lib/hello_web/templates/page/test.html.eex</code> template a bit to display them.</p>
+<p>We can add a header and a list comprehension like this.</p>
+<pre><code class="html">&lt;div class=&quot;jumbotron&quot;&gt;
+  &lt;p&gt;&lt;%= handler_info @conn %&gt;&lt;/p&gt;
+
+  &lt;h3&gt;Keys for the conn Struct&lt;/h3&gt;
+
+  &lt;%= for key &lt;- connection_keys @conn do %&gt;
+    &lt;p&gt;&lt;%= key %&gt;&lt;/p&gt;
+  &lt;% end %&gt;
+&lt;/div&gt;</code></pre>
+<p>We use the list of keys returned by the <code class="inline">connection_keys</code> function as the source list to iterate over. Note that we need the <code class="inline">=</code> in both <code class="inline">&lt;%=</code> - one for the top line of the list comprehension and the other to display the key. Without them, nothing would actually be displayed.</p>
+<p>When we visit <a href="http://localhost:4000/test">localhost:4000/test</a> again, we see all the keys displayed.</p>
+<h5>Render templates within templates</h5>
+<p>In our list comprehension example above, the part that actually displays the values is quite simple.</p>
+<pre><code class="html">&lt;p&gt;&lt;%= key %&gt;&lt;/p&gt;</code></pre>
+<p>We are probably fine with leaving this in place. Quite often, however, this display code is somewhat more complex, and putting it in the middle of a list comprehension makes our templates harder to read.</p>
+<p>The simple solution is to use another template! Templates are just function calls, so like regular code, composing your greater template by small, purpose-built functions can lead to clearer design. This is simply a continuation of the rendering chain we have already seen. Layouts are templates into which regular templates are rendered. Regular templates may have other templates rendered into them.</p>
+<p>Let’s turn this display snippet into its own template. Let’s create a new template file at <code class="inline">lib/hello_web/templates/page/key.html.eex</code>, like this.</p>
+<pre><code class="html">&lt;p&gt;&lt;%= @key %&gt;&lt;/p&gt;</code></pre>
+<p>We need to change <code class="inline">key</code> to <code class="inline">@key</code> here because this is a new template, not part of a list comprehension. The way we pass data into a template is by the <code class="inline">assigns</code> map, and the way we get the values out of the <code class="inline">assigns</code> map is by referencing the keys with a preceding <code class="inline">@</code>. <code class="inline">@</code> is actually a macro that translates <code class="inline">@key</code> to <code class="inline">Map.get(assigns, :key)</code>.</p>
+<p>Now that we have a template, we simply render it within our list comprehension in the <code class="inline">test.html.eex</code> template.</p>
+<pre><code class="html">&lt;div class=&quot;jumbotron&quot;&gt;
+  &lt;p&gt;&lt;%= handler_info @conn %&gt;&lt;/p&gt;
+
+  &lt;h3&gt;Keys for the conn Struct&lt;/h3&gt;
+
+  &lt;%= for key &lt;- connection_keys @conn do %&gt;
+    &lt;%= render &quot;key.html&quot;, key: key %&gt;
+  &lt;% end %&gt;
+&lt;/div&gt;</code></pre>
+<p>Let’s take a look at <a href="http://localhost:4000/test">localhost:4000/test</a> again. The page should look exactly as it did before.</p>
+<h5>Shared Templates Across Views</h5>
+<p>Often, we find that small pieces of data need to be rendered the same way in different parts of the application. It’s a good practice to move these templates into their own shared directory to indicate that they ought to be available anywhere in the app.</p>
+<p>Let’s move our template into a shared view.</p>
+<p><code class="inline">key.html.eex</code> is currently rendered by the <code class="inline">HelloWeb.PageView</code> module, but we use a render call which assumes that the current schema is what we want to render with. We could make that explicit, and re-write it like this:</p>
+<pre><code class="html">&lt;div class=&quot;jumbotron&quot;&gt;
+  ...
+
+  &lt;%= for key &lt;- connection_keys @conn do %&gt;
+    &lt;%= render HelloWeb.PageView, &quot;key.html&quot;, key: key %&gt;
+  &lt;% end %&gt;
+&lt;/div&gt;</code></pre>
+<p>Since we want this to live in a new <code class="inline">lib/hello_web/templates/shared</code> directory, we need a new individual view to render templates in that directory, <code class="inline">lib/hello_web/views/shared_view.ex</code>.</p>
+<pre><code class="elixir">defmodule HelloWeb.SharedView do
+  use HelloWeb, :view
+end</code></pre>
+<p>Now we can move <code class="inline">key.html.eex</code> from the <code class="inline">lib/hello_web/templates/page</code> directory into the <code class="inline">lib/hello_web/templates/shared</code> directory. Once that happens, we can change the render call in <code class="inline">lib/hello_web/templates/page/test.html.eex</code> to use the new <code class="inline">HelloWeb.SharedView</code>.</p>
+<pre><code class="html">&lt;%= for key &lt;- connection_keys @conn do %&gt;
+  &lt;%= render HelloWeb.SharedView, &quot;key.html&quot;, key: key %&gt;
+&lt;% end %&gt;</code></pre>
+<p>Going back to <a href="http://localhost:4000/test">localhost:4000/test</a> again. The page should look exactly as it did before.</p>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

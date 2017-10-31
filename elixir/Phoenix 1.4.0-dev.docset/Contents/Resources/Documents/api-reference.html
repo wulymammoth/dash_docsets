@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>API Reference – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>
+  <small class="visible-xs">Phoenix v1.4.0-dev</small>
+  API Reference
+</h1>
+
+
+  <section class="details-list">
+    <h2 id="modules" class="section-heading">
+  <a href="#modules" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Modules
+</h2>
+
+    <div class="summary">
+      <div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.html">Phoenix</a></div>
+  
+    <div class="summary-synopsis"><p>This is the documentation for the Phoenix project</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Channel.html">Phoenix.Channel</a></div>
+  
+    <div class="summary-synopsis"><p>Defines a Phoenix Channel</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.ChannelTest.html">Phoenix.ChannelTest</a></div>
+  
+    <div class="summary-synopsis"><p>Conveniences for testing Phoenix channels</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.CodeReloader.html">Phoenix.CodeReloader</a></div>
+  
+    <div class="summary-synopsis"><p>A plug and module to handle automatic code reloading</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.ConnTest.html">Phoenix.ConnTest</a></div>
+  
+    <div class="summary-synopsis"><p>Conveniences for testing Phoenix endpoints and
+connection related helpers</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Controller.html">Phoenix.Controller</a></div>
+  
+    <div class="summary-synopsis"><p>Controllers are used to group common functionality in the same
+(pluggable) module</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Endpoint.html">Phoenix.Endpoint</a></div>
+  
+    <div class="summary-synopsis"><p>Defines a Phoenix endpoint</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Endpoint.CowboyHandler.html">Phoenix.Endpoint.CowboyHandler</a></div>
+  
+    <div class="summary-synopsis"><p>The Cowboy adapter for Phoenix</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Endpoint.Handler.html">Phoenix.Endpoint.Handler</a></div>
+  
+    <div class="summary-synopsis"><p>API for exporting a webserver</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Logger.html">Phoenix.Logger</a></div>
+  
+    <div class="summary-synopsis"><p>Instrumenter to handle logging of various instrumentation events</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Naming.html">Phoenix.Naming</a></div>
+  
+    <div class="summary-synopsis"><p>Conveniences for inflecting and working with names in Phoenix</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Param.html">Phoenix.Param</a></div>
+  
+    <div class="summary-synopsis"><p>A protocol that converts data structures into URL parameters</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Presence.html">Phoenix.Presence</a></div>
+  
+    <div class="summary-synopsis"><p>Provides Presence tracking to processes and channels</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Router.html">Phoenix.Router</a></div>
+  
+    <div class="summary-synopsis"><p>Defines a Phoenix router</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Socket.html">Phoenix.Socket</a></div>
+  
+    <div class="summary-synopsis"><p>Defines a socket and its state</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Socket.Broadcast.html">Phoenix.Socket.Broadcast</a></div>
+  
+    <div class="summary-synopsis"><p>Defines a message sent from pubsub to channels and vice-versa</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Socket.Message.html">Phoenix.Socket.Message</a></div>
+  
+    <div class="summary-synopsis"><p>Defines a message dispatched over transport to channels and vice-versa</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Socket.Reply.html">Phoenix.Socket.Reply</a></div>
+  
+    <div class="summary-synopsis"><p>Defines a reply sent from channels to transports</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Socket.Transport.html">Phoenix.Socket.Transport</a></div>
+  
+    <div class="summary-synopsis"><p>API for building transports</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Template.html">Phoenix.Template</a></div>
+  
+    <div class="summary-synopsis"><p>Templates are used by Phoenix when rendering responses</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Template.EExEngine.html">Phoenix.Template.EExEngine</a></div>
+  
+    <div class="summary-synopsis"><p>The Phoenix engine that handles the <code class="inline">.eex</code> extension</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Template.Engine.html">Phoenix.Template.Engine</a></div>
+  
+    <div class="summary-synopsis"><p>Specifies the API for adding custom template engines into Phoenix</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Template.ExsEngine.html">Phoenix.Template.ExsEngine</a></div>
+  
+    <div class="summary-synopsis"><p>The Phoenix engine that handles the <code class="inline">.exs</code> extension</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Template.HTML.html">Phoenix.Template.HTML</a></div>
+  
+    <div class="summary-synopsis"><p>The default HTML encoder that ships with Phoenix</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Token.html">Phoenix.Token</a></div>
+  
+    <div class="summary-synopsis"><p>Tokens provide a way to generate and verify bearer
+tokens for use in Channels or API authentication</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Transports.LongPoll.html">Phoenix.Transports.LongPoll</a></div>
+  
+    <div class="summary-synopsis"><p>Socket transport for long poll clients</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Transports.Serializer.html">Phoenix.Transports.Serializer</a></div>
+  
+    <div class="summary-synopsis"><p>Defines a behaviour for <a href="Phoenix.Socket.Message.html"><code class="inline">Phoenix.Socket.Message</code></a> serialization</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Transports.WebSocket.html">Phoenix.Transports.WebSocket</a></div>
+  
+    <div class="summary-synopsis"><p>Socket transport for websocket clients</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.View.html">Phoenix.View</a></div>
+  
+    <div class="summary-synopsis"><p>Defines the view layer of a Phoenix application</p>
+</div>
+  
+</div>
+
+    </div>
+  </section>
+
+
+
+  <section class="details-list">
+    <h2 id="exceptions" class="section-heading">
+  <a href="#exceptions" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Exceptions
+</h2>
+
+    <div class="summary">
+      <div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.ActionClauseError.html">Phoenix.ActionClauseError</a></div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.MissingParamError.html">Phoenix.MissingParamError</a></div>
+  
+    <div class="summary-synopsis"><p>Raised when a key is expected to be present in the request parameters,
+but is not</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.NotAcceptableError.html">Phoenix.NotAcceptableError</a></div>
+  
+    <div class="summary-synopsis"><p>Raised when one of the <code class="inline">accept*</code> headers is not accepted by the server</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Router.NoRouteError.html">Phoenix.Router.NoRouteError</a></div>
+  
+    <div class="summary-synopsis"><p>Exception raised when no route is found</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Socket.InvalidMessageError.html">Phoenix.Socket.InvalidMessageError</a></div>
+  
+    <div class="summary-synopsis"><p>Raised when the socket message is invalid</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Phoenix.Template.UndefinedError.html">Phoenix.Template.UndefinedError</a></div>
+  
+    <div class="summary-synopsis"><p>Exception raised when a template cannot be found</p>
+</div>
+  
+</div>
+
+    </div>
+  </section>
+
+
+
+  <section class="details-list">
+    <h2 id="mix-tasks" class="section-heading">
+  <a href="#mix-tasks" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Mix Tasks
+</h2>
+
+    <div class="summary">
+      <div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Compile.Phoenix.html">compile.phoenix</a></div>
+  
+    <div class="summary-synopsis"><p>Compiles Phoenix source files that support code reloading</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Phx.Digest.html">phx.digest</a></div>
+  
+    <div class="summary-synopsis"><p>Digests and compress static files</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Phx.Digest.Clean.html">phx.digest.clean</a></div>
+  
+    <div class="summary-synopsis"><p>Removes old versions of compiled assets</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Phx.Gen.Channel.html">phx.gen.channel</a></div>
+  
+    <div class="summary-synopsis"><p>Generates a Phoenix channel</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Phx.Gen.Context.html">phx.gen.context</a></div>
+  
+    <div class="summary-synopsis"><p>Generates a context with functions around an Ecto schema</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Phx.Gen.Embedded.html">phx.gen.embedded</a></div>
+  
+    <div class="summary-synopsis"><p>Generates an embedded Ecto schema for casting/validating data outside the DB</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Phx.Gen.Html.html">phx.gen.html</a></div>
+  
+    <div class="summary-synopsis"><p>Generates controller, views, and context for an HTML resource</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Phx.Gen.Json.html">phx.gen.json</a></div>
+  
+    <div class="summary-synopsis"><p>Generates controller, views, and context for an JSON resource</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Phx.Gen.Presence.html">phx.gen.presence</a></div>
+  
+    <div class="summary-synopsis"><p>Generates a Presence tracker for your application</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Phx.Gen.Schema.html">phx.gen.schema</a></div>
+  
+    <div class="summary-synopsis"><p>Generates an Ecto schema and migration</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Phx.Gen.Secret.html">phx.gen.secret</a></div>
+  
+    <div class="summary-synopsis"><p>Generates a secret and prints it to the terminal</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Phx.Routes.html">phx.routes</a></div>
+  
+    <div class="summary-synopsis"><p>Prints all routes for the default or a given router</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature"><a href="Mix.Tasks.Phx.Server.html">phx.server</a></div>
+  
+    <div class="summary-synopsis"><p>Starts the application by configuring all endpoints servers to run</p>
+</div>
+  
+</div>
+
+    </div>
+  </section>
+
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

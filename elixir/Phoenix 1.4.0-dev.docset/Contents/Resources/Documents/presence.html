@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Presence – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Presence</h1>
+<p>Phoenix Presence is a feature which allows you to register process information on a topic and replicate it transparently across a cluster. It’s a combination of both a server-side and client-side library which makes it simple to implement. A simple use-case would be showing which users are currently online in an application.</p>
+<p>Phoenix Presence is special for a number of reasons. It has no single point of failure, no single source of truth, relies entirely on the standard library with no operational dependencies and self heals. This is all handled with a conflict-free replicated data type (CRDT) protocol.</p>
+<p>To get started with Presence we’ll first need to generate a presence module. We can do this with the <code class="inline">mix phx.gen.presence</code> task:</p>
+<pre><code class="console">$ mix phx.gen.presence
+* creating lib/hello_web/channels/presence.ex
+
+Add your new module to your supervision tree,
+in lib/hello/application.ex:
+
+    children = [
+      ...
+      supervisor(HelloWeb.Presence, []),
+    ]
+
+You&#39;re all set! See the Phoenix.Presence docs for more details:
+http://hexdocs.pm/phoenix/Phoenix.Presence.html</code></pre>
+<p>If we open up the <code class="inline">hello_web/channels/presence.ex</code> file, we will see the following line:</p>
+<pre><code class="elixir">  use Phoenix.Presence, otp_app: :hello,
+                        pubsub_server: Hello.PubSub</code></pre>
+<p>This sets up the module for presence, defining the functions we require for tracking presences. As mentioned in the generator task, we should add this module to our supervision tree in
+<code class="inline">application.ex</code>:</p>
+<pre><code class="elixir">children = [
+  # ...
+  supervisor(HelloWeb.Presence, [])
+]</code></pre>
+<p>Next we will create a channel that Presence can communicate on. For this example we will create a <code class="inline">RoomChannel</code> (<a href="channels.html">see the channels guide for more details on this</a>):</p>
+<pre><code class="console">$ mix phx.gen.channel Room
+* creating lib/hello_web/channels/room_channel.ex
+* creating test/hello_web/channels/room_channel_test.exs
+
+Add the channel to your `lib/hello_web/channels/user_socket.ex` handler, for example:
+
+    channel &quot;room:lobby&quot;, HelloWeb.RoomChannel</code></pre>
+<p>and register it in <code class="inline">lib/hello_web/channels/user_socket.ex</code>:</p>
+<pre><code class="elixir">defmodule HelloWeb.UserSocket do
+  use Phoenix.Socket
+
+  channel &quot;room:lobby&quot;, HelloWeb.RoomChannel
+end</code></pre>
+<p>We also need to change our connect function to take a <code class="inline">user_id</code> from the params and assign it on the socket. In production you may want to use <a href="Phoenix.Token.html"><code class="inline">Phoenix.Token</code></a> if you have real users that are authenticated.</p>
+<pre><code class="elixir">  def connect(params, socket) do
+    {:ok, assign(socket, :user_id, params[&quot;user_id&quot;])}
+  end</code></pre>
+<p>Next, we will create the channel that we’ll communicate presence over. After a user joins we can push the list of presences down the channel and then track the connection. We can also provide a map of additional information to track.</p>
+<p>Note that we provide the <code class="inline">user_id</code> from the connection in order to uniquely identify the client. You can use whatever identifier you like, but you’ll see how this is provided to the socket in the client-side example below.</p>
+<p>To learn more about channels, read the <a href="channels.html">channel documentation in the guide</a>.</p>
+<pre><code class="elixir">defmodule HelloWeb.RoomChannel do
+  use Phoenix.Channel
+  alias HelloWeb.Presence
+
+  def join(&quot;room:lobby&quot;, _params, socket) do
+    send(self(), :after_join)
+    {:ok, socket}
+  end
+
+  def handle_info(:after_join, socket) do
+    push socket, &quot;presence_state&quot;, Presence.list(socket)
+    {:ok, _} = Presence.track(socket, socket.assigns.user_id, %{
+      online_at: inspect(System.system_time(:seconds))
+    })
+    {:noreply, socket}
+  end
+end</code></pre>
+<p>Finally we can use the client-side Presence library provided by Phoenix in order to manage the state and presence diffs that come down the socket. We listen for the initial <code class="inline">presence_state</code> event fired after joining to get the initial state and the later <code class="inline">presence_diff</code> events that contain joins and leaves.</p>
+<p>We can use the included <code class="inline">Presence.syncState()</code> and <code class="inline">Presence.syncDiff()</code> methods to easily handle these events and sync our <code class="inline">presences</code> variable with the latest state. When we want to use the current presence state we can pass it through <code class="inline">Presence.list()</code> in order to get each presence individually.</p>
+<p>When we want to iterate the users, we use the <code class="inline">Presences.list()</code> function which takes a presences object and a callback function. The callback will be called for each presence item with 2 arguments, the presence id and a list of metas (one for each presence for that presence id). We use this to display the users and the number of devices they are online with.</p>
+<p>We can see presence working by adding the following to <code class="inline">assets/js/app.js</code>:</p>
+<pre><code class="javascript">import {Socket, Presence} from &quot;phoenix&quot;
+
+let socket = new Socket(&quot;/socket&quot;, {
+  params: { user_id: window.location.search.split(&quot;=&quot;)[1] }
+})
+
+function renderOnlineUsers(presences) {
+  let response = &quot;&quot;
+
+  Presence.list(presences, (id, {metas: [first, ...rest]}) =&gt; {
+    let count = rest.length + 1
+    response += `&lt;br&gt;${id} (count: ${count})&lt;/br&gt;`
+  })
+
+  document.querySelector(&quot;main[role=main]&quot;).innerHTML = response
+}
+
+socket.connect()
+
+let presences = {}
+
+let channel = socket.channel(&quot;room:lobby&quot;, {})
+
+channel.on(&quot;presence_state&quot;, state =&gt; {
+  presences = Presence.syncState(presences, state)
+  renderOnlineUsers(presences)
+})
+
+channel.on(&quot;presence_diff&quot;, diff =&gt; {
+  presences = Presence.syncDiff(presences, diff)
+  renderOnlineUsers(presences)
+})
+
+channel.join()</code></pre>
+<p>We can ensure this is working by opening 3 browser tabs. If we navigate to http://localhost:4000/?name=Alice on two browser tabs and http://localhost:4000/?name=Bob then we should see:</p>
+<pre><code class="elixir">Alice (count: 2)
+Bob (count: 1)</code></pre>
+<p>If we close one of the Alice tabs, then the count should decrease to 1. If we close another tab, the user should disappear from the list entirely.</p>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

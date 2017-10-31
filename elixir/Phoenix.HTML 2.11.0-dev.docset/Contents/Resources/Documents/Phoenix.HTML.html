@@ -1,0 +1,552 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Phoenix.HTML – Phoenix.HTML v2.11.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-f3114a0f69.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Phoenix.HTML.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix.HTML
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v2.11.0-dev
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix.HTML v2.11.0-dev</small>
+        Phoenix.HTML
+        
+          <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Helpers for working with HTML strings and templates.</p>
+<p>When used, it imports the given modules:</p>
+<ul>
+<li><p><a href="Phoenix.HTML.html#content"><code class="inline">Phoenix.HTML</code></a> - functions to handle HTML safety;</p>
+</li>
+<li><p><a href="Phoenix.HTML.Tag.html"><code class="inline">Phoenix.HTML.Tag</code></a> - functions for generating HTML tags;</p>
+</li>
+<li><p><a href="Phoenix.HTML.Form.html"><code class="inline">Phoenix.HTML.Form</code></a> - functions for working with forms;</p>
+</li>
+<li><p><a href="Phoenix.HTML.Link.html"><code class="inline">Phoenix.HTML.Link</code></a> - functions for generating links and urls;</p>
+</li>
+<li><p><a href="Phoenix.HTML.Format.html"><code class="inline">Phoenix.HTML.Format</code></a> - functions for formatting text;</p>
+</li>
+</ul>
+<h2 id="module-html-safe" class="section-heading">
+  <a href="#module-html-safe" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  HTML Safe
+</h2>
+
+<p>One of the main responsibilities of this module is to
+provide convenience functions for escaping and marking
+HTML code as safe.</p>
+<p>By default, data output in templates is not considered
+safe:</p>
+<pre><code class="elixir">&lt;%= &quot;&lt;hello&gt;&quot; %&gt;</code></pre>
+<p>will be shown as:</p>
+<pre><code class="elixir">&amp;lt;hello&amp;gt;</code></pre>
+<p>User data or data coming from the database is almost never
+considered safe. However, in some cases, you may want to tag
+it as safe and show its “raw” contents:</p>
+<pre><code class="elixir">&lt;%= raw &quot;&lt;hello&gt;&quot; %&gt;</code></pre>
+<p>Keep in mind most helpers will automatically escape your data
+and return safe content:</p>
+<pre><code class="elixir">&lt;%= content_tag :p, &quot;&lt;hello&gt;&quot; %&gt;</code></pre>
+<p>will properly output:</p>
+<pre><code class="elixir">&lt;p&gt;&amp;lt;hello&amp;gt;&lt;/p&gt;</code></pre>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:safe/0">safe()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Guaranteed to be safe</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:unsafe/0">unsafe()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>May be safe or unsafe (i.e. it needs to be converted)</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#escape_javascript/1">escape_javascript(data)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Escapes quotes (double and single), double backslashes and other</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#html_escape/1">html_escape(safe)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Escapes the HTML entities in the given term, returning iodata</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#raw/1">raw(value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Marks the given content as raw</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#safe_to_string/1">safe_to_string(arg)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Converts a safe result into a string</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#sigil_E/2">sigil_E(expr, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Provides <code class="inline">~E</code> sigil with HTML safe EEx syntax inside source files</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#sigil_e/2">sigil_e(expr, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Provides <code class="inline">~e</code> sigil with HTML safe EEx syntax inside source files</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:safe/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/safe" class="dashAnchor"></a>
+  <a href="#t:safe/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">safe()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html.ex#L61" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>safe() :: {:safe, iodata()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Guaranteed to be safe</p>
+
+  </section>
+</div>
+<div class="detail" id="t:unsafe/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/unsafe" class="dashAnchor"></a>
+  <a href="#t:unsafe/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">unsafe()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html.ex#L64" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>unsafe() :: <a href="Phoenix.HTML.Safe.html#t:t/0">Phoenix.HTML.Safe.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>May be safe or unsafe (i.e. it needs to be converted)</p>
+
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="escape_javascript/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/escape_javascript%2F1" class="dashAnchor"></a>
+  <a href="#escape_javascript/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">escape_javascript(data)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html.ex#L177" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>escape_javascript(binary() | <a href="#t:safe/0">safe</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Escapes quotes (double and single), double backslashes and other.</p>
+<p>This function is useful in JavaScript responses when there is a need
+to escape html rendered from other templates, like in the following:</p>
+<pre><code class="elixir">$(&quot;#container&quot;).append(&quot;&lt;%= escape_javascript(render(&quot;post.html&quot;, post: @post)) %&gt;&quot;);</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="html_escape/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/html_escape%2F1" class="dashAnchor"></a>
+  <a href="#html_escape/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">html_escape(safe)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html.ex#L150" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>html_escape(<a href="#t:unsafe/0">unsafe</a>()) :: <a href="#t:safe/0">safe</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Escapes the HTML entities in the given term, returning iodata.</p>
+<pre><code class="iex elixir">iex&gt; html_escape(&quot;&lt;hello&gt;&quot;)
+{:safe, [&quot;&amp;lt;&quot;, &quot;hello&quot;, &quot;&amp;gt;&quot; | &quot;&quot;]}
+
+iex&gt; html_escape(&#39;&lt;hello&gt;&#39;)
+{:safe, [&quot;&amp;lt;&quot;, 104, 101, 108, 108, 111, &quot;&amp;gt;&quot;]}
+
+iex&gt; html_escape(1)
+{:safe, &quot;1&quot;}
+
+iex&gt; html_escape({:safe, &quot;&lt;hello&gt;&quot;})
+{:safe, &quot;&lt;hello&gt;&quot;}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="raw/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/raw%2F1" class="dashAnchor"></a>
+  <a href="#raw/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">raw(value)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html.ex#L124" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>raw(iodata() | <a href="#t:safe/0">safe</a>()) :: <a href="#t:safe/0">safe</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Marks the given content as raw.</p>
+<p>This means any HTML code inside the given
+string won’t be escaped.</p>
+<pre><code class="iex elixir">iex&gt; raw(&quot;&lt;hello&gt;&quot;)
+{:safe, &quot;&lt;hello&gt;&quot;}
+iex&gt; raw({:safe, &quot;&lt;hello&gt;&quot;})
+{:safe, &quot;&lt;hello&gt;&quot;}
+iex&gt; raw(nil)
+{:safe, &quot;&quot;}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="safe_to_string/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/safe_to_string%2F1" class="dashAnchor"></a>
+  <a href="#safe_to_string/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">safe_to_string(arg)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html.ex#L160" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>safe_to_string(<a href="#t:safe/0">safe</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Converts a safe result into a string.</p>
+<p>Fails if the result is not safe. In such cases, you can
+invoke <a href="#html_escape/1"><code class="inline">html_escape/1</code></a> or <a href="#raw/1"><code class="inline">raw/1</code></a> accordingly before.</p>
+
+  </section>
+</div>
+<div class="detail" id="sigil_E/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/sigil_E%2F2" class="dashAnchor"></a>
+  <a href="#sigil_E/2" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">sigil_E(expr, opts)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html.ex#L93" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Provides <code class="inline">~E</code> sigil with HTML safe EEx syntax inside source files.</p>
+<p>Does not raise on attempts to interpolate with <code class="inline">#{}</code>, but rather shows those
+characters literally, so it should be preferred over <code class="inline">~e</code>.</p>
+<pre><code class="iex elixir">iex&gt; ~E&quot;&quot;&quot;
+...&gt; Hello &lt;%= &quot;world&quot; %&gt;
+...&gt; &quot;&quot;&quot;
+{:safe, [[[&quot;&quot; | &quot;Hello &quot;] | &quot;world&quot;] | &quot;\n&quot;]}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="sigil_e/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/sigil_e%2F2" class="dashAnchor"></a>
+  <a href="#sigil_e/2" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">sigil_e(expr, opts)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html.ex#L77" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Provides <code class="inline">~e</code> sigil with HTML safe EEx syntax inside source files.</p>
+<p>Raises on attempts to interpolate with <code class="inline">#{}</code>, so <code class="inline">~E</code> should be preferred.</p>
+<pre><code class="iex elixir">iex&gt; ~e&quot;&quot;&quot;
+...&gt; Hello &lt;%= &quot;world&quot; %&gt;
+...&gt; &quot;&quot;&quot;
+{:safe, [[[&quot;&quot; | &quot;Hello &quot;] | &quot;world&quot;] | &quot;\n&quot;]}</code></pre>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

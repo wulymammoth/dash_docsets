@@ -1,0 +1,1072 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Phoenix.Channel – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix v1.4.0-dev</small>
+        Phoenix.Channel <small>behaviour</small>
+        
+          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Defines a Phoenix Channel.</p>
+<p>Channels provide a means for bidirectional communication from clients that
+integrate with the <a href="https://hexdocs.pm/phoenix_pubsub/1.0.2/Phoenix.PubSub.html"><code class="inline">Phoenix.PubSub</code></a> layer for soft-realtime functionality.</p>
+<h2 id="module-topics-callbacks" class="section-heading">
+  <a href="#module-topics-callbacks" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Topics &amp; Callbacks
+</h2>
+
+<p>Every time you join a channel, you need to choose which particular topic you
+want to listen to. The topic is just an identifier, but by convention it is
+often made of two parts: <code class="inline">&quot;topic:subtopic&quot;</code>. Using the <code class="inline">&quot;topic:subtopic&quot;</code>
+approach pairs nicely with the <a href="Phoenix.Socket.html#channel/2"><code class="inline">Phoenix.Socket.channel/2</code></a> allowing you to
+match on all topics starting with a given prefix:</p>
+<pre><code class="elixir">channel &quot;room:*&quot;, MyApp.RoomChannel</code></pre>
+<p>Any topic coming into the router with the <code class="inline">&quot;room:&quot;</code> prefix would dispatch
+to <code class="inline">MyApp.RoomChannel</code> in the above example. Topics can also be pattern
+matched in your channels’ <code class="inline">join/3</code> callback to pluck out the scoped pattern:</p>
+<pre><code class="elixir"># handles the special `&quot;lobby&quot;` subtopic
+def join(&quot;room:lobby&quot;, _auth_message, socket) do
+  {:ok, socket}
+end
+
+# handles any other subtopic as the room ID, for example `&quot;room:12&quot;`, `&quot;room:34&quot;`
+def join(&quot;room:&quot; &lt;&gt; room_id, auth_message, socket) do
+  {:ok, socket}
+end</code></pre>
+<h2 id="module-authorization" class="section-heading">
+  <a href="#module-authorization" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Authorization
+</h2>
+
+<p>Clients must join a channel to send and receive PubSub events on that channel.
+Your channels must implement a <code class="inline">join/3</code> callback that authorizes the socket
+for the given topic. For example, you could check if the user is allowed to
+join that particular room.</p>
+<p>To authorize a socket in <code class="inline">join/3</code>, return <code class="inline">{:ok, socket}</code>.
+To refuse authorization in <code class="inline">join/3</code>, return <code class="inline">{:error, reply}</code>.</p>
+<h2 id="module-incoming-events" class="section-heading">
+  <a href="#module-incoming-events" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Incoming Events
+</h2>
+
+<p>After a client has successfully joined a channel, incoming events from the
+client are routed through the channel’s <code class="inline">handle_in/3</code> callbacks. Within these
+callbacks, you can perform any action. Typically you’ll either forward a
+message to all listeners with <a href="#broadcast!/3"><code class="inline">broadcast!/3</code></a>, or push a message directly down
+the socket with <a href="#push/3"><code class="inline">push/3</code></a>. Incoming callbacks must return the <code class="inline">socket</code> to
+maintain ephemeral state.</p>
+<p>Here’s an example of receiving an incoming <code class="inline">&quot;new_msg&quot;</code> event from one client,
+and broadcasting the message to all topic subscribers for this socket.</p>
+<pre><code class="elixir">def handle_in(&quot;new_msg&quot;, %{&quot;uid&quot; =&gt; uid, &quot;body&quot; =&gt; body}, socket) do
+  broadcast! socket, &quot;new_msg&quot;, %{uid: uid, body: body}
+  {:noreply, socket}
+end</code></pre>
+<p>You can also push a message directly down the socket:</p>
+<pre><code class="elixir"># client asks for their current rank, push sent directly as a new event.
+def handle_in(&quot;current_rank&quot;, socket) do
+  push socket, &quot;current_rank&quot;, %{val: Game.get_rank(socket.assigns[:user])}
+  {:noreply, socket}
+end</code></pre>
+<h2 id="module-replies" class="section-heading">
+  <a href="#module-replies" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Replies
+</h2>
+
+<p>In addition to pushing messages out when you receive a <code class="inline">handle_in</code> event,
+you can also reply directly to a client event for request/response style
+messaging. This is useful when a client must know the result of an operation
+or to simply ack messages.</p>
+<p>For example, imagine creating a resource and replying with the created record:</p>
+<pre><code class="elixir">def handle_in(&quot;create:post&quot;, attrs, socket) do
+  changeset = Post.changeset(%Post{}, attrs)
+
+  if changeset.valid? do
+    post = Repo.insert!(changeset)
+    response = MyApp.PostView.render(&quot;show.json&quot;, %{post: post})
+    {:reply, {:ok, response}, socket}
+  else
+    response = MyApp.ChangesetView.render(&quot;errors.json&quot;, %{changeset: changeset})
+    {:reply, {:error, response}, socket}
+  end
+end</code></pre>
+<p>Alternatively, you may just want to ack the status of the operation:</p>
+<pre><code class="elixir">def handle_in(&quot;create:post&quot;, attrs, socket) do
+  changeset = Post.changeset(%Post{}, attrs)
+
+  if changeset.valid? do
+    Repo.insert!(changeset)
+    {:reply, :ok, socket}
+  else
+    {:reply, :error, socket}
+  end
+end</code></pre>
+<h2 id="module-intercepting-outgoing-events" class="section-heading">
+  <a href="#module-intercepting-outgoing-events" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Intercepting Outgoing Events
+</h2>
+
+<p>When an event is broadcasted with <a href="#broadcast/3"><code class="inline">broadcast/3</code></a>, each channel subscriber can
+choose to intercept the event and have their <code class="inline">handle_out/3</code> callback triggered.
+This allows the event’s payload to be customized on a socket by socket basis
+to append extra information, or conditionally filter the message from being
+delivered. If the event is not intercepted with <a href="Phoenix.Channel.html#intercept/1"><code class="inline">Phoenix.Channel.intercept/1</code></a>,
+then the message is pushed directly to the client:</p>
+<pre><code class="elixir">intercept [&quot;new_msg&quot;, &quot;user_joined&quot;]
+
+# for every socket subscribing to this topic, append an `is_editable`
+# value for client metadata.
+def handle_out(&quot;new_msg&quot;, msg, socket) do
+  push socket, &quot;new_msg&quot;, Map.merge(msg,
+    %{is_editable: User.can_edit_message?(socket.assigns[:user], msg)}
+  )
+  {:noreply, socket}
+end
+
+# do not send broadcasted `&quot;user_joined&quot;` events if this socket&#39;s user
+# is ignoring the user who joined.
+def handle_out(&quot;user_joined&quot;, msg, socket) do
+  unless User.ignoring?(socket.assigns[:user], msg.user_id) do
+    push socket, &quot;user_joined&quot;, msg
+  end
+  {:noreply, socket}
+end</code></pre>
+<h2 id="module-broadcasting-to-an-external-topic" class="section-heading">
+  <a href="#module-broadcasting-to-an-external-topic" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Broadcasting to an external topic
+</h2>
+
+<p>In some cases, you will want to broadcast messages without the context of
+a <code class="inline">socket</code>. This could be for broadcasting from within your channel to an
+external topic, or broadcasting from elsewhere in your application like a
+controller or another process. Such can be done via your endpoint:</p>
+<pre><code class="elixir"># within channel
+def handle_in(&quot;new_msg&quot;, %{&quot;uid&quot; =&gt; uid, &quot;body&quot; =&gt; body}, socket) do
+  ...
+  broadcast_from! socket, &quot;new_msg&quot;, %{uid: uid, body: body}
+  MyApp.Endpoint.broadcast_from! self(), &quot;room:superadmin&quot;,
+    &quot;new_msg&quot;, %{uid: uid, body: body}
+  {:noreply, socket}
+end
+
+# within controller
+def create(conn, params) do
+  ...
+  MyApp.Endpoint.broadcast! &quot;room:&quot; &lt;&gt; rid, &quot;new_msg&quot;, %{uid: uid, body: body}
+  MyApp.Endpoint.broadcast! &quot;room:superadmin&quot;, &quot;new_msg&quot;, %{uid: uid, body: body}
+  redirect conn, to: &quot;/&quot;
+end</code></pre>
+<h2 id="module-terminate" class="section-heading">
+  <a href="#module-terminate" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Terminate
+</h2>
+
+<p>On termination, the channel callback <code class="inline">terminate/2</code> will be invoked with
+the error reason and the socket.</p>
+<p>If we are terminating because the client left, the reason will be
+<code class="inline">{:shutdown, :left}</code>. Similarly, if we are terminating because the
+client connection was closed, the reason will be <code class="inline">{:shutdown, :closed}</code>.</p>
+<p>If any of the callbacks return a <code class="inline">:stop</code> tuple, it will also
+trigger terminate with the reason given in the tuple.</p>
+<p><code class="inline">terminate/2</code>, however, won’t be invoked in case of errors nor in
+case of exits. This is the same behaviour as you find in Elixir
+abstractions like <a href="https://hexdocs.pm/elixir/GenServer.html"><code class="inline">GenServer</code></a> and others. Typically speaking, if you
+want to clean something up, it is better to monitor your channel
+process and do the clean up from another process.  Similar to GenServer,
+it would also be possible <code class="inline">:trap_exit</code> to guarantee that <code class="inline">terminate/2</code>
+is invoked. This practice is not encouraged though.</p>
+<h2 id="module-exit-reasons-when-stopping-a-channel" class="section-heading">
+  <a href="#module-exit-reasons-when-stopping-a-channel" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Exit reasons when stopping a channel
+</h2>
+
+<p>When the channel callbacks return a <code class="inline">:stop</code> tuple, such as:</p>
+<pre><code class="elixir">{:stop, :shutdown, socket}
+{:stop, {:error, :enoent}, socket}</code></pre>
+<p>the second argument is the exit reason, which follows the same behaviour as
+standard <a href="https://hexdocs.pm/elixir/GenServer.html"><code class="inline">GenServer</code></a> exits.</p>
+<p>You have three options to choose from when shutting down a channel:</p>
+<ul>
+<li><p><code class="inline">:normal</code> - in such cases, the exit won’t be logged, there is no restart
+in transient mode, and linked processes do not exit</p>
+</li>
+<li><p><code class="inline">:shutdown</code> or <code class="inline">{:shutdown, term}</code> - in such cases, the exit won’t be
+logged, there is no restart in transient mode, and linked processes exit
+with the same reason unless they’re trapping exits</p>
+</li>
+<li><p>any other term - in such cases, the exit will be logged, there are
+restarts in transient mode, and linked processes exit with the same reason
+unless they’re trapping exits</p>
+</li>
+</ul>
+<h2 id="module-subscribing-to-external-topics" class="section-heading">
+  <a href="#module-subscribing-to-external-topics" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Subscribing to external topics
+</h2>
+
+<p>Sometimes you may need to programmatically subscribe a socket to external
+topics in addition to the the internal <code class="inline">socket.topic</code>. For example,
+imagine you have a bidding system where a remote client dynamically sets
+preferences on products they want to receive bidding notifications on.
+Instead of requiring a unique channel process and topic per
+preference, a more efficient and simple approach would be to subscribe a
+single channel to relevant notifications via your endpoint. For example:</p>
+<pre><code class="elixir">defmodule MyApp.Endpoint.NotificationChannel do
+  use Phoenix.Channel
+
+  def join(&quot;notification:&quot; &lt;&gt; user_id, %{&quot;ids&quot; =&gt; ids}, socket) do
+    topics = for product_id &lt;- ids, do: &quot;product:#{product_id}&quot;
+
+    {:ok, socket
+          |&gt; assign(:topics, [])
+          |&gt; put_new_topics(topics)}
+  end
+
+  def handle_in(&quot;watch&quot;, %{&quot;product_id&quot; =&gt; id}, socket) do
+    {:reply, :ok, put_new_topics(socket, [&quot;product:#{id}&quot;])}
+  end
+
+  def handle_in(&quot;unwatch&quot;, %{&quot;product_id&quot; =&gt; id}, socket) do
+    {:reply, :ok, MyApp.Endpoint.unsubscribe(&quot;product:#{id}&quot;)}
+  end
+
+  defp put_new_topics(socket, topics) do
+    Enum.reduce(topics, socket, fn topic, acc -&gt;
+      topics = acc.assigns.topics
+      if topic in topics do
+        acc
+      else
+        :ok = MyApp.Endpoint.subscribe(topic)
+        assign(acc, :topics, [topic | topics])
+      end
+    end)
+  end
+end</code></pre>
+<p>Note: the caller must be responsible for preventing duplicate subscriptions.
+After calling <code class="inline">subscribe/1</code> from your endpoint, the same flow applies to
+handling regular Elixir messages within your channel. Most often, you’ll
+simply relay the <code class="inline">%Phoenix.Socket.Broadcast{}</code> event and payload:</p>
+<pre><code class="elixir">alias Phoenix.Socket.Broadcast
+def handle_info(%Broadcast{topic: _, event: ev, payload: payload}, socket) do
+  push socket, ev, payload
+  {:noreply, socket}
+end</code></pre>
+<h2 id="module-logging" class="section-heading">
+  <a href="#module-logging" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Logging
+</h2>
+
+<p>By default, channel <code class="inline">&quot;join&quot;</code> and <code class="inline">&quot;handle_in&quot;</code> events are logged, using
+the level <code class="inline">:info</code> and <code class="inline">:debug</code>, respectively. Logs can be customized per
+event type or disabled by setting the <code class="inline">:log_join</code> and <code class="inline">:log_handle_in</code>
+options when using <a href="Phoenix.Channel.html#content"><code class="inline">Phoenix.Channel</code></a>. For example, the following
+configuration logs join events as <code class="inline">:info</code>, but disables logging for
+incoming events:</p>
+<pre><code class="elixir">use Phoenix.Channel, log_join: :info, log_handle_in: false</code></pre>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:reply/0">reply()</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:socket_ref/0">socket_ref()</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#broadcast/3">broadcast(socket, event, message)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Broadcast an event to all subscribers of the socket topic</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#broadcast!/3">broadcast!(socket, event, message)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Same as <a href="#broadcast/3"><code class="inline">broadcast/3</code></a>, but raises if broadcast fails</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#broadcast_from/3">broadcast_from(socket, event, message)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Broadcast event from pid to all subscribers of the socket topic</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#broadcast_from!/3">broadcast_from!(socket, event, message)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Same as <a href="#broadcast_from/3"><code class="inline">broadcast_from/3</code></a>, but raises if broadcast fails</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#intercept/1">intercept(events)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Defines which Channel events to intercept for <code class="inline">handle_out/3</code> callbacks</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#push/3">push(socket, event, message)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Sends event to the socket</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reply/2">reply(arg1, arg2)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Replies asynchronously to a socket push</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#socket_ref/1">socket_ref(socket)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a <code class="inline">socket_ref</code> for an async reply</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-callbacks summary">
+    <h2>
+      <a href="#callbacks">Callbacks</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:code_change/3">code_change(old_vsn, arg1, extra)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:handle_in/3">handle_in(event, msg, arg2)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:handle_info/2">handle_info(term, arg1)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:join/3">join(topic, auth_msg, arg2)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:terminate/2">terminate(msg, arg1)</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:reply/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/reply" class="dashAnchor"></a>
+  <a href="#t:reply/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">reply()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L266" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reply() :: status :: atom() | {status :: atom(), response :: map()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="t:socket_ref/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Type/socket_ref" class="dashAnchor"></a>
+  <a href="#t:socket_ref/0" class="detail-link"
+ title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">socket_ref()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L267" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>socket_ref() :: {transport_pid :: Pid, serializer :: module(), topic :: binary(), ref :: binary(), join_ref :: binary()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="broadcast/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/broadcast%2F3" class="dashAnchor"></a>
+  <a href="#broadcast/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">broadcast(socket, event, message)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L393" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Broadcast an event to all subscribers of the socket topic.</p>
+<p>The event’s message must be a serializable map.</p>
+<h2 id="broadcast/3-examples" class="section-heading">
+  <a href="#broadcast/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; broadcast socket, &quot;new_message&quot;, %{id: 1, content: &quot;hello&quot;}
+:ok</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="broadcast!/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/broadcast%21%2F3" class="dashAnchor"></a>
+  <a href="#broadcast!/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">broadcast!(socket, event, message)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L401" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Same as <a href="#broadcast/3"><code class="inline">broadcast/3</code></a>, but raises if broadcast fails.</p>
+
+  </section>
+</div>
+<div class="detail" id="broadcast_from/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/broadcast_from%2F3" class="dashAnchor"></a>
+  <a href="#broadcast_from/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">broadcast_from(socket, event, message)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L418" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Broadcast event from pid to all subscribers of the socket topic.</p>
+<p>The channel that owns the socket will not receive the published
+message. The event’s message must be a serializable map.</p>
+<h2 id="broadcast_from/3-examples" class="section-heading">
+  <a href="#broadcast_from/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; broadcast_from socket, &quot;new_message&quot;, %{id: 1, content: &quot;hello&quot;}
+:ok</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="broadcast_from!/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/broadcast_from%21%2F3" class="dashAnchor"></a>
+  <a href="#broadcast_from!/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">broadcast_from!(socket, event, message)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L426" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Same as <a href="#broadcast_from/3"><code class="inline">broadcast_from/3</code></a>, but raises if broadcast fails.</p>
+
+  </section>
+</div>
+<div class="detail" id="intercept/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Macro/intercept%2F1" class="dashAnchor"></a>
+  <a href="#intercept/1" class="detail-link"
+ title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <span class="signature">intercept(events)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L363" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+      <span class="note">(macro)</span>
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Defines which Channel events to intercept for <code class="inline">handle_out/3</code> callbacks.</p>
+<p>By default, broadcasted events are pushed directly to the client, but
+intercepting events gives your channel a chance to customize the event
+for the client to append extra information or filter the message from being
+delivered.</p>
+<p><em>Note</em>: intercepting events can introduce significantly more overhead if a
+large number of subscribers must customize a message since the broadcast will
+be encoded N times instead of a single shared encoding across all subscribers.</p>
+<h2 id="intercept/1-examples" class="section-heading">
+  <a href="#intercept/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">intercept [&quot;new_msg&quot;]
+
+def handle_out(&quot;new_msg&quot;, payload, socket) do
+  push socket, &quot;new_msg&quot;, Map.merge(payload,
+    is_editable: User.can_edit_message?(socket.assigns[:user], payload)
+  )
+  {:noreply, socket}
+end</code></pre>
+<p><code class="inline">handle_out/3</code> callbacks must return one of:</p>
+<pre><code class="elixir">{:noreply, Socket.t} |
+{:stop, reason :: term, Socket.t}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="push/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/push%2F3" class="dashAnchor"></a>
+  <a href="#push/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">push(socket, event, message)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L442" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Sends event to the socket.</p>
+<p>The event’s message must be a serializable map.</p>
+<h2 id="push/3-examples" class="section-heading">
+  <a href="#push/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; push socket, &quot;new_message&quot;, %{id: 1, content: &quot;hello&quot;}
+:ok</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reply/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/reply%2F2" class="dashAnchor"></a>
+  <a href="#reply/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">reply(arg1, arg2)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L476" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reply(<a href="#t:socket_ref/0">socket_ref</a>(), <a href="#t:reply/0">reply</a>()) :: :ok</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Replies asynchronously to a socket push.</p>
+<p>Useful when you need to reply to a push that can’t otherwise be handled using
+the <code class="inline">{:reply, {status, payload}, socket}</code> return from your <code class="inline">handle_in</code>
+callbacks. <a href="#reply/2"><code class="inline">reply/2</code></a> will be used in the rare cases you need to perform work in
+another process and reply when finished by generating a reference to the push
+with <a href="#socket_ref/1"><code class="inline">socket_ref/1</code></a>.</p>
+<p><em>Note</em>: In such cases, a <code class="inline">socket_ref</code> should be generated and
+passed to the external process, so the <code class="inline">socket</code> itself is not leaked outside
+the channel. The <code class="inline">socket</code> holds information such as assigns and transport
+configuration, so it’s important to not copy this information outside of the
+channel that owns it.</p>
+<h2 id="reply/2-examples" class="section-heading">
+  <a href="#reply/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">def handle_in(&quot;work&quot;, payload, socket) do
+  Worker.perform(payload, socket_ref(socket))
+  {:noreply, socket}
+end
+
+def handle_info({:work_complete, result, ref}, socket) do
+  reply ref, {:ok, result}
+  {:noreply, socket}
+end</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="socket_ref/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/socket_ref%2F1" class="dashAnchor"></a>
+  <a href="#socket_ref/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">socket_ref(socket)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L489" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>socket_ref(<a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()) :: <a href="#t:socket_ref/0">socket_ref</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a <code class="inline">socket_ref</code> for an async reply.</p>
+<p>See <a href="#reply/2"><code class="inline">reply/2</code></a> for example usage.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+        <section id="callbacks" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#callbacks">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Callbacks
+          </h1>
+          <div class="detail" id="c:code_change/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/code_change%2F3" class="dashAnchor"></a>
+  <a href="#c:code_change/3" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">code_change(old_vsn, arg1, extra)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L271" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>code_change(old_vsn, <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>(), extra :: term()) ::
+  {:ok, <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()} |
+  {:error, reason :: term()} when old_vsn: term() | {:down, term()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:handle_in/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/handle_in%2F3" class="dashAnchor"></a>
+  <a href="#c:handle_in/3" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">handle_in(event, msg, arg2)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L280" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>handle_in(event :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), msg :: map(), <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()) ::
+  {:noreply, <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()} |
+  {:reply, <a href="#t:reply/0">reply</a>(), <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()} |
+  {:stop, reason :: term(), <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()} |
+  {:stop, reason :: term(), <a href="#t:reply/0">reply</a>(), <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:handle_info/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/handle_info%2F2" class="dashAnchor"></a>
+  <a href="#c:handle_info/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">handle_info(term, arg1)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L286" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>handle_info(term(), <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()) ::
+  {:noreply, <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()} |
+  {:stop, reason :: term(), <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:join/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/join%2F3" class="dashAnchor"></a>
+  <a href="#c:join/3" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">join(topic, auth_msg, arg2)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L275" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>join(topic :: binary(), auth_msg :: map(), <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()) ::
+  {:ok, <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()} |
+  {:ok, map(), <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()} |
+  {:error, map()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:terminate/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/terminate%2F2" class="dashAnchor"></a>
+  <a href="#c:terminate/2" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">terminate(msg, arg1)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/channel.ex#L290" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>terminate(msg :: map(), <a href="Phoenix.Socket.html#t:t/0">Phoenix.Socket.t</a>()) ::
+  {:shutdown, :left | :closed} |
+  term()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+        </section>
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

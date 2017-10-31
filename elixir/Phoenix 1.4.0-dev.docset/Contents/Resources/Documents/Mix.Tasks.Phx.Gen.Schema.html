@@ -1,0 +1,220 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>phx.gen.schema – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="tasks">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix v1.4.0-dev</small>
+        mix phx.gen.schema
+        
+          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/mix/tasks/phx.gen.schema.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Generates an Ecto schema and migration.</p>
+<pre><code class="elixir">mix phx.gen.schema Blog.Post blog_posts title:string views:integer</code></pre>
+<p>The first argument is the schema module followed by its plural
+name (used as the table name).</p>
+<p>The generated schema above will contain:</p>
+<ul>
+<li>a schema file in lib/my_app/blog/post.ex, with a <code class="inline">blog_posts</code> table.
+</li>
+<li>a migration file for the repository
+</li>
+</ul>
+<p>The generated migration can be skipped with <code class="inline">--no-migration</code>.</p>
+<h2 id="module-attributes" class="section-heading">
+  <a href="#module-attributes" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Attributes
+</h2>
+
+<p>The resource fields are given using <code class="inline">name:type</code> syntax
+where type are the types supported by Ecto. Omitting
+the type makes it default to <code class="inline">:string</code>:</p>
+<pre><code class="elixir">mix phx.gen.schema Blog.Post blog_posts title views:integer</code></pre>
+<p>The following types are supported:</p>
+<ul>
+<li><p><code class="inline">:integer</code></p>
+</li>
+<li><p><code class="inline">:float</code></p>
+</li>
+<li><p><code class="inline">:decimal</code></p>
+</li>
+<li><p><code class="inline">:boolean</code></p>
+</li>
+<li><p><code class="inline">:map</code></p>
+</li>
+<li><p><code class="inline">:string</code></p>
+</li>
+<li><p><code class="inline">:array</code></p>
+</li>
+<li><p><code class="inline">:references</code></p>
+</li>
+<li><p><code class="inline">:text</code></p>
+</li>
+<li><p><code class="inline">:date</code></p>
+</li>
+<li><p><code class="inline">:time</code></p>
+</li>
+<li><p><code class="inline">:naive_datetime</code></p>
+</li>
+<li><p><code class="inline">:utc_datetime</code></p>
+</li>
+<li><p><code class="inline">:uuid</code></p>
+</li>
+<li><p><code class="inline">:binary</code></p>
+</li>
+<li><p><code class="inline">:datetime</code> - An alias for <code class="inline">:naive_datetime</code></p>
+</li>
+</ul>
+<p>The generator also supports references, which we will properly
+associate the given column to the primary key column of the
+referenced table:</p>
+<pre><code class="elixir">mix phx.gen.schema Blog.Post blog_posts title user_id:references:users</code></pre>
+<p>This will result in a migration with an <code class="inline">:integer</code> column
+of <code class="inline">:user_id</code> and create an index.</p>
+<p>Furthermore an array type can also be given if it is
+supported by your database, although it requires the
+type of the underlying array element to be given too:</p>
+<pre><code class="elixir">mix phx.gen.schema Blog.Post blog_posts tags:array:string</code></pre>
+<p>Unique columns can be automatically generated by using:</p>
+<pre><code class="elixir">mix phx.gen.schema Blog.Post blog_posts title:unique unique_int:integer:unique</code></pre>
+<p>If no data type is given, it defaults to a string.</p>
+<h2 id="module-table" class="section-heading">
+  <a href="#module-table" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  table
+</h2>
+
+<p>By default, the table name for the migration and schema will be
+the plural name provided for the resource. To customize this value,
+a <code class="inline">--table</code> option may be provided. For example:</p>
+<pre><code class="elixir">mix phx.gen.schema Blog.Post posts --table cms_posts</code></pre>
+<h2 id="module-binary_id" class="section-heading">
+  <a href="#module-binary_id" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  binary_id
+</h2>
+
+<p>Generated migration can use <code class="inline">binary_id</code> for schema’s primary key
+and its references with option <code class="inline">--binary-id</code>.</p>
+<h2 id="module-default-options" class="section-heading">
+  <a href="#module-default-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Default options
+</h2>
+
+<p>This generator uses default options provided in the <code class="inline">:generators</code>
+configuration of your application. These are the defaults:</p>
+<pre><code class="elixir">config :your_app, :generators,
+  migration: true,
+  binary_id: false,
+  sample_binary_id: &quot;11111111-1111-1111-1111-111111111111&quot;</code></pre>
+<p>You can override those options per invocation by providing corresponding
+switches, e.g. <code class="inline">--no-binary-id</code> to use normal ids despite the default
+configuration or <code class="inline">--migration</code> to force generation of the migration.</p>
+
+        </section>
+      
+
+      
+
+      
+
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

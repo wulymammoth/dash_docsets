@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Plug – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Plug</h1>
+<p>Plug lives at the heart of Phoenix’s HTTP layer, and Phoenix puts Plug front and center. We interact with plugs at every step of the connection lifecycle, and the core Phoenix components like Endpoints, Routers, and Controllers are all just Plugs internally. Let’s jump in and find out just what makes Plug so special.</p>
+<p><a href="https://github.com/elixir-lang/plug">Plug</a> is a specification for composable modules in between web applications. It is also an abstraction layer for connection adapters of different web servers. The basic idea of Plug is to unify the concept of a “connection” that we operate on. This differs from other HTTP middleware layers such as Rack, where the request and response are separated in the middleware stack.</p>
+<p>At the simplest level, the Plug specification comes in two flavors: <em>function plugs</em> and <em>module plugs</em>.</p>
+<h2 id="function-plugs" class="section-heading">
+  <a href="#function-plugs" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Function Plugs
+</h2>
+
+<p>In order to act as a plug, a function simply needs to accept a connection struct (<code class="inline">%Plug.Conn{}</code>) and options. It also needs to return a connection struct. Any function that meets those criteria will do. Here’s an example.</p>
+<pre><code class="elixir">def put_headers(conn, key_values) do
+  Enum.reduce key_values, conn, fn {k, v}, conn -&gt;
+    Plug.Conn.put_resp_header(conn, to_string(k), v)
+  end
+end</code></pre>
+<p>Pretty simple, right?</p>
+<p>This is how we use them to compose a series of transformations on our connection in Phoenix:</p>
+<pre><code class="elixir">defmodule HelloWeb.MessageController do
+  use HelloWeb, :controller
+
+  plug :put_headers, %{content_encoding: &quot;gzip&quot;, cache_control: &quot;max-age=3600&quot;}
+  plug :put_layout, &quot;bare.html&quot;
+
+  ...
+end</code></pre>
+<p>By abiding by the plug contract, <code class="inline">put_headers/2</code>, <code class="inline">put_layout/2</code>, and even <code class="inline">action/2</code> turn an application request into a series of explicit transformations. It doesn’t stop there. To really see how effective Plug’s design is, let’s imagine a scenario where we need to check a series of conditions and then either redirect or halt if a condition fails. Without plug, we would end up with something like this:</p>
+<pre><code class="elixir">defmodule HelloWeb.MessageController do
+  use HelloWeb, :controller
+
+  def show(conn, params) do
+    case authenticate(conn) do
+      {:ok, user} -&gt;
+        case find_message(params[&quot;id&quot;]) do
+          nil -&gt;
+            conn |&gt; put_flash(:info, &quot;That message wasn&#39;t found&quot;) |&gt; redirect(to: &quot;/&quot;)
+          message -&gt;
+            case authorize_message(conn, params[&quot;id&quot;]) do
+              :ok -&gt;
+                render conn, :show, page: find_message(params[&quot;id&quot;])
+              :error -&gt;
+                conn |&gt; put_flash(:info, &quot;You can&#39;t access that page&quot;) |&gt; redirect(to: &quot;/&quot;)
+            end
+        end
+      :error -&gt;
+        conn |&gt; put_flash(:info, &quot;You must be logged in&quot;) |&gt; redirect(to: &quot;/&quot;)
+    end
+  end
+end</code></pre>
+<p>Notice how just a few steps of authentication and authorization require complicated nesting and duplication? Let’s improve this with a couple of plugs.</p>
+<pre><code class="elixir">defmodule HelloWeb.MessageController do
+  use HelloWeb, :controller
+
+  plug :authenticate
+  plug :find_message
+  plug :authorize_message
+
+  def show(conn, params) do
+    render conn, :show, page: find_message(params[&quot;id&quot;])
+  end
+
+  defp authenticate(conn, _) do
+    case Authenticator.find_user(conn) do
+      {:ok, user} -&gt;
+        assign(conn, :user, user)
+      :error -&gt;
+        conn |&gt; put_flash(:info, &quot;You must be logged in&quot;) |&gt; redirect(to: &quot;/&quot;) |&gt; halt()
+    end
+  end
+
+  defp find_message(id), do: ...
+  defp find_message(conn, _) do
+    case find_message(conn.params[&quot;id&quot;]) do
+      nil -&gt;
+        conn |&gt; put_flash(:info, &quot;That message wasn&#39;t found&quot;) |&gt; redirect(to: &quot;/&quot;) |&gt; halt()
+      message -&gt;
+        assign(conn, :message, message)
+    end
+  end
+
+  defp authorize_message(conn, _) do
+    if Authorizer.can_access?(conn.assigns[:user], conn.assigns[:message]) do
+      conn
+    else
+      conn |&gt; put_flash(:info, &quot;You can&#39;t access that page&quot;) |&gt; redirect(to: &quot;/&quot;) |&gt; halt()
+    end
+  end
+end</code></pre>
+<p>By replacing the nested blocks of code with a flattened series of plug transformations, we are able to achieve the same functionality in a much more composable, clear, and reusable way.</p>
+<p>Now let’s look at the other flavor plugs come in, module plugs.</p>
+<h2 id="module-plugs" class="section-heading">
+  <a href="#module-plugs" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Module Plugs
+</h2>
+
+<p>Module plugs are another type of Plug that let us define a connection transformation in a module. The module only needs to implement two functions:</p>
+<ul>
+<li><code class="inline">init/1</code> which initializes any arguments or options to be passed to <code class="inline">call/2</code>
+</li>
+<li><code class="inline">call/2</code> which carries out the connection transformation. <code class="inline">call/2</code> is just a function plug that we saw earlier
+</li>
+</ul>
+<p>To see this in action, let’s write a module plug that puts the <code class="inline">:locale</code> key and value into the connection assign for downstream use in other plugs, controller actions, and our views.</p>
+<pre><code class="elixir">defmodule HelloWeb.Plugs.Locale do
+  import Plug.Conn
+
+  @locales [&quot;en&quot;, &quot;fr&quot;, &quot;de&quot;]
+
+  def init(default), do: default
+
+  def call(%Plug.Conn{params: %{&quot;locale&quot; =&gt; loc}} = conn, _default) when loc in @locales do
+    assign(conn, :locale, loc)
+  end
+  def call(conn, default), do: assign(conn, :locale, default)
+end
+
+defmodule HelloWeb.Router do
+  use HelloWeb, :router
+
+  pipeline :browser do
+    plug :accepts, [&quot;html&quot;]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug HelloWeb.Plugs.Locale, &quot;en&quot;
+  end
+  ...</code></pre>
+<p>We are able to add this module plug to our browser pipeline via <code class="inline">plug HelloWeb.Plugs.Locale, &quot;en&quot;</code>. In the <code class="inline">init/1</code> callback, we pass a default locale to use if none is present in the params. We also use pattern matching to define multiple <code class="inline">call/2</code> function heads to validate the locale in the params, and fall back to “en” if there is no match.</p>
+<p>That’s all there is to Plug. Phoenix embraces the plug design of composable transformations all the way up and down the stack. This is just the first taste. If we ask ourselves, “Could I put this in a plug?” The answer is usually, “Yes!”</p>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

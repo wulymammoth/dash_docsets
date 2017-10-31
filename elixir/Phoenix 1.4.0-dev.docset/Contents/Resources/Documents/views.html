@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Views – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Views</h1>
+<p>Phoenix views have two main jobs. First and foremost, they render templates (this includes layouts). The core function involved in rendering, <code class="inline">render/3</code>, is defined in Phoenix itself in the <a href="Phoenix.View.html"><code class="inline">Phoenix.View</code></a> module. Views also provide functions which take raw data and make it easier for templates to consume. If you are familiar with decorators or the facade pattern, this is similar.</p>
+<h2 id="rendering-templates" class="section-heading">
+  <a href="#rendering-templates" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Rendering Templates
+</h2>
+
+<p>Phoenix assumes a strong naming convention from controllers to views to the templates they render. The <code class="inline">PageController</code> requires a <code class="inline">PageView</code> to render templates in the <code class="inline">lib/hello_web/templates/page</code> directory. If we want to, we can change the directory Phoenix considers to be the template root. Phoenix provides a <code class="inline">view/0</code> function in the <code class="inline">HelloWeb</code> module defined in <code class="inline">lib/hello_web.ex</code>. The first line of <code class="inline">view/0</code> allows us to change our root directory by changing the value assigned to the <code class="inline">:root</code> key.</p>
+<p>A newly generated Phoenix application has three view modules - <code class="inline">ErrorView</code>, <code class="inline">LayoutView</code>, and <code class="inline">PageView</code> -  which are all in the, <code class="inline">lib/hello_web/views</code> directory.</p>
+<p>Let’s take a quick look at the <code class="inline">LayoutView</code>.</p>
+<pre><code class="elixir">defmodule HelloWeb.LayoutView do
+  use HelloWeb, :view
+end</code></pre>
+<p>That’s simple enough. There’s only one line, <code class="inline">use HelloWeb, :view</code>. This line calls the <code class="inline">view/0</code> function we just saw above. Besides allowing us to change our template root, <code class="inline">view/0</code> exercises the <code class="inline">__using__</code> macro in the <a href="Phoenix.View.html"><code class="inline">Phoenix.View</code></a> module. It also handles any module imports or aliases our application’s view modules might need.</p>
+<p>At the top of this guide, we mentioned that views are a place to put functions for use in our templates. Let’s experiment with that a little bit.</p>
+<p>Let’s open up our application layout template, <code class="inline">lib/hello_web/templates/layout/app.html.eex</code>, and change this line,</p>
+<pre><code class="html">&lt;title&gt;Hello Phoenix!&lt;/title&gt;</code></pre>
+<p>to call a <code class="inline">title/0</code> function, like this.</p>
+<pre><code class="elixir">&lt;title&gt;&lt;%= title() %&gt;&lt;/title&gt;</code></pre>
+<p>Now let’s add a <code class="inline">title/0</code> function to our <code class="inline">LayoutView</code>.</p>
+<pre><code class="elixir">defmodule HelloWeb.LayoutView do
+  use HelloWeb, :view
+
+  def title do
+    &quot;Awesome New Title!&quot;
+  end
+end</code></pre>
+<p>When we reload the Welcome to Phoenix page, we should see our new title.</p>
+<p>The <code class="inline">&lt;%=</code> and <code class="inline">%&gt;</code> are from the Elixir <a href="https://hexdocs.pm/eex/1.5.1/EEx.html">EEx</a> project. They enclose executable Elixir code within a template. The <code class="inline">=</code> tells EEx to print the result. If the <code class="inline">=</code> is not there, EEx will still execute the code, but there will be no output. In our example, we are calling the <code class="inline">title/0</code> function from our <code class="inline">LayoutView</code> and printing the output into the title tag.</p>
+<p>Note that we didn’t need to fully qualify <code class="inline">title/0</code> with <code class="inline">HelloWeb.LayoutView</code> because our <code class="inline">LayoutView</code> actually does the rendering. In fact, “templates” in Phoenix are really just function definitions on their view module. You can try this out by temporarily deleting your <code class="inline">lib/hello_web/templates/page/index.html.eex</code> file and adding this function clause to your <code class="inline">PageView</code> module in <code class="inline">lib/hello_web/views/page_view.ex</code>.</p>
+<pre><code class="elixir">defmodule HelloWeb.PageView do
+  use HelloWeb, :view
+
+  def render(&quot;index.html&quot;, assigns) do
+    &quot;rendering with assigns #{inspect Map.keys(assigns)}&quot;
+  end
+end</code></pre>
+<p>Now if you fire up the server with <code class="inline">mix phx.server</code> and visit <code class="inline">http://localhost:4000</code>, you should see the following text below your layout header instead of the main template page:</p>
+<pre><code class="elixir">rendering with assigns [:conn, :view_module, :view_template]</code></pre>
+<p>Pretty neat, right? At compile-time, Phoenix precompiles all <code class="inline">*.html.eex</code> templates and turns them into <code class="inline">render/2</code> function clauses on their respective view modules. At runtime, all templates are already loaded in memory. There’s no disk reads, complex file caching, or template engine computation involved. This is also why we were able to define functions like <code class="inline">title/0</code> in our <code class="inline">LayoutView</code> and they were immediately available inside the layout’s <code class="inline">app.html.eex</code> – the call to <code class="inline">title/0</code> was just a local function call!</p>
+<p>When we <code class="inline">use HelloWeb, :view</code>, we get other conveniences as well. Since the <code class="inline">view/0</code> function imports <code class="inline">HelloWeb.Router.Helpers</code>, we don’t have to fully qualify path helpers in templates. Let’s see how that works by changing the template for our Welcome to Phoenix page.</p>
+<p>Let’s open up the <code class="inline">lib/hello_web/templates/page/index.html.eex</code> and locate this stanza.</p>
+<pre><code class="html">&lt;div class=&quot;jumbotron&quot;&gt;
+  &lt;h2&gt;&lt;%= gettext &quot;Welcome to %{name}!&quot;, name: &quot;Phoenix&quot; %&gt;&lt;/h2&gt;
+  &lt;p class=&quot;lead&quot;&gt;A productive web framework that&lt;br&gt;does not compromise speed and maintainability.&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<p>Then let’s add a line with a link back to the same page. (The objective is to see how path helpers respond in a template, not to add any functionality.)</p>
+<pre><code class="html">&lt;div class=&quot;jumbotron&quot;&gt;
+  &lt;h2&gt;&lt;%= gettext &quot;Welcome to %{name}!&quot;, name: &quot;Phoenix&quot; %&gt;&lt;/h2&gt;
+  &lt;p class=&quot;lead&quot;&gt;A productive web framework that&lt;br&gt;does not compromise speed and maintainability.&lt;/p&gt;
+  &lt;p&gt;&lt;a href=&quot;&lt;%= page_path @conn, :index %&gt;&quot;&gt;Link back to this page&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<p>Now we can reload the page and view source to see what we have.</p>
+<pre><code class="html">&lt;a href=&quot;/&quot;&gt;Link back to this page&lt;/a&gt;</code></pre>
+<p>Great, <code class="inline">page_path/2</code> evaluated to <code class="inline">/</code> as we would expect, and we didn’t need to qualify it with <a href="Phoenix.View.html"><code class="inline">Phoenix.View</code></a>.</p>
+<h3 id="more-about-views" class="section-heading">
+  <a href="#more-about-views" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  More About Views
+</h3>
+
+<p>You might be wondering how views are able to work so closely with templates.</p>
+<p>The <a href="Phoenix.View.html"><code class="inline">Phoenix.View</code></a> module gains access to template behavior via the <code class="inline">use Phoenix.Template</code> line in its <code class="inline">__using__/1</code> macro. <a href="Phoenix.Template.html"><code class="inline">Phoenix.Template</code></a> provides many convenience methods for working with templates - finding them, extracting their names and paths, and much more.</p>
+<p>Let’s experiment a little with one of the generated views Phoenix provides us, <code class="inline">lib/hello_web/views/page_view.ex</code>. We’ll add a <code class="inline">message/0</code> function to it, like this.</p>
+<pre><code class="elixir">defmodule HelloWeb.PageView do
+  use HelloWeb, :view
+
+  def message do
+    &quot;Hello from the view!&quot;
+  end
+end</code></pre>
+<p>Now let’s create a new template to play around with, <code class="inline">lib/hello_web/templates/page/test.html.eex</code>.</p>
+<pre><code class="html">This is the message: &lt;%= message() %&gt;</code></pre>
+<p>This doesn’t correspond to any action in our controller, but we’ll exercise it in an <code class="inline">iex</code> session. At the root of our project, we can run <code class="inline">iex -S mix</code>, and then explicitly render our template.</p>
+<pre><code class="console">iex(1)&gt; Phoenix.View.render(HelloWeb.PageView, &quot;test.html&quot;,
+%{})
+  {:safe, [[&quot;&quot; | &quot;This is the message: &quot;] | &quot;Hello from the view!&quot;]}</code></pre>
+<p>As we can see, we’re calling <code class="inline">render/3</code> with the individual view responsible for our test template, the name of our test template, and an empty map representing any data we might have wanted to pass in. The return value is a tuple beginning with the atom <code class="inline">:safe</code> and the resultant io list of the interpolated template. “Safe” here means that Phoenix has escaped the contents of our rendered template. Phoenix defines its own <code class="inline">Phoenix.HTML.Safe</code> protocol with implementations for atoms, bitstrings, lists, integers, floats, and tuples to handle this escaping for us as our templates are rendered into strings.</p>
+<p>What happens if we assign some key value pairs to the third argument of <code class="inline">render/3</code>? In order to find out, we need to change the template just a bit.</p>
+<pre><code class="html">I came from assigns: &lt;%= @message %&gt;
+This is the message: &lt;%= message() %&gt;</code></pre>
+<p>Note the <code class="inline">@</code> in the top line. Now if we change our function call, we see a different rendering after recompiling <code class="inline">PageView</code> module.</p>
+<pre><code class="console">iex(2)&gt; r HelloWeb.PageView
+warning: redefining module HelloWeb.PageView (current version loaded from _build/dev/lib/hello/ebin/Elixir.HelloWeb.PageView.beam)
+  lib/hello_web/views/page_view.ex:1
+
+{:reloaded, HelloWeb.PageView, [HelloWeb.PageView]}
+
+iex(3)&gt; Phoenix.View.render(HelloWeb.PageView, &quot;test.html&quot;, message: &quot;Assigns has an @.&quot;)
+{:safe,
+  [[[[&quot;&quot; | &quot;I came from assigns: &quot;] | &quot;Assigns has an @.&quot;] |
+  &quot;\nThis is the message: &quot;] | &quot;Hello from the view!&quot;]}</code></pre>
+<p>Let’s test out the HTML escaping, just for fun.</p>
+<pre><code class="console">iex(4)&gt; Phoenix.View.render(HelloWeb.PageView, &quot;test.html&quot;, message: &quot;&lt;script&gt;badThings();&lt;/script&gt;&quot;)
+{:safe,
+  [[[[&quot;&quot; | &quot;I came from assigns: &quot;] |
+     &quot;&amp;lt;script&amp;gt;badThings();&amp;lt;/script&amp;gt;&quot;] |
+    &quot;\nThis is the message: &quot;] | &quot;Hello from the view!&quot;]}</code></pre>
+<p>If we need only the rendered string, without the whole tuple, we can use the <code class="inline">render_to_iodata/3</code>.</p>
+<pre><code class="console"> iex(5)&gt; Phoenix.View.render_to_iodata(HelloWeb.PageView, &quot;test.html&quot;, message: &quot;Assigns has an @.&quot;)
+ [[[[&quot;&quot; | &quot;I came from assigns: &quot;] | &quot;Assigns has an @.&quot;] |
+   &quot;\nThis is the message: &quot;] | &quot;Hello from the view!&quot;]</code></pre>
+<h3 id="a-word-about-layouts" class="section-heading">
+  <a href="#a-word-about-layouts" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  A Word About Layouts
+</h3>
+
+<p>Layouts are just templates. They have a view, just like other templates. In a newly generated app, this is <code class="inline">lib/hello_web/views/layout_view.ex</code>. You may be wondering how the string resulting from a rendered view ends up inside a layout. That’s a great question! If we look at <code class="inline">lib/hello_web/templates/layout/app.html.eex</code>, just about in the middle of the <code class="inline">&lt;body&gt;</code>, we will see this.</p>
+<pre><code class="html">&lt;%= render @view_module, @view_template, assigns %&gt;</code></pre>
+<p>This is where the view module and its template from the controller are rendered to a string and placed in the layout.</p>
+<h2 id="the-errorview" class="section-heading">
+  <a href="#the-errorview" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  The ErrorView
+</h2>
+
+<p>Phoenix has a view called the <code class="inline">ErrorView</code> which lives in <code class="inline">lib/hello_web/views/error_view.ex</code>. The purpose of the <code class="inline">ErrorView</code> is to handle two of the most common errors - <code class="inline">404 not found</code> and <code class="inline">500 internal error</code> - in a general way, from one centralized location. Let’s see what it looks like.</p>
+<pre><code class="elixir">defmodule HelloWeb.ErrorView do
+  use HelloWeb, :view
+
+  def render(&quot;404.html&quot;, _assigns) do
+    &quot;Page not found&quot;
+  end
+
+  def render(&quot;500.html&quot;, _assigns) do
+    &quot;Server internal error&quot;
+  end
+
+  # In case no render clause matches or no
+  # template is found, let&#39;s render it as 500
+  def template_not_found(_template, assigns) do
+    render &quot;500.html&quot;, assigns
+  end
+end</code></pre>
+<p>Before we dive into this, let’s see what the rendered <code class="inline">404 not found</code> message looks like in a browser. In the development environment, Phoenix will debug errors by default, showing us a very informative debugging page. What we want here, however, is to see what page the application would serve in production. In order to do that we need to set <code class="inline">debug_errors: false</code> in <code class="inline">config/dev.exs</code>.</p>
+<pre><code class="elixir">use Mix.Config
+
+config :hello, HelloWeb.Endpoint,
+  http: [port: 4000],
+  debug_errors: false,
+  code_reloader: true,
+  . . .</code></pre>
+<p>After modifying our config file, we need to restart our server in order for this change to take effect. After restarting the server, let’s go to <a href="http://localhost:4000/such/a/wrong/path">http://localhost:4000/such/a/wrong/path</a> for a running local application and see what we get.</p>
+<p>Ok, that’s not very exciting. We get the bare string “Page not found”, displayed without any markup or styling.</p>
+<p>Let’s see if we can use what we already know about views to make this a more interesting error page.</p>
+<p>The first question is, where does that error string come from? The answer is right in the <code class="inline">ErrorView</code>.</p>
+<pre><code class="elixir">def render(&quot;404.html&quot;, _assigns) do
+  &quot;Page not found&quot;
+end</code></pre>
+<p>Great, so we have a <code class="inline">render/2</code> function that takes a template and an <code class="inline">assigns</code> map, which we ignore. Where is this <code class="inline">render/2</code> function being called from? The answer is the <code class="inline">render/5</code> function defined in the <code class="inline">Phoenix.Endpoint.RenderErrors</code> module. The whole purpose of this module is to catch errors and render them with a view, in our case, the <code class="inline">HelloWeb.ErrorView</code>. Now that we understand how we got here, let’s make a better error page. Phoenix generates an <code class="inline">ErrorView</code> for us, but it doesn’t give us a <code class="inline">lib/hello_web/templates/error</code> directory. Let’s create one now. Inside our new directory, let’s add a template, <code class="inline">404.html.eex</code> and give it some markup - a mixture of our application layout and a new <code class="inline">div</code> with our message to the user.</p>
+<pre><code class="html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;&quot;&gt;
+    &lt;meta name=&quot;author&quot; content=&quot;&quot;&gt;
+
+    &lt;title&gt;Welcome to Phoenix!&lt;/title&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;/css/app.css&quot;&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+    &lt;div class=&quot;container&quot;&gt;
+      &lt;div class=&quot;header&quot;&gt;
+        &lt;ul class=&quot;nav nav-pills pull-right&quot;&gt;
+          &lt;li&gt;&lt;a href=&quot;http://www.phoenixframework.org/docs&quot;&gt;Get Started&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;span class=&quot;logo&quot;&gt;&lt;/span&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;jumbotron&quot;&gt;
+        &lt;p&gt;Sorry, the page you are looking for does not exist.&lt;/p&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;footer&quot;&gt;
+        &lt;p&gt;&lt;a href=&quot;http://phoenixframework.org&quot;&gt;phoenixframework.org&lt;/a&gt;&lt;/p&gt;
+      &lt;/div&gt;
+
+    &lt;/div&gt; &lt;!-- /container --&gt;
+    &lt;script src=&quot;/js/app.js&quot;&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p>Now we can use the <code class="inline">render/2</code> function we saw above when we were experimenting with rendering in the <code class="inline">iex</code> session. Since we know that Phoenix will precompile the <code class="inline">404.html.eex</code> template as a <code class="inline">render(&quot;index.html.eex&quot;, assigns)</code> function clause, we can delete the clause from our ErrorView.</p>
+<pre><code class="diff">- def render(&quot;404.html&quot;, _assigns) do
+-  render(&quot;not_found.html&quot;, %{})
+- end</code></pre>
+<p>When we go back to <a href="http://localhost:4000/such/a/wrong/path">http://localhost:4000/such/a/wrong/path</a>, we should see a much nicer error page. It is worth noting that we did not render our <code class="inline">404.html.eex</code> template through our application layout, even though we want our error page to have the look and feel of the rest of our site. The main reason is that it’s easy to run into edge case issues while handling errors globally. If we want to minimize duplication between our application layout and our <code class="inline">404.html.eex</code> template, we can implement shared templates for our header and footer. Please see the <a href="templates.html">Template Guide</a> for more information. Of course, we can do these same steps with the <code class="inline">def render(&quot;500.html&quot;, _assigns) do</code> clause in our <code class="inline">ErrorView</code> as well. We can also use the <code class="inline">assigns</code> map passed into any <code class="inline">render/2</code> clause in the <code class="inline">ErrorView</code>, instead of discarding it, in order to display more information in our templates.</p>
+<h2 id="rendering-json" class="section-heading">
+  <a href="#rendering-json" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Rendering JSON
+</h2>
+
+<p>The view’s job is not only to render HTML templates. Views are about data presentation. Given a bag of data, the view’s purpose is to present that in a meaningful way given some format, be it HTML, JSON, CSV, or others. Many web apps today return JSON to remote clients, and Phoenix views are <em>great</em> for JSON rendering. Phoenix uses <a href="https://github.com/devinus/poison">Poison</a> to encode Maps to JSON, so all we need to do in our views is format the data we’d like to respond with as a Map, and Phoenix will do the rest. It is possible to respond with JSON back directly from the controller and skip the View. However, if we think about a controller as having the responsibilities of receiving a request and fetching data to be sent back, data manipulation and formatting don’t fall under those responsibilities. A view gives us a module responsible for formatting and manipulating the data. Let’s take our <code class="inline">PageController</code>, and see what it might look like when we respond with some static page maps as JSON, instead of HTML.</p>
+<pre><code class="elixir">defmodule HelloWeb.PageController do
+  use HelloWeb, :controller
+
+  def show(conn, _params) do
+    page = %{title: &quot;foo&quot;}
+
+    render conn, &quot;show.json&quot;, page: page
+  end
+
+  def index(conn, _params) do
+    pages = [%{title: &quot;foo&quot;}, %{title: &quot;bar&quot;}]
+
+    render conn, &quot;index.json&quot;, pages: pages
+  end
+end</code></pre>
+<p>Here, we have our <code class="inline">show/2</code> and <code class="inline">index/2</code> actions returning static page data. Instead of passing in <code class="inline">&quot;show.html&quot;</code> to <code class="inline">render/3</code> as the template name, we pass <code class="inline">&quot;show.json&quot;</code>. This way, we can have views that are responsible for rendering HTML as well as JSON by pattern matching on different file types.</p>
+<pre><code class="elixir">defmodule HelloWeb.PageView do
+  use HelloWeb, :view
+
+  def render(&quot;index.json&quot;, %{pages: pages}) do
+    %{data: render_many(pages, HelloWeb.PageView, &quot;page.json&quot;)}
+  end
+
+  def render(&quot;show.json&quot;, %{page: page}) do
+    %{data: render_one(page, HelloWeb.PageView, &quot;page.json&quot;)}
+  end
+
+  def render(&quot;page.json&quot;, %{page: page}) do
+    %{title: page.title}
+  end
+end</code></pre>
+<p>In the view we see our <code class="inline">render/2</code> function pattern matching on <code class="inline">&quot;index.json&quot;</code>, <code class="inline">&quot;show.json&quot;</code>, and <code class="inline">&quot;page.json&quot;</code>. In our controller <code class="inline">show/2</code> function, <code class="inline">render conn, &quot;show.json&quot;, page: page</code> will pattern match on the matching name and extension in the view <code class="inline">render/3</code> functions. In other words, <code class="inline">render conn, &quot;index.json&quot;, pages: pages</code> will call <code class="inline">render(&quot;index.json&quot;, %{pages: pages})</code> The <code class="inline">render_many/3</code> function takes the data we want to respond with (<code class="inline">pages</code>), a <code class="inline">View</code>, and a string to pattern match on the <code class="inline">render/3</code> function defined on <code class="inline">View</code>. It will map over each item in <code class="inline">pages</code>, and pass the item to the <code class="inline">render/3</code> function in <code class="inline">View</code> matching the file string. <code class="inline">render_one/3</code> follows, the same signature, ultimately using the <code class="inline">render/3</code> matching <code class="inline">page.json</code> to specify what each <code class="inline">page</code> looks like. The <code class="inline">render/3</code> matching <code class="inline">&quot;index.json&quot;</code> will respond with JSON as you would expect:</p>
+<pre><code class="javascript">  {
+    &quot;data&quot;: [
+      {
+       &quot;title&quot;: &quot;foo&quot;
+      },
+      {
+       &quot;title&quot;: &quot;bar&quot;
+      },
+   ]
+  }</code></pre>
+<p>And the <code class="inline">render/3</code> matching <code class="inline">&quot;show.json&quot;</code>:</p>
+<pre><code class="javascript">  {
+    &quot;data&quot;: {
+      &quot;title&quot;: &quot;foo&quot;
+    }
+  }</code></pre>
+<p>It’s useful to build our views like this so they can be composable. Imagine a situation where our <code class="inline">Page</code> has a <code class="inline">has_many</code> relationship with <code class="inline">Author</code>, and depending on the request, we may want to send back <code class="inline">author</code> data with the <code class="inline">page</code>. We can easily accomplish this with a new <code class="inline">render/3</code>:</p>
+<pre><code class="elixir">defmodule HelloWeb.PageView do
+  use HelloWeb, :view
+  alias HelloWeb.AuthorView
+
+  def render(&quot;page_with_authors.json&quot;, %{page: page}) do
+    %{title: page.title,
+      authors: render_many(page.authors, AuthorView, &quot;author.json&quot;)}
+  end
+
+  def render(&quot;page.json&quot;, %{page: page}) do
+    %{title: page.title}
+  end
+end</code></pre>
+<p>The name used in assigns is determined from the view. For example the <code class="inline">PageView</code> will use <code class="inline">%{page: page}</code> and the <code class="inline">AuthorView</code> will use <code class="inline">%{author: author}</code>. This can be overridden with the <code class="inline">as</code> option. Let’s assume that the author view uses <code class="inline">%{writer: writer}</code> instead of <code class="inline">%{author: author}</code>:</p>
+<pre><code class="elixir">  def render(&quot;page_with_authors.json&quot;, %{page: page}) do
+    %{title: page.title,
+      authors: render_many(page.authors, AuthorView, &quot;author.json&quot;, as: :writer)}
+  end</code></pre>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

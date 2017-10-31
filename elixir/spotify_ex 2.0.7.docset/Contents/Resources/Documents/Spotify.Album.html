@@ -1,0 +1,918 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Spotify.Album – spotify_ex v2.0.7</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-64606230a5.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="https://github.com/jsncmgs1/spotify_ex" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        spotify_ex
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v2.0.7
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">spotify_ex v2.0.7</small>
+        Spotify.Album
+        
+          <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>  Functions for retrieving information about albums.</p>
+<p>  Some endpoints return collections. Spotify wraps the collection in a paging object,
+  this API does the same. A single piece of data will not be wrapped, however
+  in some instances an objet key can contain a collection wrapped in a paging
+  object, for example, requesting several albums will not give you a paging
+  object for the albums, but the tracks will be wrapped in one.</p>
+<p>  There are two functions for each endpoint, one that actually makes the request,
+  and one that provides the endpoint:</p>
+<pre><code class="elixir">  Spotify.Playist.create_playlist(conn, &quot;foo&quot;, &quot;bar&quot;) # makes the POST request.
+  Spotify.Playist.create_playlist_url(&quot;foo&quot;, &quot;bar&quot;) # provides the url for the request.</code></pre>
+<p>https://developer.spotify.com/web-api/get-several-albums/</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#build_response/1">build_response(body)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Implement the callback required by the <a href="Responder.html"><code class="inline">Responder</code></a> behavior</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#check_albums/2">check_albums(conn, params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Check if one or more albums is already saved in the current Spotify user’s “Your Music” library.
+<a href="https://developer.spotify.com/web-api/check-users-saved-albums/">Spotify Documentation</a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#check_albums_url/1">check_albums_url(params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Check if one or more albums is already saved in the current Spotify user’s “Your Music” library</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_album/3">get_album(conn, id, params \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Get Spotify catalog information for a single album.
+<a href="https://developer.spotify.com/web-api/get-album/">Spotify Documentation</a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_album_tracks/3">get_album_tracks(conn, id, params \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Get Spotify catalog information about an album’s tracks.
+<a href="https://developer.spotify.com/web-api/get-albums-tracks/">Spotify Documentation</a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_album_tracks_url/2">get_album_tracks_url(id, params \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Get Spotify catalog information about an album’s tracks</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_album_url/2">get_album_url(id, params \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Get Spotify catalog information for a single album</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_albums/2">get_albums(conn, params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Get Spotify catalog information for multiple albums identified by their Spotify IDs.
+<a href="https://developer.spotify.com/web-api/get-several-albums/">Spotify Documentation</a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_albums_url/1">get_albums_url(params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Get Spotify catalog information for multiple albums identified by their Spotify IDs</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_artists_albums/2">get_artists_albums(conn, id)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Get Spotify catalog information about an artist’s albums. Optional parameters can be specified in the query string to filter and sort the response</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_artists_albums_url/1">get_artists_albums_url(id)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Get Spotify catalog information about an artist’s albums. Optional parameters can be specified in the query string to filter and sort the response</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#handle_response/1">handle_response(arg)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#my_albums/2">my_albums(conn, params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Get a list of the albums saved in the current Spotify user’s “Your Music” library.
+<a href="https://developer.spotify.com/web-api/get-users-saved-albums/">Spotify Documentation</a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#my_albums_url/1">my_albums_url(params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Get a list of the albums saved in the current Spotify user’s “Your Music” library</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#new_releases/2">new_releases(conn, params \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Get a list of new album releases featured in Spotify
+<a href="https://developer.spotify.com/web-api/get-list-new-releases/">Spotify Documentation</a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#new_releases_url/1">new_releases_url(params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Get a list of new album releases featured in Spotify</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#remove_albums/2">remove_albums(conn, params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Remove one or more albums from the current user’s “Your Music” library.
+<a href="https://developer.spotify.com/web-api/remove-albums-user/">Spotify Documentation</a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#remove_albums_url/1">remove_albums_url(params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Remove one or more albums from the current user’s “Your Music” library</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#save_albums/2">save_albums(conn, params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Save one or more albums to the current user’s “Your Music” library.
+<a href="https://developer.spotify.com/web-api/save-albums-user/">Spotify Documentation</a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#save_albums_url/1">save_albums_url(params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Save one or more albums to the current user’s “Your Music” library.
+<a href="https://developer.spotify.com/web-api/get-users-saved-albums/">Spotify Documentation</a></p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="build_response/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/build_response%2F1" class="dashAnchor"></a>
+  <a href="#build_response/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">build_response(body)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L260" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Implement the callback required by the <a href="Responder.html"><code class="inline">Responder</code></a> behavior</p>
+
+  </section>
+</div>
+<div class="detail" id="check_albums/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/check_albums%2F2" class="dashAnchor"></a>
+  <a href="#check_albums/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">check_albums(conn, params)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L242" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Check if one or more albums is already saved in the current Spotify user’s “Your Music” library.
+<a href="https://developer.spotify.com/web-api/check-users-saved-albums/">Spotify Documentation</a></p>
+<p><strong>Method</strong>: <code class="inline">GET</code></p>
+<pre><code class="elixir">Spotify.Album.check_albums(ids: &quot;1,4&quot;)
+# =&gt; [true, false]  (Album 1 is in the user&#39;s library, 4 is not)</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="check_albums_url/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/check_albums_url%2F1" class="dashAnchor"></a>
+  <a href="#check_albums_url/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">check_albums_url(params)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L253" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Check if one or more albums is already saved in the current Spotify user’s “Your Music” library.</p>
+<pre><code class="iex elixir">iex&gt; Spotify.Album.check_albums_url(ids: &quot;1,4&quot;)
+&quot;https://api.spotify.com/v1/me/albums/contains?ids=1%2C4&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="get_album/3">
+  
+  
+    <span id="get_album/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/get_album%2F3" class="dashAnchor"></a>
+  <a href="#get_album/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_album(conn, id, params \\ [])</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L41" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Get Spotify catalog information for a single album.
+<a href="https://developer.spotify.com/web-api/get-album/">Spotify Documentation</a></p>
+<p><strong>Method</strong>: GET</p>
+<p><strong>Optional Params</strong>: <code class="inline">market</code></p>
+<pre><code class="elixir">Spotify.Album.get_album(conn, &quot;4&quot;)
+# =&gt; { :ok, %Spotify.Album{...} }</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="get_album_tracks/3">
+  
+  
+    <span id="get_album_tracks/2"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/get_album_tracks%2F3" class="dashAnchor"></a>
+  <a href="#get_album_tracks/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_album_tracks(conn, id, params \\ [])</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L92" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Get Spotify catalog information about an album’s tracks.
+<a href="https://developer.spotify.com/web-api/get-albums-tracks/">Spotify Documentation</a></p>
+<p><strong>Method</strong>: <code class="inline">GET</code>
+<strong>Optional Params</strong>: <code class="inline">limit</code>, <code class="inline">offset</code>, <code class="inline">market</code></p>
+<pre><code class="elixir">Spotify.Album.get_album_tracks(&quot;1&quot;)
+# =&gt; { :ok, %Paging{items: [%Spotify.Tracks{}, ...] } }</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="get_album_tracks_url/2">
+  
+  
+    <span id="get_album_tracks_url/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/get_album_tracks_url%2F2" class="dashAnchor"></a>
+  <a href="#get_album_tracks_url/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_album_tracks_url(id, params \\ [])</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L103" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Get Spotify catalog information about an album’s tracks.</p>
+<pre><code class="iex elixir">iex&gt; Spotify.Album.get_album_tracks_url(&quot;4&quot;)
+&quot;https://api.spotify.com/v1/albums/4/tracks&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="get_album_url/2">
+  
+  
+    <span id="get_album_url/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/get_album_url%2F2" class="dashAnchor"></a>
+  <a href="#get_album_url/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_album_url(id, params \\ [])</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L52" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Get Spotify catalog information for a single album.</p>
+<pre><code class="iex elixir">iex&gt; Spotify.Album.get_album_url(&quot;4&quot;)
+&quot;https://api.spotify.com/v1/albums/4&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="get_albums/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/get_albums%2F2" class="dashAnchor"></a>
+  <a href="#get_albums/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_albums(conn, params)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L67" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Get Spotify catalog information for multiple albums identified by their Spotify IDs.
+<a href="https://developer.spotify.com/web-api/get-several-albums/">Spotify Documentation</a></p>
+<p><strong>Method</strong>: GET</p>
+<p><strong>Optional Params</strong>: <code class="inline">market</code></p>
+<pre><code class="elixir">Spotify.Album.get_albums(conn, ids: &quot;1,4&quot;)
+# =&gt; { :ok, %Spotify.Album{...} }</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="get_albums_url/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/get_albums_url%2F1" class="dashAnchor"></a>
+  <a href="#get_albums_url/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_albums_url(params)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L78" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Get Spotify catalog information for multiple albums identified by their Spotify IDs.</p>
+<pre><code class="iex elixir">iex&gt; Spotify.Album.get_albums_url(ids: &quot;1,3&quot;)
+&quot;https://api.spotify.com/v1/albums?ids=1%2C3&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="get_artists_albums/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/get_artists_albums%2F2" class="dashAnchor"></a>
+  <a href="#get_artists_albums/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_artists_albums(conn, id)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L117" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Get Spotify catalog information about an artist’s albums. Optional parameters can be specified in the query string to filter and sort the response.</p>
+<p><a href="https://developer.spotify.com/web-api/get-artists-albums/">Spotify Documentation</a></p>
+<p><strong>Method</strong>: <code class="inline">GET</code></p>
+<pre><code class="elixir">Spotify.Album.get_arists_albums(conn, &quot;4&quot;)
+# =&gt; { :ok, %Paging{items: [%Album{}, ..]} }</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="get_artists_albums_url/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/get_artists_albums_url%2F1" class="dashAnchor"></a>
+  <a href="#get_artists_albums_url/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_artists_albums_url(id)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L128" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Get Spotify catalog information about an artist’s albums. Optional parameters can be specified in the query string to filter and sort the response.</p>
+<pre><code class="iex elixir">iex&gt; Spotify.Album.get_artists_albums_url(&quot;4&quot;)
+&quot;https://api.spotify.com/v1/artists/4/albums&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="handle_response/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/handle_response%2F1" class="dashAnchor"></a>
+  <a href="#handle_response/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">handle_response(arg)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L20" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="my_albums/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/my_albums%2F2" class="dashAnchor"></a>
+  <a href="#my_albums/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">my_albums(conn, params)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L194" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Get a list of the albums saved in the current Spotify user’s “Your Music” library.
+<a href="https://developer.spotify.com/web-api/get-users-saved-albums/">Spotify Documentation</a></p>
+<p><strong>Method</strong>: <code class="inline">GET</code>
+<strong>Optional Params</strong>: <code class="inline">limit</code>, <code class="inline">offset</code>, <code class="inline">market</code></p>
+<pre><code class="elixir">Spotify.Album.my_albums(conn, limit: 5)
+# =&gt; { :ok, %Paging{items: [%Album{}, ...]} }</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="my_albums_url/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/my_albums_url%2F1" class="dashAnchor"></a>
+  <a href="#my_albums_url/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">my_albums_url(params)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L205" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Get a list of the albums saved in the current Spotify user’s “Your Music” library.</p>
+<pre><code class="iex elixir">iex&gt; Spotify.Album.my_albums_url(limit: 5)
+&quot;https://api.spotify.com/v1/me/albums?limit=5&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="new_releases/2">
+  
+  
+    <span id="new_releases/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/new_releases%2F2" class="dashAnchor"></a>
+  <a href="#new_releases/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">new_releases(conn, params \\ [])</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L142" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Get a list of new album releases featured in Spotify
+<a href="https://developer.spotify.com/web-api/get-list-new-releases/">Spotify Documentation</a></p>
+<p><strong>Method</strong>: <code class="inline">GET</code>
+<strong>Optional Params</strong>: <code class="inline">country</code>, <code class="inline">limit</code>, <code class="inline">offset</code></p>
+<pre><code class="elixir">Spotify.Album.new_releases(conn, country: &quot;US&quot;)
+# =&gt; { :ok, %Paging{items: [%Album{}, ..]} }</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="new_releases_url/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/new_releases_url%2F1" class="dashAnchor"></a>
+  <a href="#new_releases_url/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">new_releases_url(params)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L153" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Get a list of new album releases featured in Spotify</p>
+<pre><code class="iex elixir">iex&gt; Spotify.Album.new_releases_url(country: &quot;US&quot;)
+&quot;https://api.spotify.com/v1/browse/new-releases?country=US&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="remove_albums/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/remove_albums%2F2" class="dashAnchor"></a>
+  <a href="#remove_albums/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">remove_albums(conn, params)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L218" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Remove one or more albums from the current user’s “Your Music” library.
+<a href="https://developer.spotify.com/web-api/remove-albums-user/">Spotify Documentation</a></p>
+<p><strong>Method</strong>: <code class="inline">DELETE</code></p>
+<pre><code class="elixir">Spotify.Album.remove_albums(conn, ids: &quot;1,4&quot;)
+# =&gt; :ok</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="remove_albums_url/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/remove_albums_url%2F1" class="dashAnchor"></a>
+  <a href="#remove_albums_url/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">remove_albums_url(params)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L229" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Remove one or more albums from the current user’s “Your Music” library.</p>
+<p>  iex&gt; Spotify.Album.remove_albums_url(ids: “1,4”)
+  “https://api.spotify.com/v1/me/albums?ids=1%2C4”</p>
+
+  </section>
+</div>
+<div class="detail" id="save_albums/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/save_albums%2F2" class="dashAnchor"></a>
+  <a href="#save_albums/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">save_albums(conn, params)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L168" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Save one or more albums to the current user’s “Your Music” library.
+<a href="https://developer.spotify.com/web-api/save-albums-user/">Spotify Documentation</a></p>
+<p><strong>Method</strong>: <code class="inline">PUT</code>
+<strong>Required Params</strong>: <code class="inline">ids</code></p>
+<pre><code class="elixir">Spotify.Album.save_albums(conn, ids: &quot;1,4&quot;)
+# =&gt; :ok</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="save_albums_url/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/save_albums_url%2F1" class="dashAnchor"></a>
+  <a href="#save_albums_url/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">save_albums_url(params)</span>
+    
+      <a href="https://github.com/jsncmgs1/spotify_ex/blob/master/lib/spotify/album.ex#L180" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Save one or more albums to the current user’s “Your Music” library.
+<a href="https://developer.spotify.com/web-api/get-users-saved-albums/">Spotify Documentation</a></p>
+<pre><code class="iex elixir">iex&gt; Spotify.Album.save_albums_url(ids: &quot;1,4&quot;)
+&quot;https://api.spotify.com/v1/me/albums?ids=1%2C4&quot;</code></pre>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

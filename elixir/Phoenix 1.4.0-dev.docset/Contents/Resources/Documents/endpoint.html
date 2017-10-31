@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Endpoint – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Endpoint</h1>
+<p>Phoenix applications start the HelloWeb.Endpoint as a supervised process. By default, the Endpoint is added to the supervision tree in <code class="inline">lib/hello/application.ex</code> as a supervised process. Each request begins and ends its lifecycle inside your application in an endpoint. The endpoint handles starting the web server and transforming requests through several defined plugs before calling the <a href="routing.html">Router</a>.</p>
+<pre><code class="elixir">defmodule Hello.Application do
+  use Application
+  def start(_type, _args) do
+    #...
+
+    children = [
+      supervisor(HelloWeb.Endpoint, []),
+    ]
+
+    opts = [strategy: :one_for_one, name: Hello.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+end</code></pre>
+<h3 id="endpoint-contents" class="section-heading">
+  <a href="#endpoint-contents" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Endpoint Contents
+</h3>
+
+<p>Endpoints gather together common functionality and serve as entrance and exit for all of the HTTP requests to your application. The endpoint holds plugs that are common to all requests coming into your application.</p>
+<p>Let’s take a look at the endpoint for the application <code class="inline">Hello</code> generated in the <a href="up_and_running.html">Up and Running</a> page.</p>
+<pre><code class="elixir">defmodule HelloWeb.Endpoint do
+  ...
+end</code></pre>
+<p>The first call inside of our Endpoint module is the <code class="inline">use Phoenix.Endpoint</code> macro with the <code class="inline">otp_app</code>. The <code class="inline">otp_app</code> is used for the configuration. This defines several functions on the <code class="inline">HelloWeb.Endpoint</code> module, including the <code class="inline">start_link</code> function which is called in the supervision tree.</p>
+<pre><code class="elixir">  use Phoenix.Endpoint, otp_app: :hello</code></pre>
+<p>Next the endpoint declares a socket on the “/socket” URI. “/socket” requests will be handled by the <code class="inline">HelloWeb.UserSocket</code> module which is declared elsewhere in our application. Here we are just declaring that such a connection will exist.</p>
+<pre><code class="elixir">  socket &quot;/socket&quot;, HelloWeb.UserSocket</code></pre>
+<p>Next comes a series of plugs that are relevant to all requests in our application. We can customize some of the features, for example, enabling <code class="inline">gzip: true</code> when deploying to production to gzip the static files.</p>
+<p>Static files are served from <code class="inline">priv/static</code> before any part of our request makes it to a router.</p>
+<pre><code class="elixir">  plug Plug.Static,
+    at: &quot;/&quot;, from: :hello, gzip: false,
+    only: ~w(css fonts images js favicon.ico robots.txt)</code></pre>
+<p>If code reloading is enabled, a socket will be used to communicate to the browser that the page needs to be reloaded when code is changed on the server. This feature is enabled by default in the development environment. This is configured using <code class="inline">config :hello, HelloWeb.Endpoint, code_reloader: true</code>.</p>
+<pre><code class="elixir">  if code_reloading? do
+    socket &quot;/phoenix/live_reload/socket&quot;, Phoenix.LiveReloader.Socket
+    plug Phoenix.LiveReloader
+    plug Phoenix.CodeReloader
+  end</code></pre>
+<p><a href="https://hexdocs.pm/plug/Plug.RequestId.html">Plug.RequestId</a> generates a unique id for each request and <a href="https://hexdocs.pm/plug/Plug.Logger.html">Plug.Logger</a> logs the request path, status code and request time by default.</p>
+<pre><code class="elixir">  plug Plug.RequestId
+  plug Plug.Logger</code></pre>
+<p><a href="https://hexdocs.pm/plug/Plug.Session.html">Plug.Session</a> handles the session cookies and session stores.</p>
+<pre><code class="elixir">  plug Plug.Session,
+    store: :cookie,
+    key: &quot;_hello_key&quot;,
+    signing_salt: &quot;change_me&quot;</code></pre>
+<p>By default the last plug in the endpoint is the router. The router matches a path to a particular controller action or plug. The router is covered in the <a href="routing.html">Routing Guide</a>.</p>
+<pre><code class="elixir">  plug HelloWeb.Router</code></pre>
+<p>The endpoint can be customized to add additional plugs, to allow HTTP basic authentication, CORS, subdomain routing and more.</p>
+<p>The final thing generated in the endpoint by default is the <code class="inline">init</code> function. This callback is used for dynamic configuration. The specifics of the dynamic configuration are covered in the <a href="Phoenix.Endpoint.html"><code class="inline">Phoenix.Endpoint</code></a> module documentation.</p>
+<pre><code class="elixir">def init(_key, config) do
+  if config[:load_from_system_env] do
+    port = System.get_env(&quot;PORT&quot;) || raise &quot;expected the PORT environment variable to be set&quot;
+    {:ok, Keyword.put(config, :http, [:inet6, port: port])}
+  else
+    {:ok, config}
+  end
+end</code></pre>
+<p>Faults in the different parts of the supervision tree, such as the Ecto Repo, will not immediately impact the main application. The supervisor is therefore able to restart those processes separately after unexpected faults. It is also possible for an application to have multiple endpoints, each with its own supervision tree.</p>
+<p>There are many functions defined in the endpoint module for path helpers, channel subscriptions and broadcasts, instrumentation, and endpoint configuration. These are all covered in the <a href="Phoenix.Endpoint.html#module-endpoints-api">Endpoint API of the [<code class="inline">Phoenix.Endpoint</code>](Phoenix.Endpoint.html) docs</a>.</p>
+<h2 id="using-ssl" class="section-heading">
+  <a href="#using-ssl" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Using SSL
+</h2>
+
+<p>To prepare an application to serve requests over SSL, we need to add a little bit of configuration and two environment variables. In order for SSL to actually work, we’ll need a key file and certificate file from a certificate authority. The environment variables that we’ll need are paths to those two files.</p>
+<p>The configuration consists of a new <code class="inline">https:</code> key for our endpoint whose value is a keyword list of port, path to the key file, and path to the cert (pem) file. If we add the <code class="inline">otp_app:</code> key whose value is the name of our application, Plug will begin to look for them at the root of our application. We can then put those files in our <code class="inline">priv</code> directory and set the paths to <code class="inline">priv/our_keyfile.key</code> and <code class="inline">priv/our_cert.crt</code>.</p>
+<p>Here’s an example configuration from <code class="inline">config/prod.exs</code>.</p>
+<pre><code class="elixir">use Mix.Config
+
+. . .
+config :hello, HelloWeb.Endpoint,
+  http: [port: {:system, &quot;PORT&quot;}],
+  url: [host: &quot;example.com&quot;],
+  cache_static_manifest: &quot;priv/static/cache_manifest.json&quot;,
+  https: [port: 443,
+          otp_app: :hello,
+          keyfile: System.get_env(&quot;SOME_APP_SSL_KEY_PATH&quot;),
+          certfile: System.get_env(&quot;SOME_APP_SSL_CERT_PATH&quot;),
+          cacertfile: System.get_env(&quot;INTERMEDIATE_CERTFILE_PATH&quot;) # OPTIONAL Key for intermediate certificates
+          ]
+</code></pre>
+<p>Without the <code class="inline">otp_app:</code> key, we need to provide absolute paths to the files wherever they are on the filesystem in order for Plug to find them.</p>
+<pre><code class="elixir">Path.expand(&quot;../../../some/path/to/ssl/key.pem&quot;, __DIR__)</code></pre>
+<h3 id="force-ssl" class="section-heading">
+  <a href="#force-ssl" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Force SSL
+</h3>
+
+<p>In many cases, you’ll want to force all incoming requests to use SSL by redirecting HTTP to HTTPS. This can be accomplished by setting the <code class="inline">:force_ssl</code> option in your endpoint configuration. It expects a list of options which are forwarded to <code class="inline">Plug.SSL</code>. By default it sets the “strict-transport-security” header in HTTPS requests, forcing browsers to always use HTTPS. If an unsafe (HTTP) request is sent, it redirects to the HTTPS version using the <code class="inline">:host</code> specified in the <code class="inline">:url</code> configuration. For example:</p>
+<pre><code class="elixir">config :my_app, MyApp.Endpoint,
+  force_ssl: [rewrite_on: [:x_forwarded_proto]]</code></pre>
+<p>To dynamically redirect to the <code class="inline">host</code> of the current request, set <code class="inline">:host</code> in the <code class="inline">:force_ssl</code> configuration to <code class="inline">nil</code>.</p>
+<pre><code class="elixir">config :my_app, MyApp.Endpoint,
+  force_ssl: [rewrite_on: [:x_forwarded_proto], host: nil]</code></pre>
+<h3 id="releasing-with-exrm" class="section-heading">
+  <a href="#releasing-with-exrm" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Releasing with Exrm
+</h3>
+
+<p>In order to build and run a release with Exrm, make sure you also include the <code class="inline">:ssl</code> app in <code class="inline">mix.exs</code>:</p>
+<pre><code class="elixir">def application do
+  [mod: {MyApp, []},
+   applications: [:phoenix, :phoenix_html, :cowboy, :logger, :gettext,
+                  :phoenix_ecto, :postgrex, :ssl]]
+end</code></pre>
+<p>Or else you might run into errors:</p>
+<pre><code class="elixir">** (MatchError) no match of right hand side value: {:error, {:ssl, {&#39;no such file or directory&#39;, &#39;ssl.app&#39;}}}</code></pre>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

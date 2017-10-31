@@ -1,0 +1,628 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Phoenix.Socket.Transport – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix v1.4.0-dev</small>
+        Phoenix.Socket.Transport <small>behaviour</small>
+        
+          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket/transport.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>API for building transports.</p>
+<p>This module describes what is required to build a Phoenix transport.
+The transport sits between the socket and channels, forwarding client
+messages to channels and vice-versa.</p>
+<p>A transport is responsible for:</p>
+<ul>
+<li>Implementing the transport behaviour
+</li>
+<li>Establishing the socket connection
+</li>
+<li>Handling of incoming messages
+</li>
+<li>Handling of outgoing messages
+</li>
+<li>Managing channels
+</li>
+<li>Providing secure defaults
+</li>
+</ul>
+<h2 id="module-the-transport-behaviour" class="section-heading">
+  <a href="#module-the-transport-behaviour" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  The transport behaviour
+</h2>
+
+<p>The transport requires one function:</p>
+<ul>
+<li><code class="inline">default_config/0</code> - returns the default transport configuration
+to be merged when the transport is declared in the socket module
+</li>
+</ul>
+<h2 id="module-socket-connections" class="section-heading">
+  <a href="#module-socket-connections" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Socket connections
+</h2>
+
+<p>Once a connection is established, the transport is responsible
+for invoking the <code class="inline">Phoenix.Socket.connect/2</code> callback and acting
+accordingly. Once connected, the transport should request the
+<code class="inline">Phoenix.Socket.id/1</code> and subscribe to the topic if one exists.
+On subscribed, the transport must be able to handle “disconnect”
+broadcasts on the given id topic.</p>
+<p>The <a href="#connect/6"><code class="inline">connect/6</code></a> function in this module can be used as a
+convenience or a documentation on such steps.</p>
+<h2 id="module-incoming-messages" class="section-heading">
+  <a href="#module-incoming-messages" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Incoming messages
+</h2>
+
+<p>Incoming messages are encoded in whatever way the transport
+chooses. Those messages must be decoded in the transport into a
+<a href="Phoenix.Socket.Message.html"><code class="inline">Phoenix.Socket.Message</code></a> before being forwarded to a channel.</p>
+<p>Most of those messages are user messages except:</p>
+<ul>
+<li>“heartbeat” events in the “phoenix” topic - should just emit
+an OK reply
+</li>
+<li>“phx_join” on any topic - should join the topic
+</li>
+<li>“phx_leave” on any topic - should leave the topic
+</li>
+</ul>
+<p>The function <a href="#dispatch/3"><code class="inline">dispatch/3</code></a> can be used to handle these messages.</p>
+<h2 id="module-outgoing-messages" class="section-heading">
+  <a href="#module-outgoing-messages" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Outgoing messages
+</h2>
+
+<p>Channels can send two types of message back to a transport:
+<a href="Phoenix.Socket.Message.html"><code class="inline">Phoenix.Socket.Message</code></a> and <a href="Phoenix.Socket.Reply.html"><code class="inline">Phoenix.Socket.Reply</code></a>. Those
+messages are encoded in the channel into a format defined by
+the transport. That’s why transports are required to pass a
+serializer that abides to the behaviour described in
+<a href="Phoenix.Transports.Serializer.html"><code class="inline">Phoenix.Transports.Serializer</code></a>.</p>
+<h2 id="module-managing-channel-exits" class="section-heading">
+  <a href="#module-managing-channel-exits" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Managing channel exits
+</h2>
+
+<p>Because channels are spawned from the transport process, transports
+must trap exits and correctly handle the <code class="inline">{:EXIT, _, _}</code> messages
+arriving from channels, relaying the proper response to the client.</p>
+<p>The <code class="inline">&quot;phx_error&quot;</code> event is sent by the transport when a channel exits,
+and represents the channel terminating against its will. The
+<a href="#on_exit_message/3"><code class="inline">on_exit_message/3</code></a> function aids in constructing the <code class="inline">&quot;phx_error&quot;</code> message.</p>
+<p>For graceful exits, the channel will notify the transort it is
+gracefully terminating via the following message:</p>
+<pre><code class="elixir">{:graceful_exit, channel_pid, %Phoenix.Socket.Message{}}</code></pre>
+<p>The <code class="inline">%Phoenix.Socket.Message{}</code> is the leave message for the transport
+to relay to the client.</p>
+<h2 id="module-duplicate-join-subscriptions" class="section-heading">
+  <a href="#module-duplicate-join-subscriptions" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Duplicate Join Subscriptions
+</h2>
+
+<p>For a given topic, the client may only establish a single channel
+subscription. When attempting to create a duplicate subscription,
+<a href="#dispatch/3"><code class="inline">dispatch/3</code></a> will close the existing channel, log a warning, and
+spawn a new channel for the topic. When sending the <code class="inline">&quot;phx_close&quot;</code>
+event from the closed channel, the message will contain the <code class="inline">ref</code> the
+client sent when joining. This allows the client to uniquely identify
+<code class="inline">&quot;phx_close&quot;</code> and <code class="inline">&quot;phx_error&quot;</code> messages when force-closing a channel
+on duplicate joins.</p>
+<h2 id="module-security" class="section-heading">
+  <a href="#module-security" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Security
+</h2>
+
+<p>This module also provides functions to enable a secure environment
+on transports that, at some point, have access to a <a href="https://hexdocs.pm/plug/1.4.3/Plug.Conn.html"><code class="inline">Plug.Conn</code></a>.</p>
+<p>The functionality provided by this module helps in performing “origin”
+header checks and ensuring only SSL connections are allowed.</p>
+<h2 id="module-remote-client" class="section-heading">
+  <a href="#module-remote-client" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Remote Client
+</h2>
+
+<p>Channels can reply, synchronously, to any <code class="inline">handle_in/3</code> event. To match
+pushes with replies, clients must include a unique <code class="inline">ref</code> with every
+message and the channel server will reply with a matching ref where
+the client can pick up the callback for the matching reply.</p>
+<p>Phoenix includes a JavaScript client for WebSocket and Longpolling
+support using JSON encodings.</p>
+<p>Clients can be implemented for other protocols and encodings by
+abiding by the <a href="Phoenix.Socket.Message.html"><code class="inline">Phoenix.Socket.Message</code></a> format.</p>
+<h2 id="module-protocol-versioning" class="section-heading">
+  <a href="#module-protocol-versioning" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Protocol Versioning
+</h2>
+
+<p>Clients are expected to send the Channel Transport protocol version that they
+expect to be talking to. The version can be retrieved on the server from
+<code class="inline">Phoenix.Channel.Transport.protocol_version/0</code>. If no version is provided, the
+Transport adapters should default to assume a <code class="inline">&quot;1.0.0&quot;</code> version number.
+See <code class="inline">web/static/js/phoenix.js</code> for an example transport client
+implementation.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#check_origin/5">check_origin(conn, handler, endpoint, opts, sender \\ &amp;Plug.Conn.send_resp/1)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Checks the origin request header against the list of allowed origins</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#connect/6">connect(endpoint, handler, transport_name, transport, serializer_config, params)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Handles the socket connection</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#dispatch/3">dispatch(msg, channels, socket)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Dispatches <a href="Phoenix.Socket.Message.html"><code class="inline">Phoenix.Socket.Message</code></a> to a channel</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#force_ssl/4">force_ssl(conn, socket, endpoint, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Forces SSL in the socket connection</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#on_exit_message/3">on_exit_message(topic, join_ref, reason)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns the message to be relayed when a channel exits</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#protocol_version/0">protocol_version()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns the Channel Transport protocol version</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#transport_log/2">transport_log(conn, level)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Logs the transport request</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-callbacks summary">
+    <h2>
+      <a href="#callbacks">Callbacks</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:default_config/0">default_config()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Provides a keyword list of default configuration for socket transports</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="check_origin/5">
+  
+  
+    <span id="check_origin/4"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/check_origin%2F5" class="dashAnchor"></a>
+  <a href="#check_origin/5" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">check_origin(conn, handler, endpoint, opts, sender \\ &amp;Plug.Conn.send_resp/1)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket/transport.ex#L387" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Checks the origin request header against the list of allowed origins.</p>
+<p>Should be called by transports before connecting when appropriate.
+If the origin header matches the allowed origins, no origin header was
+sent or no origin was configured, it will return the given connection.</p>
+<p>Otherwise a 403 Forbidden response will be sent and the connection halted.
+It is a noop if the connection has been halted.</p>
+
+  </section>
+</div>
+<div class="detail" id="connect/6">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/connect%2F6" class="dashAnchor"></a>
+  <a href="#connect/6" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">connect(endpoint, handler, transport_name, transport, serializer_config, params)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket/transport.ex#L147" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Handles the socket connection.</p>
+<p>It builds a new <a href="Phoenix.Socket.html"><code class="inline">Phoenix.Socket</code></a>, invokes the handler
+<code class="inline">connect/2</code> callback and returns the result.</p>
+<p>If the connection was successful, generates <a href="https://hexdocs.pm/phoenix_pubsub/1.0.2/Phoenix.PubSub.html"><code class="inline">Phoenix.PubSub</code></a>
+topic from the <code class="inline">id/1</code> callback.</p>
+
+  </section>
+</div>
+<div class="detail" id="dispatch/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/dispatch%2F3" class="dashAnchor"></a>
+  <a href="#dispatch/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">dispatch(msg, channels, socket)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket/transport.ex#L248" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Dispatches <a href="Phoenix.Socket.Message.html"><code class="inline">Phoenix.Socket.Message</code></a> to a channel.</p>
+<p>All serialized, remote client messages should be deserialized and
+forwarded through this function by adapters.</p>
+<p>The following returns must be handled by transports:</p>
+<ul>
+<li><code class="inline">:noreply</code> - Nothing to be done by the transport
+</li>
+<li><code class="inline">{:reply, reply}</code> - The reply to be sent to the client
+</li>
+<li><code class="inline">{:joined, channel_pid, reply}</code> - The channel was joined
+and the reply must be sent as result
+</li>
+<li><code class="inline">{:error, reason, reply}</code> - An error occurred and the reply
+must be sent as result
+</li>
+</ul>
+<h2 id="dispatch/3-parameter-filtering-on-join" class="section-heading">
+  <a href="#dispatch/3-parameter-filtering-on-join" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Parameter filtering on join
+</h2>
+
+<p>When logging parameters, Phoenix can filter out sensitive parameters
+such as passwords and tokens. Parameters to be filtered can be added
+via the <code class="inline">:filter_parameters</code> option:</p>
+<pre><code class="elixir">config :phoenix, :filter_parameters, [&quot;password&quot;, &quot;secret&quot;]</code></pre>
+<p>With the configuration above, Phoenix will filter any parameter
+that contains the terms <code class="inline">password</code> or <code class="inline">secret</code>. The match is
+case sensitive.</p>
+<p>Phoenix’s default is <code class="inline">[&quot;password&quot;]</code>.</p>
+
+  </section>
+</div>
+<div class="detail" id="force_ssl/4">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/force_ssl%2F4" class="dashAnchor"></a>
+  <a href="#force_ssl/4" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">force_ssl(conn, socket, endpoint, opts)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket/transport.ex#L339" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Forces SSL in the socket connection.</p>
+<p>Uses the endpoint configuration to decide so. It is a
+noop if the connection has been halted.</p>
+
+  </section>
+</div>
+<div class="detail" id="on_exit_message/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/on_exit_message%2F3" class="dashAnchor"></a>
+  <a href="#on_exit_message/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">on_exit_message(topic, join_ref, reason)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket/transport.ex#L312" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Returns the message to be relayed when a channel exits.</p>
+
+  </section>
+</div>
+<div class="detail" id="protocol_version/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/protocol_version%2F0" class="dashAnchor"></a>
+  <a href="#protocol_version/0" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">protocol_version()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket/transport.ex#L136" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Returns the Channel Transport protocol version.</p>
+
+  </section>
+</div>
+<div class="detail" id="transport_log/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/transport_log%2F2" class="dashAnchor"></a>
+  <a href="#transport_log/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">transport_log(conn, level)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket/transport.ex#L364" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Logs the transport request.</p>
+<p>Available for transports that generate a connection.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+        <section id="callbacks" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#callbacks">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Callbacks
+          </h1>
+          <div class="detail" id="c:default_config/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Callback/default_config%2F0" class="dashAnchor"></a>
+  <a href="#c:default_config/0" class="detail-link"
+ title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">default_config()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/socket/transport.ex#L131" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>default_config() :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Provides a keyword list of default configuration for socket transports.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

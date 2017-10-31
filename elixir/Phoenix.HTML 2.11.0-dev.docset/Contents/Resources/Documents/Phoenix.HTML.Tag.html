@@ -1,0 +1,561 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Phoenix.HTML.Tag – Phoenix.HTML v2.11.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-f3114a0f69.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Phoenix.HTML.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix.HTML
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v2.11.0-dev
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix.HTML v2.11.0-dev</small>
+        Phoenix.HTML.Tag
+        
+          <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/tag.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Helpers related to producing HTML tags within templates.</p>
+<p>Note the examples in this module use <code class="inline">safe_to_string/1</code>
+imported from <a href="Phoenix.HTML.html"><code class="inline">Phoenix.HTML</code></a> for readability.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#content_tag/2">content_tag(name, content)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Creates an HTML tag with given name, content, and attributes</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#content_tag/3">content_tag(name, attrs, attrs)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#csrf_meta_tag/0">csrf_meta_tag()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a meta tag with CSRF information</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#form_tag/2">form_tag(action, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a form tag</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#form_tag/3">form_tag(action, options, list)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a form tag with the given contents</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#img_tag/2">img_tag(src, opts \\ [])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates an img tag with a src</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#tag/1">tag(name)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Creates an HTML tag with the given name and options</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#tag/2">tag(name, attrs)</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="content_tag/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/content_tag%2F2" class="dashAnchor"></a>
+  <a href="#content_tag/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">content_tag(name, content)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/tag.ex#L76" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Creates an HTML tag with given name, content, and attributes.</p>
+<p>See <a href="Phoenix.HTML.Tag.html#tag/2"><code class="inline">Phoenix.HTML.Tag.tag/2</code></a> for more information and examples.</p>
+<pre><code class="iex elixir">iex&gt; safe_to_string content_tag(:p, &quot;Hello&quot;)
+&quot;&lt;p&gt;Hello&lt;/p&gt;&quot;
+
+iex&gt; safe_to_string content_tag(:p, &quot;&lt;Hello&gt;&quot;, class: &quot;test&quot;)
+&quot;&lt;p class=\&quot;test\&quot;&gt;&amp;lt;Hello&amp;gt;&lt;/p&gt;&quot;
+
+iex&gt; safe_to_string(content_tag :p, class: &quot;test&quot; do
+...&gt;   &quot;Hello&quot;
+...&gt; end)
+&quot;&lt;p class=\&quot;test\&quot;&gt;Hello&lt;/p&gt;&quot;
+
+iex&gt; safe_to_string content_tag(:option, &quot;Display Value&quot;, [{:data, [foo: &quot;bar&quot;]}, value: &quot;value&quot;])
+&quot;&lt;option data-foo=\&quot;bar\&quot; value=\&quot;value\&quot;&gt;Display Value&lt;/option&gt;&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="content_tag/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/content_tag%2F3" class="dashAnchor"></a>
+  <a href="#content_tag/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">content_tag(name, attrs, attrs)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/tag.ex#L84" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="csrf_meta_tag/0">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/csrf_meta_tag%2F0" class="dashAnchor"></a>
+  <a href="#csrf_meta_tag/0" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">csrf_meta_tag()</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/tag.ex#L262" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a meta tag with CSRF information.</p>
+<h2 id="csrf_meta_tag/0-tag-attributes" class="section-heading">
+  <a href="#csrf_meta_tag/0-tag-attributes" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Tag attributes
+</h2>
+
+<ul>
+<li><code class="inline">content</code> - a valid csrf token
+</li>
+<li><code class="inline">csrf-param</code> - a request parameter where expected csrf token
+</li>
+<li><code class="inline">method-param</code> - a request parameter where expected a custom HTTP method
+</li>
+</ul>
+
+  </section>
+</div>
+<div class="detail" id="form_tag/2">
+  
+  
+    <span id="form_tag/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/form_tag%2F2" class="dashAnchor"></a>
+  <a href="#form_tag/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">form_tag(action, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/tag.ex#L201" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a form tag.</p>
+<p>This function generates the <code class="inline">&lt;form&gt;</code> tag without its
+closing part. Check <a href="#form_tag/3"><code class="inline">form_tag/3</code></a> for generating an
+enclosing tag.</p>
+<h2 id="form_tag/2-examples" class="section-heading">
+  <a href="#form_tag/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">form_tag(&quot;/hello&quot;)
+&lt;form action=&quot;/hello&quot; method=&quot;post&quot;&gt;
+
+form_tag(&quot;/hello&quot;, method: :get)
+&lt;form action=&quot;/hello&quot; method=&quot;get&quot;&gt;</code></pre>
+<h2 id="form_tag/2-options" class="section-heading">
+  <a href="#form_tag/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:method</code> - the HTTP method. If the method is not “get” nor “post”,
+an input tag with name <code class="inline">_method</code> is generated along-side the form tag.
+Defaults to “post”.</p>
+</li>
+<li><p><code class="inline">:multipart</code> - when true, sets enctype to “multipart/form-data”.
+Required when uploading files</p>
+</li>
+<li><p><code class="inline">:csrf_token</code> - for “post” requests, the form tag will automatically
+include an input tag with name <code class="inline">_csrf_token</code>. When set to false, this
+is disabled</p>
+</li>
+<li><p><code class="inline">:enforce_utf8</code> - when false, does not enforce utf8. Read below
+for more information</p>
+</li>
+</ul>
+<p>All other options are passed to the underlying HTML tag.</p>
+<h2 id="form_tag/2-enforce-utf-8" class="section-heading">
+  <a href="#form_tag/2-enforce-utf-8" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Enforce UTF-8
+</h2>
+
+<p>Although forms provide the <code class="inline">accept-charset</code> attribute, which we set
+to UTF-8, Internet Explorer 5 up to 8 may ignore the value of this
+attribute if the user chooses their browser to do so. This ends up
+triggering the browser to send data in a format that is not
+understandable by the server.</p>
+<p>For this reason, Phoenix automatically includes a “_utf8=✓” parameter
+in your forms, to force those browsers to send the data in the proper
+encoding. This technique has been seen in the Rails web framework and
+reproduced here.</p>
+<h2 id="form_tag/2-csrf-protection" class="section-heading">
+  <a href="#form_tag/2-csrf-protection" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  CSRF Protection
+</h2>
+
+<p>By default, CSRF tokens are generated through <a href="https://hexdocs.pm/plug/1.4.3/Plug.CSRFProtection.html"><code class="inline">Plug.CSRFProtection</code></a>. You
+can customize the CSRF token generation by configuring your own MFA:</p>
+<pre><code class="elixir">config :phoenix_html, csrf_token_generator: {MyGenerator, :get_token, []}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="form_tag/3">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/form_tag%2F3" class="dashAnchor"></a>
+  <a href="#form_tag/3" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">form_tag(action, options, list)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/tag.ex#L239" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a form tag with the given contents.</p>
+<h2 id="form_tag/3-examples" class="section-heading">
+  <a href="#form_tag/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">form_tag(&quot;/hello&quot;, method: &quot;get&quot;) do
+  &quot;Hello&quot;
+end
+&lt;form action=&quot;/hello&quot; method=&quot;get&quot;&gt;...Hello...&lt;/form&gt;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="img_tag/2">
+  
+  
+    <span id="img_tag/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/img_tag%2F2" class="dashAnchor"></a>
+  <a href="#img_tag/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">img_tag(src, opts \\ [])</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/tag.ex#L297" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates an img tag with a src.</p>
+<h2 id="img_tag/2-examples" class="section-heading">
+  <a href="#img_tag/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">img_tag(user.photo_path)
+&lt;img src=&quot;photo.png&quot;&gt;
+
+img_tag(user.photo, class: &quot;image&quot;)
+&lt;img src=&quot;smile.png&quot; class=&quot;image&quot;&gt;</code></pre>
+<p>To generate a path to an image hosted in your application “priv/static”,
+use <code class="inline">static_path/1</code> to get a URL with cache control parameters:</p>
+<pre><code class="elixir">img_tag(static_path(&quot;logo.png&quot;))
+&lt;img src=&quot;logo.png?vsn=3456789&quot;&gt;</code></pre>
+<p>To generate a path to an image hosted in your application “priv/static”,
+with the <code class="inline">@conn</code> endpoint, use <code class="inline">static_path/2</code> to get a URL with 
+cache control parameters:</p>
+<pre><code class="elixir">img_tag(static_path(@conn, &quot;/images/logo.png&quot;))
+&lt;img src=&quot;logo.png?vsn=3456789&quot;&gt;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="tag/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/tag%2F1" class="dashAnchor"></a>
+  <a href="#tag/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">tag(name)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/tag.ex#L47" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Creates an HTML tag with the given name and options.</p>
+<pre><code class="iex elixir">iex&gt; safe_to_string tag(:br)
+&quot;&lt;br&gt;&quot;
+iex&gt; safe_to_string tag(:input, type: &quot;text&quot;, name: &quot;user_id&quot;)
+&quot;&lt;input name=\&quot;user_id\&quot; type=\&quot;text\&quot;&gt;&quot;</code></pre>
+<h2 id="tag/1-data-attributes" class="section-heading">
+  <a href="#tag/1-data-attributes" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Data attributes
+</h2>
+
+<p>In order to add custom data attributes you need to pass
+a tuple containing :data atom and a keyword list
+with data attributes’ names and values as the first element
+in the tag’s attributes keyword list:</p>
+<pre><code class="iex elixir">iex&gt; safe_to_string tag(:input, [data: [foo: &quot;bar&quot;], id: &quot;some_id&quot;])
+&quot;&lt;input data-foo=\&quot;bar\&quot; id=\&quot;some_id\&quot;&gt;&quot;</code></pre>
+<h2 id="tag/1-boolean-values" class="section-heading">
+  <a href="#tag/1-boolean-values" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Boolean values
+</h2>
+
+<p>In case an attribute contains a boolean value, its key
+is repeated when it is true, as expected in HTML, or
+the attribute is completely removed if it is false:</p>
+<pre><code class="iex elixir">iex&gt; safe_to_string tag(:audio, autoplay: true)
+&quot;&lt;audio autoplay=\&quot;autoplay\&quot;&gt;&quot;
+iex&gt; safe_to_string tag(:audio, autoplay: false)
+&quot;&lt;audio&gt;&quot;</code></pre>
+<p>If you want the boolean attribute to be sent as is,
+you can explicitly convert it to a string before.</p>
+
+  </section>
+</div>
+<div class="detail" id="tag/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/tag%2F2" class="dashAnchor"></a>
+  <a href="#tag/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">tag(name, attrs)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/tag.ex#L48" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

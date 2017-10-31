@@ -1,0 +1,446 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Phoenix.Naming – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix v1.4.0-dev</small>
+        Phoenix.Naming
+        
+          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/naming.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Conveniences for inflecting and working with names in Phoenix.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#camelize/1">camelize(value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Converts String to camel case</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#camelize/2">camelize(value, atom)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#humanize/1">humanize(atom)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Converts an attribute/form field into its humanize version</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#resource_name/2">resource_name(alias, suffix \\ &quot;&quot;)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Extracts the resource name from an alias</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#underscore/1">underscore(value)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Converts String to underscore case</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#unsuffix/2">unsuffix(value, suffix)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Removes the given suffix from the name if it exists</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="camelize/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/camelize%2F1" class="dashAnchor"></a>
+  <a href="#camelize/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">camelize(value)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/naming.ex#L94" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>camelize(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Converts String to camel case.</p>
+<p>Takes an optional <code class="inline">:lower</code> option to return lowerCamelCase.</p>
+<h2 id="camelize/1-examples" class="section-heading">
+  <a href="#camelize/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; Phoenix.Naming.camelize(&quot;my_app&quot;)
+&quot;MyApp&quot;
+
+iex&gt; Phoenix.Naming.camelize(&quot;my_app&quot;, :lower)
+&quot;myApp&quot;</code></pre>
+<p>In general, <code class="inline">camelize</code> can be thought of as the reverse of
+<code class="inline">underscore</code>, however, in some cases formatting may be lost:</p>
+<pre><code class="elixir">Phoenix.Naming.underscore &quot;SAPExample&quot;  #=&gt; &quot;sap_example&quot;
+Phoenix.Naming.camelize   &quot;sap_example&quot; #=&gt; &quot;SapExample&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="camelize/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/camelize%2F2" class="dashAnchor"></a>
+  <a href="#camelize/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">camelize(value, atom)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/naming.ex#L101" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>camelize(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), :lower) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="humanize/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/humanize%2F1" class="dashAnchor"></a>
+  <a href="#humanize/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">humanize(atom)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/naming.ex#L119" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>humanize(atom() | <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Converts an attribute/form field into its humanize version.</p>
+<pre><code class="iex elixir">iex&gt; Phoenix.Naming.humanize(:username)
+&quot;Username&quot;
+iex&gt; Phoenix.Naming.humanize(:created_at)
+&quot;Created at&quot;
+iex&gt; Phoenix.Naming.humanize(&quot;user_id&quot;)
+&quot;User&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="resource_name/2">
+  
+  
+    <span id="resource_name/1"></span>
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/resource_name%2F2" class="dashAnchor"></a>
+  <a href="#resource_name/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">resource_name(alias, suffix \\ &quot;&quot;)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/naming.ex#L19" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>resource_name(<a href="https://hexdocs.pm/elixir/String.Chars.html#t:t/0">String.Chars.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Extracts the resource name from an alias.</p>
+<h2 id="resource_name/2-examples" class="section-heading">
+  <a href="#resource_name/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; Phoenix.Naming.resource_name(MyApp.User)
+&quot;user&quot;
+
+iex&gt; Phoenix.Naming.resource_name(MyApp.UserView, &quot;View&quot;)
+&quot;user&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="underscore/1">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/underscore%2F1" class="dashAnchor"></a>
+  <a href="#underscore/1" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">underscore(value)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/naming.ex#L68" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>underscore(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Converts String to underscore case.</p>
+<h2 id="underscore/1-examples" class="section-heading">
+  <a href="#underscore/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; Phoenix.Naming.underscore(&quot;MyApp&quot;)
+&quot;my_app&quot;</code></pre>
+<p>In general, <code class="inline">underscore</code> can be thought of as the reverse of
+<code class="inline">camelize</code>, however, in some cases formatting may be lost:</p>
+<pre><code class="elixir">Phoenix.Naming.underscore &quot;SAPExample&quot;  #=&gt; &quot;sap_example&quot;
+Phoenix.Naming.camelize   &quot;sap_example&quot; #=&gt; &quot;SapExample&quot;</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="unsuffix/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/unsuffix%2F2" class="dashAnchor"></a>
+  <a href="#unsuffix/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">unsuffix(value, suffix)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.0-dev/lib/phoenix/naming.ex#L41" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>unsuffix(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Removes the given suffix from the name if it exists.</p>
+<h2 id="unsuffix/2-examples" class="section-heading">
+  <a href="#unsuffix/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; Phoenix.Naming.unsuffix(&quot;MyApp.User&quot;, &quot;View&quot;)
+&quot;MyApp.User&quot;
+
+iex&gt; Phoenix.Naming.unsuffix(&quot;MyApp.UserView&quot;, &quot;View&quot;)
+&quot;MyApp.User&quot;</code></pre>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Introduction to Testing – Phoenix v1.4.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-a365ba3082.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="http://www.phoenixframework.org" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v1.4.0-dev
+      </h2>
+    </div>
+    
+      <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+<h1>Introduction to Testing</h1>
+<blockquote><p>Note: the Testing guides have not been fully updated to Phoenix 1.3; they’re a work in progress and more content is coming.</p>
+</blockquote>
+<p>Testing has become integral to the software development process, and the ability to easily write meaningful tests is an indispensable feature for any modern web framework. Phoenix takes this seriously, providing support files to make all the major components of the framework easy to test. It also generates test modules with real-world examples alongside any generated modules to help get us going.</p>
+<p>Elixir ships with a built-in testing framework called <a href="https://hexdocs.pm/ex_unit/1.5.1/ExUnit.html">ExUnit</a>. ExUnit strives to be clear and explicit, keeping magic to a minimum. Phoenix uses ExUnit for all of its testing, and we will use it here as well.</p>
+<p>ExUnit refers to a test module as a “test case”, and we will do the same.</p>
+<p>Let’s see this in action.</p>
+<blockquote><p>Note: Before we proceed, we’ll need to have PostgreSQL installed and running on our system. We’ll also need to configure our repo with the correct login credentials. <a href="mix_tasks.html#ecto-specific-mix-tasks">The section on ecto.create in the Mix Tasks guide</a> has more information on this, and the <a href="ecto.html">Ecto Guide</a> dives into the details on how it all works.</p>
+</blockquote>
+<p>In a freshly generated application (we use a project named “hello” in the examples), let’s run <code class="inline">mix test</code> at the root of the project. (Please see the <a href="up_and_running.html">Up and Running Guide</a> for instructions on generating a new application.)</p>
+<pre><code class="console">$ mix test
+....
+
+Finished in 0.2 seconds
+4 tests, 0 failures
+
+Randomized with seed 652656</code></pre>
+<p>We already have four tests!</p>
+<p>In fact, we already have a directory structure completely set up for testing, including a test helper and support files.</p>
+<blockquote><p>Note: We didn’t need to create or migrate our test database because the test helper took care of all that for us.</p>
+</blockquote>
+<pre><code class="console">test
+├── hello_web
+│   ├── channels
+│   ├── controllers
+│   │   └── page_controller_test.exs
+│   └── views
+│       ├── error_view_test.exs
+│       ├── layout_view_test.exs
+│       └── page_view_test.exs
+├── support
+│   ├── channel_case.ex
+│   ├── conn_case.ex
+│   └── data_case.ex
+└── test_helper.exs</code></pre>
+<p>The test cases we get for free include <code class="inline">test/hello_web/controllers/page_controller_test.exs</code>, <code class="inline">test/hello_web/views/error_view_test.exs</code>, and <code class="inline">test/hello_web/views/page_view_test.exs</code>. Nice.</p>
+<p>We’re going to look at test cases in detail throughout the testing guides, but let’s take a quick look at these three, just to get our feet wet.</p>
+<p>The first test case we’ll look at is <code class="inline">test/hello_web/controllers/page_controller_test.exs</code>.</p>
+<pre><code class="elixir">defmodule HelloWeb.PageControllerTest do
+  use HelloWeb.ConnCase
+
+  test &quot;GET /&quot;, %{conn: conn} do
+    conn = get conn, &quot;/&quot;
+    assert html_response(conn, 200) =~ &quot;Welcome to Phoenix!&quot;
+  end
+end</code></pre>
+<p>There are a couple of interesting things happening here.</p>
+<p>The <code class="inline">get/2</code> function gives us a connection struct set up as if it had been used for a get request to “/“. This saves us a considerable amount of tedious setup.</p>
+<p>The assertion actually tests three things - that we got an HTML response (by checking for a content-type of “text/html”), that our response code was 200, and that the body of our response contains the string “Welcome to Phoenix!”</p>
+<p>The error view test case, <code class="inline">test/hello_web/views/error_view_test.exs</code>, illustrates a few interesting things of its own.</p>
+<pre><code class="elixir">defmodule HelloWeb.ErrorViewTest do
+  use HelloWeb.ConnCase, async: true
+
+  # Bring render/3 and render_to_string/3 for testing custom views
+  import Phoenix.View
+
+  test &quot;renders 404.html&quot; do
+    assert render_to_string(HelloWeb.ErrorView, &quot;404.html&quot;, []) ==
+           &quot;Page not found&quot;
+  end
+
+  test &quot;render 500.html&quot; do
+    assert render_to_string(HelloWeb.ErrorView, &quot;500.html&quot;, []) ==
+           &quot;Internal server error&quot;
+  end
+
+  test &quot;render any other&quot; do
+    assert render_to_string(HelloWeb.ErrorView, &quot;505.html&quot;, []) ==
+           &quot;Internal server error&quot;
+  end
+end</code></pre>
+<p><code class="inline">HelloWeb.ErrorViewTest</code> sets <code class="inline">async: true</code> which means that each individual test will run in parallel, greatly speeding up the test run. This works because none of the tests access any resources which share state, such as a database. If we set <code class="inline">async: true</code> for a test case which does access a database, different test processes might modify the same data, corrupting the test results.</p>
+<p>It also imports <a href="Phoenix.View.html"><code class="inline">Phoenix.View</code></a> in order to use the <code class="inline">render_to_string/3</code> function. With that, all the assertions can be simple string equality tests.</p>
+<p>The page view case, <code class="inline">test/hello_web/views/page_view_test.exs</code>, does not contain any tests by default, but it is here for us when we need to add functions to our <code class="inline">HelloWeb.PageView</code> module.</p>
+<pre><code class="elixir">defmodule HelloWeb.PageViewTest do
+  use HelloWeb.ConnCase, async: true
+end</code></pre>
+<p>Let’s also take a look at the support and helper files Phoenix provides us.</p>
+<p>The default test helper file, <code class="inline">test/test_helper.exs</code>, creates and migrates our test database for us. It also starts a transaction for each test to run in. This will “clean” the database by rolling back the transaction as each test completes.</p>
+<p>The test helper can also hold any testing-specific configuration our application might need.</p>
+<pre><code class="elixir">ExUnit.start
+
+Ecto.Adapters.SQL.Sandbox.mode(Hello.Repo, :manual)</code></pre>
+<p>The files in <code class="inline">test/support</code> are there to help us get our modules into a testable state. They provide convenience functions for tasks like setting up a connection struct and finding errors on an Ecto changeset. We’ll take a closer look at them in action throughout the rest of the testing guides.</p>
+<h3 id="running-tests" class="section-heading">
+  <a href="#running-tests" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Running Tests
+</h3>
+
+<p>Now that we have an idea what our tests are doing, let’s look at different ways to run them.</p>
+<p>As we saw near the beginning of this guide, we can run our entire suite of tests with <code class="inline">mix test</code>.</p>
+<pre><code class="console">$ mix test
+....
+
+Finished in 0.2 seconds
+4 tests, 0 failures
+
+Randomized with seed 540755</code></pre>
+<p>If we would like to run all the tests in a given directory, <code class="inline">test/hello_web/controllers</code> for instance, we can pass the path to that directory to <code class="inline">mix test</code>.</p>
+<pre><code class="console">$ mix test test/hello_web/controllers/
+.
+
+Finished in 0.2 seconds
+1 tests, 0 failures
+
+Randomized with seed 652376</code></pre>
+<p>In order to run all the tests in a specific file, we can pass the path to that file into <code class="inline">mix test</code>.</p>
+<pre><code class="console">$ mix test test/hello_web/views/error_view_test.exs
+...
+
+Finished in 0.2 seconds
+3 tests, 0 failures
+
+Randomized with seed 220535</code></pre>
+<p>And we can run a single test in a file by appending a colon and a line number to the filename.</p>
+<p>Let’s say we only wanted to run the test for the way <code class="inline">HelloWeb.ErrorView</code> renders <code class="inline">500.html</code>. The test begins on line 12 of the file, so this is how we would do it.</p>
+<pre><code class="console">$ mix test test/hello_web/views/error_view_test.exs:12
+Including tags: [line: &quot;12&quot;]
+Excluding tags: [:test]
+
+.
+
+Finished in 0.1 seconds
+3 tests, 0 failures, 2 skipped
+
+Randomized with seed 288117</code></pre>
+<p>We chose to run this specifying the first line of the test, but actually, any line of that test will do. These line numbers would all work - <code class="inline">:13</code>, <code class="inline">:14</code>, or <code class="inline">:15</code>.</p>
+<h3 id="running-tests-using-tags" class="section-heading">
+  <a href="#running-tests-using-tags" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Running Tests Using Tags
+</h3>
+
+<p>ExUnit allows us to tag our tests at the case level or on the individual test level. We can then choose to run only the tests with a specific tag, or we can exclude tests with that tag and run everything else.</p>
+<p>Let’s experiment with how this works.</p>
+<p>First, we’ll add a <code class="inline">@moduletag</code> to <code class="inline">test/hello_web/views/error_view_test.exs</code>.</p>
+<pre><code class="elixir">defmodule HelloWeb.ErrorViewTest do
+  use HelloWeb.ConnCase, async: true
+
+  @moduletag :error_view_case
+  ...
+end</code></pre>
+<p>If we use only an atom for our module tag, ExUnit assumes that it has a value of <code class="inline">true</code>. We could also specify a different value if we wanted.</p>
+<pre><code class="elixir">defmodule HelloWeb.ErrorViewTest do
+  use HelloWeb.ConnCase, async: true
+
+  @moduletag error_view_case: &quot;some_interesting_value&quot;
+  ...
+end</code></pre>
+<p>For now, let’s leave it as a simple atom <code class="inline">@moduletag :error_view_case</code>.</p>
+<p>We can run only the tests from the error view case by passing <code class="inline">--only error_view_case</code> into <code class="inline">mix test</code>.</p>
+<pre><code class="console">$ mix test --only error_view_case
+Including tags: [:error_view_case]
+Excluding tags: [:test]
+
+...
+
+Finished in 0.1 seconds
+4 tests, 0 failures, 1 skipped
+
+Randomized with seed 125659</code></pre>
+<blockquote><p>Note: ExUnit tells us exactly which tags it is including and excluding for each test run. If we look back to the previous section on running tests, we’ll see that line numbers specified for individual tests are actually treated as tags.</p>
+</blockquote>
+<pre><code class="console">$ mix test test/hello_web/views/error_view_test.exs:12
+Including tags: [line: &quot;12&quot;]
+Excluding tags: [:test]
+
+.
+
+Finished in 0.2 seconds
+3 tests, 0 failures, 2 skipped
+
+Randomized with seed 364723</code></pre>
+<p>Specifying a value of <code class="inline">true</code> for <code class="inline">error_view_case</code> yields the same results.</p>
+<pre><code class="console">$ mix test --only error_view_case:true
+Including tags: [error_view_case: &quot;true&quot;]
+Excluding tags: [:test]
+
+...
+
+Finished in 0.1 seconds
+4 tests, 0 failures, 1 skipped
+
+Randomized with seed 833356</code></pre>
+<p>Specifying <code class="inline">false</code> as the value for <code class="inline">error_view_case</code>, however, will not run any tests because no tags in our system match <code class="inline">error_view_case: false</code>.</p>
+<pre><code class="console">$ mix test --only error_view_case:false
+Including tags: [error_view_case: &quot;false&quot;]
+Excluding tags: [:test]
+
+
+
+Finished in 0.1 seconds
+4 tests, 0 failures, 4 skipped
+
+Randomized with seed 622422</code></pre>
+<p>We can use the <code class="inline">--exclude</code> flag in a similar way. This will run all of the tests except those in the error view case.</p>
+<pre><code class="console">$ mix test --exclude error_view_case
+Excluding tags: [:error_view_case]
+
+.
+
+Finished in 0.2 seconds
+4 tests, 0 failures, 3 skipped
+
+Randomized with seed 682868</code></pre>
+<p>Specifying values for a tag works the same way for <code class="inline">--exclude</code> as it does for <code class="inline">--only</code>.</p>
+<p>We can tag individual tests as well as full test cases. Let’s tag a few tests in the error view case to see how this works.</p>
+<pre><code class="elixir">defmodule HelloWeb.ErrorViewTest do
+  use HelloWeb.ConnCase, async: true
+
+  @moduletag :error_view_case
+
+  # Bring render/3 and render_to_string/3 for testing custom views
+  import Phoenix.View
+
+  @tag individual_test: &quot;yup&quot;
+  test &quot;renders 404.html&quot; do
+    assert render_to_string(HelloWeb.ErrorView, &quot;404.html&quot;, []) ==
+           &quot;Page not found&quot;
+  end
+
+  @tag individual_test: &quot;nope&quot;
+  test &quot;render 500.html&quot; do
+    assert render_to_string(HelloWeb.ErrorView, &quot;500.html&quot;, []) ==
+           &quot;Server internal error&quot;
+  end
+  ...
+end</code></pre>
+<p>If we would like to run only tests tagged as <code class="inline">individual_test</code>, regardless of their value, this will work.</p>
+<pre><code class="console">$ mix test --only individual_test
+Including tags: [:individual_test]
+Excluding tags: [:test]
+
+..
+
+Finished in 0.1 seconds
+4 tests, 0 failures, 2 skipped
+
+Randomized with seed 813729</code></pre>
+<p>We can also specify a value and run only tests with that.</p>
+<pre><code class="console">$ mix test --only individual_test:yup
+Including tags: [individual_test: &quot;yup&quot;]
+Excluding tags: [:test]
+
+.
+
+Finished in 0.1 seconds
+4 tests, 0 failures, 3 skipped
+
+Randomized with seed 770938</code></pre>
+<p>Similarly, we can run all tests except for those tagged with a given value.</p>
+<pre><code class="console">$ mix test --exclude individual_test:nope
+Excluding tags: [individual_test: &quot;nope&quot;]
+
+...
+
+Finished in 0.2 seconds
+4 tests, 0 failures, 1 skipped
+
+Randomized with seed 539324</code></pre>
+<p>Here’s an interesting case, let’s exclude all of the tests from the error view case except the ones tagged with <code class="inline">individual_test</code>.</p>
+<pre><code class="console">$ mix test --exclude error_view_case --include individual_test
+Including tags: [:individual_test]
+Excluding tags: [:error_view_case]
+
+...
+
+Finished in 0.2 seconds
+4 tests, 0 failures, 1 skipped
+
+Randomized with seed 41241</code></pre>
+<p>This runs the two tests tagged with <code class="inline">individual_test</code> as well as the one from <code class="inline">test/hello_web/controllers/page_controller_test.exs</code>.</p>
+<p>We can be more specific and exclude all the tests from the error view case except the one tagged with <code class="inline">individual_test</code> that has the value “yup”.</p>
+<pre><code class="console">$ mix test --exclude error_view_case --include individual_test:yup
+Including tags: [individual_test: &quot;yup&quot;]
+Excluding tags: [:error_view_case]
+
+..
+
+Finished in 0.2 seconds
+4 tests, 0 failures, 2 skipped
+
+Randomized with seed 61472</code></pre>
+<p>Finally, we can configure ExUnit to exclude tags by default. Let’s configure it to always exclude tests with the <code class="inline">error_view_case</code> tag in <code class="inline">test/test_helper.exs</code>.</p>
+<pre><code class="elixir">ExUnit.start
+
+Ecto.Adapters.SQL.Sandbox.mode(Hello.Repo, :manual)
+
+ExUnit.configure(exclude: [error_view_case: true])</code></pre>
+<p>Now when we run <code class="inline">mix test</code>, it only runs one spec from our <code class="inline">page_controller_test.exs</code>.</p>
+<pre><code class="console">$ mix test
+Excluding tags: [error_view_case: true]
+
+.
+
+Finished in 0.2 seconds
+4 tests, 0 failures, 3 skipped
+
+Randomized with seed 186055</code></pre>
+<p>We can override this behavior with the <code class="inline">--include</code> flag, telling <code class="inline">mix test</code> to include tests tagged with <code class="inline">error_view_case</code>.</p>
+<pre><code class="console">$ mix test --include error_view_case
+Including tags: [:error_view_case]
+Excluding tags: [error_view_case: true]
+
+....
+
+Finished in 0.2 seconds
+4 tests, 0 failures
+
+Randomized with seed 748424</code></pre>
+<h3 id="randomization" class="section-heading">
+  <a href="#randomization" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Randomization
+</h3>
+
+<p>Running tests in random order is a good way to ensure that our tests are truly isolated. If we notice that we get sporadic failures for a given test, it may be because a previous test changes the state of the system in ways that aren’t cleaned up afterward, thereby affecting the tests which follow. Those failures might only present themselves if the tests are run in a specific order.</p>
+<p>ExUnit will randomize the order tests run in by default, using an integer to seed the randomization. If we notice that a specific random seed triggers our intermittent failure, we can re-run the tests with that same seed to reliably recreate that test sequence in order to help us figure out what the problem is.</p>
+<pre><code class="console">$ mix test --seed 401472
+....
+
+Finished in 0.2 seconds
+4 tests, 0 failures
+
+Randomized with seed 401472</code></pre>
+<h3 id="generating-more-files" class="section-heading">
+  <a href="#generating-more-files" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Generating More Files
+</h3>
+
+<p>We’ve seen what Phoenix gives us with a newly generated app. Now let’s see what happens when we generate a new HTML resource.</p>
+<p>Let’s borrow the <code class="inline">users</code> resource we created in the <a href="ecto.html">Ecto Guide</a>.</p>
+<p>At the root of our new application, let’s run the <code class="inline">mix phx.gen.html</code> task with the following options.</p>
+<pre><code class="console">$ mix phx.gen.html Users User users name:string email:string bio:string number_of_pets:integer
+
+...
+
+Generated hello app
+
+* creating lib/hello_web/controllers/user_controller.ex
+* creating lib/hello_web/templates/user/edit.html.eex
+* creating lib/hello_web/templates/user/form.html.eex
+* creating lib/hello_web/templates/user/index.html.eex
+* creating lib/hello_web/templates/user/new.html.eex
+* creating lib/hello_web/templates/user/show.html.eex
+* creating lib/hello_web/views/user_view.ex
+* creating test/hello_web/controllers/user_controller_test.exs
+* creating lib/hello/users/user.ex
+* creating priv/repo/migrations/20170830041905_create_users.exs
+* creating lib/hello/users/users.ex
+* injecting lib/hello/users/users.ex
+* creating test/hello/users/users_test.exs
+* injecting test/hello/users/users_test.exs
+
+Add the resource to your browser scope in web/router.ex:
+
+    resources &quot;/users&quot;, UserController
+
+Remember to update your repository by running migrations:
+
+    $ mix ecto.migrate</code></pre>
+<p>Now let’s follow the directions and add the new resources route to our <code class="inline">lib/hello_web/router.ex</code> file.</p>
+<pre><code class="elixir">defmodule HelloWeb.Router do
+  use HelloWeb, :router
+
+  ...
+
+  scope &quot;/&quot;, Hello do
+    pipe_through :browser # Use the default browser stack
+
+    get &quot;/&quot;, PageController, :index
+    resources &quot;/users&quot;, UserController
+  end
+
+  # Other scopes may use custom stacks.
+  # scope &quot;/api&quot;, Hello do
+  #   pipe_through :api
+  # end
+end</code></pre>
+<p>When we run <code class="inline">mix test</code> again, we see that we already have twenty tests!</p>
+<pre><code class="console">$ mix test
+................
+
+Finished in 0.1 seconds
+20 tests, 0 failures
+
+Randomized with seed 537537</code></pre>
+<p>At this point, we are at a great place to transition to the rest of the testing guides, in which we’ll examine these tests in much more detail, and add some of our own.</p>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

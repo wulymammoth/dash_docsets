@@ -1,0 +1,312 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Phoenix.HTML.Link – Phoenix.HTML v2.11.0-dev</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-f3114a0f69.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle" style="visibility: hidden">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar" style="visibility: hidden">
+
+  
+  <a href="Phoenix.HTML.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Phoenix.HTML
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v2.11.0-dev
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content" style="padding-left: 0;">
+  <div class="content-outer">
+    <div id="content" class="content-inner" style="margin: 0; margin-top: -28px; padding: 0px 14px;">
+
+
+      <h1>
+        <small class="visible-xs">Phoenix.HTML v2.11.0-dev</small>
+        Phoenix.HTML.Link
+        
+          <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/link.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>Conveniences for working with links and URLs in HTML.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#button/2">button(opts, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a button that uses a regular HTML form to submit to the given URL</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#link/2">link(text, opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Generates a link to the given URL</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="button/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/button%2F2" class="dashAnchor"></a>
+  <a href="#button/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">button(opts, opts)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/link.ex#L136" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a button that uses a regular HTML form to submit to the given URL.</p>
+<p>Useful to ensure that links that change data are not triggered by
+search engines and other spidering software.</p>
+<h2 id="button/2-examples" class="section-heading">
+  <a href="#button/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">button(&quot;hello&quot;, to: &quot;/world&quot;)
+#=&gt; &lt;button class=&quot;button&quot; data-csrf=&quot;csrf_token&quot; data-method=&quot;post&quot; data-to=&quot;/world&quot;&gt;hello&lt;/button&gt;
+
+button(&quot;hello&quot;, to: &quot;/world&quot;, method: &quot;get&quot;, class: &quot;btn&quot;)
+#=&gt; &lt;button class=&quot;btn&quot; data-method=&quot;get&quot; data-to=&quot;/world&quot;&gt;hello&lt;/button&gt;</code></pre>
+<h2 id="button/2-options" class="section-heading">
+  <a href="#button/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:to</code> - the page to link to. This option is required</p>
+</li>
+<li><p><code class="inline">:method</code> - the method to use with the button. Defaults to :post.</p>
+</li>
+</ul>
+<p>All other options are forwarded to the underlying button input.</p>
+
+  </section>
+</div>
+<div class="detail" id="link/2">
+  
+  
+  <div class="detail-header">
+      <a name="//apple_ref/Function/link%2F2" class="dashAnchor"></a>
+  <a href="#link/2" class="detail-link"
+ title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">link(text, opts)</span>
+    
+      <a href="https://github.com/phoenixframework/phoenix_html/blob/v2.11.0-dev/lib/phoenix_html/link.ex#L84" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Generates a link to the given URL.</p>
+<h2 id="link/2-examples" class="section-heading">
+  <a href="#link/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="elixir">link(&quot;hello&quot;, to: &quot;/world&quot;)
+#=&gt; &lt;a href=&quot;/world&quot;&gt;hello&lt;/a&gt;
+
+link(&quot;&lt;hello&gt;&quot;, to: &quot;/world&quot;)
+#=&gt; &lt;a href=&quot;/world&quot;&gt;&amp;lt;hello&amp;gt;&lt;/a&gt;
+
+link(&quot;&lt;hello&gt;&quot;, to: &quot;/world&quot;, class: &quot;btn&quot;)
+#=&gt; &lt;a class=&quot;btn&quot; href=&quot;/world&quot;&gt;&amp;lt;hello&amp;gt;&lt;/a&gt;
+
+link(&quot;delete&quot;, to: &quot;/the_world&quot;, data: [confirm: &quot;Really?&quot;])
+#=&gt; &lt;a data-confirm=&quot;Really?&quot; href=&quot;/the_world&quot;&gt;delete&lt;/a&gt;
+
+# If you supply a method other than `:get`:
+link(&quot;delete&quot;, to: &quot;/everything&quot;, method: :delete)
+#=&gt; &lt;a href=&quot;#&quot; data-csrf=&quot;csrf_token&quot; data-method=&quot;delete&quot; data-to=&quot;/everything&quot;&gt;delete&lt;/a&gt;
+
+# You can use a `do ... end` block too:
+link to: &quot;/hello&quot; do
+  &quot;world&quot;
+end</code></pre>
+<h2 id="link/2-options" class="section-heading">
+  <a href="#link/2-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">:to</code> - the page to link to. This option is required</p>
+</li>
+<li><p><code class="inline">:method</code> - the method to use with the link. In case the
+method is not <code class="inline">:get</code>, the link is generated inside the form
+which sets the proper information. In order to submit the
+form, JavaScript must be enabled</p>
+</li>
+</ul>
+<p>All other options are forwarded to the underlying <code class="inline">&lt;a&gt;</code> tag.</p>
+<h2 id="link/2-data-attributes" class="section-heading">
+  <a href="#link/2-data-attributes" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Data attributes
+</h2>
+
+<p>Data attributes are added as a keyword list passed to the
+<code class="inline">data</code> key. The following data attributes are supported:</p>
+<ul>
+<li><code class="inline">data-confirm</code> - shows a confirmation prompt before
+generating and submitting the form when <code class="inline">:method</code>
+is not <code class="inline">:get</code>.
+</li>
+</ul>
+<h2 id="link/2-javascript-dependency" class="section-heading">
+  <a href="#link/2-javascript-dependency" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  JavaScript dependency
+</h2>
+
+<p>In order to support links where <code class="inline">:method</code> is not <code class="inline">:get</code>
+or use the above data attributes, <a href="Phoenix.HTML.html"><code class="inline">Phoenix.HTML</code></a> relies
+on JavaScript. You can load <code class="inline">priv/static/phoenix_html.js</code>
+into your build tool.</p>
+<h2 id="link/2-csrf-protection" class="section-heading">
+  <a href="#link/2-csrf-protection" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  CSRF Protection
+</h2>
+
+<p>By default, CSRF tokens are generated through <a href="https://hexdocs.pm/plug/1.4.3/Plug.CSRFProtection.html"><code class="inline">Plug.CSRFProtection</code></a>. You
+can customize the CSRF token generation by configuring your own MFA:</p>
+<pre><code class="elixir">config :phoenix_html, csrf_token_generator: {MyGenerator, :get_token, []}</code></pre>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+
